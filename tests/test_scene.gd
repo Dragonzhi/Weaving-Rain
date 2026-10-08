@@ -1,0 +1,84 @@
+extends SceneTree
+const Sim = preload("res://scripts/weather_simulation.gd")
+var failures := 0
+var checks := 0
+
+func _init() -> void:
+	call_deferred("run")
+
+func check(condition: bool, message: String) -> void:
+	checks += 1
+	if not condition:
+		failures += 1
+		push_error("FAIL: " + message)
+
+func mouse_button(point: Vector2, pressed: bool) -> void:
+	var event := InputEventMouseButton.new()
+	event.position = point
+	event.button_index = MOUSE_BUTTON_LEFT
+	event.pressed = pressed
+	root.push_input(event)
+
+func mouse_motion(point: Vector2) -> void:
+	var event := InputEventMouseMotion.new()
+	event.position = point
+	event.button_mask = MOUSE_BUTTON_MASK_LEFT
+	root.push_input(event)
+
+func run() -> void:
+	var main: Node3D = load("res://scenes/main.tscn").instantiate()
+	root.add_child(main)
+	await process_frame
+	main.set_process(false)
+	main.restart(true)
+	main.weather_view.update_weather(0.0, false)
+	var camera: Camera3D = main.weather_view.camera
+	var point := camera.unproject_position(Vector3(1, Sim.CLOUD_HEIGHT, 0.3))
+	var wind_input: Node = main.wind_input
+	var hit: Vector3 = wind_input.pick(point)
+	check(hit.y > 3.0, "Picking starts at visible cloud rather than its ground shadow")
+	mouse_button(point, true)
+	check(wind_input.dragging, "Viewport mouse press begins a stroke")
+	var reference: float = wind_input.reference_height
+	mouse_motion(point + Vector2(55, 0))
+	var wind_sum := 0.0
+	for wind in main.sim.wind:
+		wind_sum += wind.length()
+	check(wind_sum > 0.1, "Viewport mouse motion produces local wind")
+	main.sim.cloud.fill(0.0)
+	main.sim.refresh_display()
+	mouse_motion(point + Vector2(85, 25))
+	check(is_equal_approx(wind_input.brush_point.y, reference), "Stroke reference plane stays fixed after cloud changes")
+	wind_input._notification(Node.NOTIFICATION_APPLICATION_FOCUS_OUT)
+	check(not wind_input.dragging, "Losing focus cancels a stroke")
+	mouse_button(point, true)
+	main.hud.queue_redraw()
+	await process_frame
+	var button_point: Vector2 = main.hud.retry.global_position + main.hud.retry.size * 0.5
+	mouse_button(button_point, false)
+	check(not wind_input.dragging, "Releasing over UI cannot leave a stuck stroke")
+	main.restart(true)
+	mouse_button(button_point, true)
+	check(not wind_input.dragging, "UI buttons do not create wind strokes")
+	mouse_button(button_point, false)
+	main.restart(false)
+	check(main.sim.peak_density == 0.0 and not main.sim.sandbox, "Restart returns from lab to humidity-only gameplay")
+	var pause_event := InputEventKey.new()
+	pause_event.keycode = KEY_SPACE
+	pause_event.pressed = true
+	root.push_input(pause_event)
+	main._process(0.0)
+	check(main.paused and not wind_input.enabled, "Pause disables wind input")
+	main.restart(false)
+	for arg in OS.get_cmdline_user_args():
+		if arg.begins_with("--scene-capture="):
+			main.restart(true)
+			main.weather_view.update_weather(0.0, false)
+			main.hud.queue_redraw()
+			await process_frame
+			await RenderingServer.frame_post_draw
+			root.get_texture().get_image().save_png(arg.trim_prefix("--scene-capture="))
+	print("SCENE TESTS: ", checks, " checks, ", failures, " failures")
+	main.queue_free()
+	await process_frame
+	quit(0 if failures == 0 else 1)
