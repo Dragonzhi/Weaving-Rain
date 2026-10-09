@@ -4,6 +4,7 @@ const CLOUD_SHADER = preload("res://shaders/cloud.gdshader")
 const TERRAIN_SHADER = preload("res://shaders/terrain.gdshader")
 const OCEAN_SHADER = preload("res://shaders/ocean.gdshader")
 const AIR_SHADER = preload("res://shaders/low_air.gdshader")
+const RAIN_SHADER = preload("res://shaders/rain.gdshader")
 const VAPOR_COUNT := 210
 const RAIN_COUNT := 750
 const LIFT_COUNT := 120
@@ -24,12 +25,21 @@ var plot_material: StandardMaterial3D
 var plot_materials: Array[StandardMaterial3D] = []
 var air_image: Image
 var air_texture: ImageTexture
-var lines := ImmediateMesh.new()
+var lines := ArrayMesh.new()
+var line_vertices := PackedVector3Array()
+var line_colors := PackedColorArray()
 var line_node: MeshInstance3D
 var line_material: StandardMaterial3D
 var wind_traces: Array[Dictionary] = []
 var visible_wind_lines := 0
 var wind_spawn_distance := 0.0
+var rain_material: ShaderMaterial
+var rain_indices := PackedInt32Array()
+var rain_drop_counts := PackedInt32Array()
+var rain_anchors := PackedVector3Array()
+var rain_phases := PackedFloat32Array()
+var rain_uploads := 0
+var air_material: ShaderMaterial
 
 func setup(model: RefCounted) -> void:
 	sim = model
@@ -41,6 +51,14 @@ func setup(model: RefCounted) -> void:
 	update_map()
 	_create_scene()
 	_create_weather()
+	rain_drop_counts.resize(Sim.COUNT)
+	for i in Sim.COUNT:
+		for j in 9:
+			var p: Vector2 = sim.positions[i]
+			var x := p.x + sin(i * 37.1 + j * 17.7) * 0.20
+			var z := p.y + sin(i * 13.7 + j * 28.9) * 0.20
+			rain_anchors.append(Vector3(x, Sim.terrain_height(Vector2(x, z)) + 0.15, z))
+			rain_phases.append(fposmod(i * 0.19 + j * 0.37, 1.0))
 	reset_tracers()
 
 func _material(color: Color) -> StandardMaterial3D:
@@ -219,7 +237,21 @@ func _create_weather() -> void:
 	line_node.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	var drop := BoxMesh.new()
 	drop.size = Vector3(0.018, 0.22, 0.018)
-	rainfall = _multimesh(RAIN_COUNT, drop, Color("a6e3e8"))
+	rainfall = MultiMesh.new()
+	rainfall.transform_format = MultiMesh.TRANSFORM_3D
+	rainfall.use_custom_data = true
+	rainfall.instance_count = RAIN_COUNT
+	rainfall.visible_instance_count = 0
+	rainfall.mesh = drop
+	rain_material = ShaderMaterial.new()
+	rain_material.shader = RAIN_SHADER
+	rain_material.set_shader_parameter("rain_color", Color("a6e3e8"))
+	var rain_node := MultiMeshInstance3D.new()
+	rain_node.multimesh = rainfall
+	rain_node.material_override = rain_material
+	rain_node.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	rain_node.custom_aabb = AABB(Vector3(-13, -1, -11), Vector3(26, 8, 22))
+	add_child(rain_node)
 	for i in LIFT_COUNT:
 		lift_positions.append(Vector3.ZERO)
 		lift_age.append(-1.0)
@@ -236,6 +268,8 @@ func reset_tracers() -> void:
 	lines.clear_surfaces()
 	visible_wind_lines = 0
 	wind_spawn_distance = 0.0
+	rain_indices.resize(0)
+	rainfall.visible_instance_count = 0
 
 func _create_low_air() -> void:
 	var mesh := SurfaceTool.new()
@@ -246,10 +280,10 @@ func _create_low_air() -> void:
 			for offset in [Vector2.ZERO, Vector2(0, Sim.CELL), Vector2(Sim.CELL, 0), Vector2(Sim.CELL, 0), Vector2(0, Sim.CELL), Vector2.ONE * Sim.CELL]:
 				var q: Vector2 = p + offset
 				_vertex(mesh, Vector3(q.x, Sim.terrain_height(q) + 0.20, q.y), Vector3.UP)
-	var material := ShaderMaterial.new()
-	material.shader = AIR_SHADER
-	material.set_shader_parameter("air_map", air_texture)
-	var air := _mesh_instance(mesh.commit(), material)
+	air_material = ShaderMaterial.new()
+	air_material.shader = AIR_SHADER
+	air_material.set_shader_parameter("air_map", air_texture)
+	var air := _mesh_instance(mesh.commit(), air_material)
 	air.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 
 func add_wind_stroke(from: Vector2, to: Vector2, height: float) -> void:
@@ -266,31 +300,31 @@ func add_wind_stroke(from: Vector2, to: Vector2, height: float) -> void:
 	while wind_traces.size() > 48:
 		wind_traces.pop_front()
 
-func _ribbon(center: Vector2, velocity: Vector2, height: float, low: bool, color: Color, width: float, length: float) -> void:
+func _ribbon(center: Vector2, velocity: Vector2, height: float, low: bool, color: Color, width: float, length: float, segments: int = 3) -> void:
 	var direction := velocity.normalized() if velocity.length() > 0.025 else Vector2.RIGHT
 	var points := PackedVector3Array()
 	var p := center
-	for k in 4:
+	for k in segments + 1:
 		var y := Sim.terrain_height(p) + height if low else maxf(height, Sim.terrain_height(p) + 0.10)
 		points.append(Vector3(p.x, y, p.y))
 		var v: Vector2 = sim.velocity_at(p, low)
 		if v.length() > 0.025:
 			direction = v.normalized()
-		p -= direction * length / 3.0
-	for k in 3:
+		p -= direction * length / segments
+	for k in segments:
 		var tangent := (points[k + 1] - points[k]).normalized()
 		var side := tangent.cross(camera.global_basis.z).normalized() * width
 		var a := color
 		var b := color
-		a.a *= sin((k + 0.5) / 4.0 * PI)
-		b.a *= sin((k + 1.5) / 4.0 * PI)
-		for vertex in [points[k] - side, points[k] + side, points[k + 1] - side, points[k + 1] - side, points[k] + side, points[k + 1] + side]:
-			lines.surface_set_color(a if vertex == points[k] - side or vertex == points[k] + side else b)
-			lines.surface_add_vertex(vertex)
+		a.a *= sin((k + 0.5) / (segments + 1.0) * PI)
+		b.a *= sin((k + 1.5) / (segments + 1.0) * PI)
+		line_vertices.append_array(PackedVector3Array([points[k] - side, points[k] + side, points[k + 1] - side, points[k + 1] - side, points[k] + side, points[k + 1] + side]))
+		line_colors.append_array(PackedColorArray([a, a, b, b, a, b]))
 
 func _update_lines(dt: float, moving: bool) -> void:
 	lines.clear_surfaces()
-	lines.surface_begin(Mesh.PRIMITIVE_TRIANGLES, line_material)
+	line_vertices.resize(0)
+	line_colors.resize(0)
 	visible_wind_lines = 0
 	for i in VAPOR_COUNT:
 		var p := vapor_positions[i]
@@ -303,16 +337,24 @@ func _update_lines(dt: float, moving: bool) -> void:
 			if moving:
 				vapor_positions[i] = Vector2(rng.randf_range(-10.5, 8.0), rng.randf_range(-6.0, 7.0))
 			continue
-		var opacity := clampf(q * 0.32, 0.0, 0.70)
-		_ribbon(p, velocity, 0.30 + 0.03 * sin(i * 1.7), true, Color(0.91, 0.98, 0.85, opacity), 0.009, 0.12 + minf(velocity.length(), 4.0) * 0.13)
+		var phase := elapsed * 1.1 + i * 1.7
+		var opacity := clampf(q * 0.32, 0.0, 0.70) * (0.82 + 0.18 * sin(phase))
+		# Local bobbing makes still moisture discoverable without inventing horizontal wind.
+		_ribbon(p, velocity, 0.33 + 0.08 * sin(phase), true, Color(0.91, 0.98, 0.85, opacity), 0.011, 0.16 + minf(velocity.length(), 4.0) * 0.13, 1)
+	var front_cells := PackedInt32Array()
 	for i in range(0, Sim.COUNT, 5):
-		var p: Vector2 = sim.positions[i]
 		if sim.display_cold[i] < 0.12 or sim.cold_gradient(i).length() < 0.04:
 			continue
+		front_cells.append(i)
+	# Cap passive front annotations across the whole field; active strokes stay curved.
+	var stride := maxi(1, ceili(front_cells.size() / 96.0))
+	for index in range(0, front_cells.size(), stride):
+		var i := front_cells[index]
+		var p: Vector2 = sim.positions[i]
 		var velocity: Vector2 = sim.velocity_at(p)
 		if velocity.length() < 0.04:
 			continue
-		_ribbon(p, velocity, 0.26, true, Color(0.55, 0.80, 0.93, minf(sim.display_cold[i] * 0.40, 0.65)), 0.010, 0.16 + velocity.length() * 0.17)
+		_ribbon(p, velocity, 0.26, true, Color(0.55, 0.80, 0.93, minf(sim.display_cold[i] * 0.40, 0.65)), 0.010, 0.16 + velocity.length() * 0.17, 1)
 	for i in range(wind_traces.size() - 1, -1, -1):
 		var trace := wind_traces[i]
 		var p: Vector2 = trace.p
@@ -329,11 +371,12 @@ func _update_lines(dt: float, moving: bool) -> void:
 		var height: float = 0.37 if trace.low else trace.height
 		_ribbon(p, velocity, height, trace.low, Color(0.98, 0.99, 0.89, alpha), 0.015, 0.16 + minf(velocity.length(), 5.0) * 0.18)
 		visible_wind_lines += 1
-	# A hidden triangle keeps ImmediateMesh valid when all fields are empty.
-	lines.surface_set_color(Color(0, 0, 0, 0))
-	for p in [Vector3.ZERO, Vector3(0.001, 0, 0), Vector3(0, 0, 0.001)]:
-		lines.surface_add_vertex(p)
-	lines.surface_end()
+	if not line_vertices.is_empty():
+		var arrays := []
+		arrays.resize(Mesh.ARRAY_MAX)
+		arrays[Mesh.ARRAY_VERTEX] = line_vertices
+		arrays[Mesh.ARRAY_COLOR] = line_colors
+		lines.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
 
 func update_map() -> void:
 	for i in Sim.COUNT:
@@ -351,6 +394,7 @@ func update_weather(dt: float, moving: bool) -> void:
 	if moving:
 		elapsed += dt
 	update_map()
+	air_material.set_shader_parameter("visual_time", elapsed)
 	_update_lines(dt, moving)
 	if moving and sim.last_lift > 0.001:
 		for attempt in 8:
@@ -369,26 +413,49 @@ func update_weather(dt: float, moving: bool) -> void:
 			if lift_positions[i].y > Sim.CLOUD_HEIGHT:
 				lift_age[i] = -1.0
 		ascent.set_instance_transform(i, _transform(lift_positions[i], 1.1 if lift_age[i] >= 0.0 else 0.0))
-	# Draw rain inside its simulated cell, so strokes and credited ground area agree.
-	var count := 0
-	for i in Sim.COUNT:
-		if sim.rain[i] <= 0.0:
-			continue
-		var p: Vector2 = sim.positions[i]
-		var drops := clampi(ceili(sim.rain[i] * 5.0), 1, 9)
-		for j in drops:
-			if count >= RAIN_COUNT:
-				break
-			var x := p.x + sin(i * 37.1 + j * 17.7) * 0.20
-			var z := p.y + sin(i * 13.7 + j * 28.9) * 0.20
-			var floor_y := Sim.terrain_height(Vector2(x, z)) + 0.15
-			var phase := fposmod(i * 0.19 + j * 0.37 - elapsed * 1.8, 1.0)
-			var y := lerpf(floor_y, Sim.CLOUD_HEIGHT - 0.15, phase)
-			rainfall.set_instance_transform(count, _transform(Vector3(x, y, z), 1.0))
-			count += 1
-	rainfall.visible_instance_count = count
+	_update_rain()
 	for target in plot_materials.size():
 		var water: float = clampf(sim.water_for(target) / sim.settings.target_water, 0.0, 1.0)
 		plot_materials[target].albedo_color = Color("bf936e").lerp(Color("8eaa78"), water)
 		if sim.water_for(target) > sim.settings.flood_water:
 			plot_materials[target].albedo_color = Color("718e95")
+
+func _update_rain() -> void:
+	var total := 0
+	for i in Sim.COUNT:
+		rain_drop_counts[i] = clampi(ceili(sim.rain[i] * 5.0), 1, 9) if sim.rain[i] > 0.0 else 0
+		total += rain_drop_counts[i]
+	var count := mini(total, RAIN_COUNT)
+	var selected := PackedInt32Array()
+	selected.resize(count)
+	# Spread the capped display budget over the whole actual rainy area.
+	var ordinal := 0
+	var chosen := 0
+	for i in Sim.COUNT:
+		while chosen < count:
+			var target := floori((chosen + 0.5) * total / count)
+			if target >= ordinal + rain_drop_counts[i]:
+				break
+			selected[chosen] = i * 9 + target - ordinal
+			chosen += 1
+		ordinal += rain_drop_counts[i]
+	if selected != rain_indices:
+		rain_indices = selected
+		var buffer := PackedFloat32Array()
+		buffer.resize(RAIN_COUNT * 16)
+		for index in count:
+			var drop := selected[index]
+			var p := rain_anchors[drop]
+			var offset := index * 16
+			buffer[offset] = 1.0
+			buffer[offset + 3] = p.x
+			buffer[offset + 5] = 1.0
+			buffer[offset + 7] = p.y
+			buffer[offset + 10] = 1.0
+			buffer[offset + 11] = p.z
+			buffer[offset + 12] = rain_phases[drop]
+			buffer[offset + 13] = Sim.CLOUD_HEIGHT - 0.15 - p.y
+		rainfall.buffer = buffer
+		rain_uploads += 1
+	rainfall.visible_instance_count = count
+	rain_material.set_shader_parameter("visual_time", elapsed)

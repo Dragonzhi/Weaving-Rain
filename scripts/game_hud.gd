@@ -2,6 +2,8 @@ extends Control
 signal restart_requested
 signal sandbox_requested
 signal cold_lab_requested
+signal free_play_requested
+signal lesson_requested
 const Sim = preload("res://scripts/weather_simulation.gd")
 var sim: RefCounted
 var view: Node3D
@@ -15,6 +17,12 @@ var cold_button: Button
 var frame_ms := 0.0
 var simulation_ms := 0.0
 var status_rect := Rect2()
+var guide_rect := Rect2()
+var guide: RefCounted
+var play_mode := "free"
+var free_button: Button
+var lesson_button: Button
+var dismiss_hint: Button
 const INK := Color("f0f6e9")
 const MUTED := Color("d5e9db")
 const PANEL := Color(0.12, 0.31, 0.34, 0.86)
@@ -44,7 +52,18 @@ func setup(model: RefCounted, weather_view: Node3D, input: Node) -> void:
 	cold_button.text = "冷风交互小样 F4"
 	cold_button.pressed.connect(func(): cold_lab_requested.emit())
 	add_child(cold_button)
-	for button in [retry, sandbox_button, cold_button]:
+	free_button = Button.new()
+	free_button.pressed.connect(func(): free_play_requested.emit())
+	add_child(free_button)
+	lesson_button = Button.new()
+	lesson_button.text = "重看入门"
+	lesson_button.pressed.connect(func(): lesson_requested.emit())
+	add_child(lesson_button)
+	dismiss_hint = Button.new()
+	dismiss_hint.text = "知道了"
+	dismiss_hint.pressed.connect(func(): guide.cold_hint_left = 0.0)
+	add_child(dismiss_hint)
+	for button in [retry, sandbox_button, cold_button, free_button, lesson_button, dismiss_hint]:
 		button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 		var style := StyleBoxFlat.new()
 		style.bg_color = PANEL
@@ -75,16 +94,81 @@ func _project(point: Vector3) -> Vector2:
 	return view.camera.unproject_position(point)
 
 func blocks_wind(point: Vector2) -> bool:
-	if status_rect.has_point(point):
+	if status_rect.has_point(point) or guide_rect.has_point(point):
 		return true
-	for button in [retry, sandbox_button, cold_button]:
-		if button.get_global_rect().has_point(point):
+	for button in [retry, sandbox_button, cold_button, free_button, lesson_button, dismiss_hint]:
+		if button.visible and button.get_global_rect().has_point(point):
 			return true
 	for target in sim.plot_centers.size():
 		var at := Vector2(28, size.y - 28 - (sim.plot_centers.size() - target) * 120)
 		if Rect2(at, Vector2(340, 112)).has_point(point):
 			return true
 	return debug_visible and Rect2(28, 140, 310, 166).has_point(point)
+
+func _guide_marker(p: Vector2, label: String, cloud_height: bool = false) -> void:
+	var height := Sim.CLOUD_TOP + 0.1 if cloud_height else Sim.terrain_height(p) + 0.35
+	var at := _project(Vector3(p.x, height, p.y))
+	# Static gold brackets distinguish tutorial annotations from real moving wind.
+	var color := Color(0.96, 0.84, 0.61, 0.8)
+	for sign_x in [-1, 1]:
+		for sign_y in [-1, 1]:
+			var corner := at + Vector2(sign_x, sign_y) * 23.0
+			draw_line(corner, corner - Vector2(sign_x * 9, 0), color, 2.0, true)
+			draw_line(corner, corner - Vector2(0, sign_y * 9), color, 2.0, true)
+	var width := font.get_string_size(label, HORIZONTAL_ALIGNMENT_LEFT, -1, 14).x
+	var label_at := at + Vector2(-width * 0.5, 48)
+	_rounded(Rect2(label_at + Vector2(-8, -19), Vector2(width + 16, 26)), PANEL, 6)
+	_text(label_at, label, 14, GOLD)
+
+func _draw_guide() -> void:
+	guide_rect = Rect2()
+	dismiss_hint.visible = false
+	if guide == null or sim.sandbox:
+		return
+	if guide.lesson:
+		guide_rect = Rect2(Vector2((size.x - 640) * 0.5, 88), Vector2(640, 104))
+		_rounded(guide_rect, PANEL)
+		var at := guide_rect.position + Vector2(20, 25)
+		_text(at, guide.title(sim), 16, GOLD)
+		_text(at + Vector2(0, 30), guide.instruction(sim), 17)
+		_text(at + Vector2(0, 56), guide.detail(sim), 14, MUTED)
+		if sim.outcome != "playing":
+			return
+		var field: PackedFloat32Array = sim.humidity if guide.phase == 0 or sim.peak_density < 0.15 else sim.display_cloud
+		if guide.phase < 2 or (guide.phase == 2 and sim.peak_density < 0.15):
+			var index := 0
+			for i in Sim.COUNT:
+				if field[i] > field[index]:
+					index = i
+			if field[index] > 0.15:
+				var p: Vector2 = sim.positions[index]
+				var low_air: bool = guide.phase == 0 or sim.peak_density < 0.15
+				_guide_marker(p, "浅色细丝 · 湿空气" if low_air else "轻拨云边，向内收拢", not low_air)
+				if low_air:
+					var slope_point: Vector2 = Sim.MOUNTAIN + (p - Sim.MOUNTAIN).normalized() * 1.8
+					_guide_marker(slope_point, "送向这侧山坡")
+		elif guide.phase == 2:
+			_guide_marker(Sim.PLOT, "雨线落进 A 才加水")
+		elif guide.phase == 3:
+			var square := _ground_square(Sim.SAFE_HALF)
+			for i in 4:
+				draw_dashed_line(square[i], square[(i + 1) % 4], GOLD, 2.5, 9.0)
+	elif guide.cold_hint_left > 0.0 and sim.outcome == "playing":
+		guide_rect = Rect2(Vector2((size.x - 640) * 0.5, 88), Vector2(640, 104))
+		_rounded(guide_rect, PANEL)
+		var at := guide_rect.position + Vector2(20, 25)
+		_text(at, "可选技巧 · 借冷风接力", 16, GOLD)
+		_text(at + Vector2(0, 30), "灰蓝色薄层是雨产生的冷空气，可以拨动。", 17)
+		_text(at + Vector2(0, 56), "把湿空气迎向它的前沿可造云；也可以继续借山坡。", 14, MUTED)
+		dismiss_hint.visible = true
+		dismiss_hint.position = guide_rect.position + Vector2(536, 10)
+		dismiss_hint.size = Vector2(84, 27)
+		var cold_index := 0
+		for i in Sim.COUNT:
+			if sim.display_cold[i] > sim.display_cold[cold_index]:
+				cold_index = i
+		if sim.display_cold[cold_index] > 0.15:
+			_guide_marker(sim.positions[cold_index], "灰蓝薄层 · 冷空气")
 
 func _ground_square(half: float, center: Vector2 = Sim.PLOT) -> PackedVector2Array:
 	var result := PackedVector2Array()
@@ -133,16 +217,30 @@ func _draw() -> void:
 		return
 	var w := size.x
 	var h := size.y
-	retry.position = Vector2(w - 176, 28)
-	retry.size = Vector2(148, 36)
-	sandbox_button.position = Vector2(w - 176, 72)
+	retry.position = Vector2(w - 192, 28)
+	retry.size = Vector2(164, 36)
+	retry.text = "重试入门  R" if play_mode == "lesson" else "重试当前局面  R"
+	free_button.visible = play_mode == "lesson"
+	free_button.text = "进入双目标自由局" if sim.outcome == "success" else "跳过入门 · 自由局"
+	free_button.position = Vector2(w - 192, 72)
+	free_button.size = Vector2(164, 36)
+	if play_mode == "lesson" and sim.outcome == "success":
+		free_button.position = Vector2(w * 0.5 - 90, h * 0.5 + 27)
+		free_button.size = Vector2(180, 32)
+	lesson_button.visible = play_mode != "lesson"
+	lesson_button.position = Vector2(w - 192, 72)
+	lesson_button.size = Vector2(164, 36)
+	sandbox_button.visible = debug_visible
+	cold_button.visible = debug_visible
+	sandbox_button.position = Vector2(w - 176, 116)
 	sandbox_button.size = Vector2(148, 36)
-	cold_button.position = Vector2(w - 176, 116)
+	cold_button.position = Vector2(w - 176, 160)
 	cold_button.size = Vector2(148, 36)
 	_draw_world_feedback()
+	_draw_guide()
 	_text(Vector2(32, 61), "风织雨", 34)
 	_text(Vector2(34, 86), "W E A V I N G   R A I N", 12, MUTED)
-	_text(Vector2(34, 112), "拨风 · 借山成云 · 冷风接力" if sim.relay_mode else "拨风 · 借山成云 · 适量落雨", 14, MUTED)
+	_text(Vector2(34, 112), "单目标入门" if play_mode == "lesson" else "双目标自由局" if sim.relay_mode else "单目标开发基线", 14, MUTED)
 	var status := "把湿空气推向山坡，再把厚云送到地块上方"
 	if sim.peak_density >= sim.settings.cloud_threshold and sim.total_rain_rate < 0.01:
 		status = "厚云正在维持 · 轻拨修正，避免散开"
@@ -191,7 +289,8 @@ func _draw() -> void:
 		_rounded(Rect2(w * 0.5 - 265, h * 0.5 - 65, 530, 130), PANEL)
 		_text(Vector2(w * 0.5 - 230, h * 0.5 - 20), result, 26)
 		_text(Vector2(w * 0.5 - 230, h * 0.5 + 14), detail, 16)
-		_text(Vector2(w * 0.5 - 230, h * 0.5 + 43), "按 R 重新开始同一个局面", 14, MUTED)
+		if play_mode != "lesson" or sim.outcome != "success":
+			_text(Vector2(w * 0.5 - 230, h * 0.5 + 43), "按 R 重新开始同一个局面", 14, MUTED)
 	if debug_visible:
 		_rounded(Rect2(28, 140, 310, 166), PANEL)
 		_text(Vector2(42, 164), "调试 · 测试参数，不代表最终平衡", 14)
@@ -225,4 +324,7 @@ func _draw_plot_card(target: int, at: Vector2) -> void:
 		_rounded(Rect2(bar.position, Vector2(fill, 12)), accent, 4)
 	draw_line(bar.position + Vector2(target_x, -2), bar.position + Vector2(target_x, 14), INK, 1.0)
 	_text(at + Vector2(16, 76), "%.1f   ·   适量 %.0f–%.0f" % [amount, sim.settings.target_water, sim.settings.flood_water], 14)
-	_text(at + Vector2(16, 99), "危险天气仍在附近" if sim.plot_threats[target] else "缓冲区暂无危险天气", 13, MUTED)
+	var safety_text := "危险天气仍在附近" if sim.plot_threats[target] else "缓冲区暂无危险天气"
+	if amount >= sim.settings.target_water and amount <= sim.settings.flood_water and not sim.plot_threats[target]:
+		safety_text = "缓冲区安全 %.1f / %.1f 秒" % [minf(sim.plot_safe_times[target], sim.settings.safe_seconds), sim.settings.safe_seconds]
+	_text(at + Vector2(16, 99), safety_text, 13, MUTED)

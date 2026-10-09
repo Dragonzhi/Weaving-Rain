@@ -3,6 +3,7 @@ const Simulation = preload("res://scripts/weather_simulation.gd")
 const WeatherView = preload("res://scripts/weather_view.gd")
 const WindInput = preload("res://scripts/wind_input.gd")
 const HUD = preload("res://scripts/game_hud.gd")
+const Onboarding = preload("res://scripts/onboarding.gd")
 @export var weather_settings: Resource = preload("res://scripts/weather_settings.gd").new()
 var sim: RefCounted
 var weather_view: Node3D
@@ -10,27 +11,36 @@ var wind_input: Node
 var hud: Control
 var paused := false
 var accumulator := 0.0
+var guide := Onboarding.new()
+var play_mode := "lesson"
+var preferences_path := "user://onboarding.cfg"
 
 func _ready() -> void:
-	var baseline := "--single-plot" in OS.get_cmdline_user_args()
-	sim = Simulation.new(weather_settings, not baseline)
+	var args := OS.get_cmdline_user_args()
+	play_mode = initial_mode(args)
+	sim = _new_simulation()
+	guide.reset(play_mode == "lesson")
 	weather_view = WeatherView.new()
 	add_child(weather_view)
 	weather_view.setup(sim)
 	wind_input = WindInput.new()
 	add_child(wind_input)
 	wind_input.setup(sim, weather_view.camera)
-	wind_input.stroke_applied.connect(weather_view.add_wind_stroke)
+	wind_input.stroke_applied.connect(func(a, b, height): weather_view.add_wind_stroke(a, b, height))
 	var canvas := CanvasLayer.new()
 	add_child(canvas)
 	hud = HUD.new()
 	canvas.add_child(hud)
 	hud.setup(sim, weather_view, wind_input)
+	hud.guide = guide
+	hud.play_mode = play_mode
 	wind_input.hud = hud
 	hud.restart_requested.connect(func(): restart(false))
 	hud.sandbox_requested.connect(func(): restart(true))
 	hud.cold_lab_requested.connect(cold_lab)
-	for arg in OS.get_cmdline_user_args():
+	hud.free_play_requested.connect(enter_free_play)
+	hud.lesson_requested.connect(func(): switch_mode("lesson"))
+	for arg in args:
 		if arg == "--cloud-lab":
 			restart(true)
 		elif arg == "--cold-lab":
@@ -38,12 +48,59 @@ func _ready() -> void:
 		elif arg.begins_with("--capture="):
 			_capture(arg.trim_prefix("--capture="))
 
+func initial_mode(args: PackedStringArray) -> String:
+	var mode := "lesson"
+	var preferences := ConfigFile.new()
+	if not "--fresh-guide" in args and preferences.load(preferences_path) == OK:
+		if preferences.get_value("onboarding", "visited_free_play", false):
+			mode = "free"
+	if "--free-play" in args:
+		mode = "free"
+	if "--single-plot" in args:
+		mode = "baseline"
+	return mode
+
 func restart(test_cloud: bool) -> void:
 	wind_input.cancel()
 	paused = false
 	accumulator = 0.0
 	sim.reset(test_cloud)
+	guide.reset(play_mode == "lesson")
 	weather_view.reset_tracers()
+
+func _new_simulation() -> RefCounted:
+	return Simulation.new(weather_settings, play_mode == "free", play_mode == "lesson")
+
+func switch_mode(mode: String) -> void:
+	wind_input.cancel()
+	paused = false
+	accumulator = 0.0
+	play_mode = mode
+	sim = _new_simulation()
+	guide.reset(mode == "lesson")
+	remove_child(weather_view)
+	weather_view.queue_free()
+	weather_view = WeatherView.new()
+	add_child(weather_view)
+	weather_view.setup(sim)
+	wind_input.setup(sim, weather_view.camera)
+	# Resolve the current view at emission time, including after mode changes.
+	hud.sim = sim
+	hud.view = weather_view
+	hud.play_mode = mode
+	hud.queue_redraw()
+
+func enter_free_play() -> void:
+	switch_mode("free")
+	# Tests and explicit development starts do not modify the player's preference.
+	var args := OS.get_cmdline_user_args()
+	if "--fresh-guide" in args or "--single-plot" in args or "--free-play" in args:
+		return
+	var preferences := ConfigFile.new()
+	preferences.set_value("onboarding", "visited_free_play", true)
+	var result := preferences.save(preferences_path)
+	if result != OK:
+		push_warning("Could not save onboarding preference: " + str(result))
 
 func cold_lab() -> void:
 	restart(true)
@@ -63,6 +120,7 @@ func _process(delta: float) -> void:
 		accumulator += minf(delta, 0.1)
 		while accumulator >= Simulation.FIXED_STEP:
 			sim.step(Simulation.FIXED_STEP)
+			guide.update(sim, Simulation.FIXED_STEP)
 			accumulator -= Simulation.FIXED_STEP
 	hud.simulation_ms = lerpf(hud.simulation_ms, (Time.get_ticks_usec() - start) / 1000.0, 0.05)
 	weather_view.update_weather(minf(delta, 0.1), moving)

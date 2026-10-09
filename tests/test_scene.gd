@@ -17,19 +17,56 @@ func mouse_button(point: Vector2, pressed: bool) -> void:
 	event.position = point
 	event.button_index = MOUSE_BUTTON_LEFT
 	event.pressed = pressed
-	root.push_input(event)
+	root.push_input(event, true)
 
 func mouse_motion(point: Vector2) -> void:
 	var event := InputEventMouseMotion.new()
 	event.position = point
 	event.button_mask = MOUSE_BUTTON_MASK_LEFT
-	root.push_input(event)
+	root.push_input(event, true)
 
 func run() -> void:
 	var main: Node3D = load("res://scenes/main.tscn").instantiate()
 	root.add_child(main)
 	await process_frame
+	await RenderingServer.frame_post_draw
 	main.set_process(false)
+	check(main.play_mode == "lesson" and main.sim.plot_centers.size() == 1 and main.sim.cold_capable, "First entry teaches one target with the same cold weather capability")
+	var lesson_initial: float = main.sim.initial_water
+	var panel_point: Vector2 = main.hud.guide_rect.position + Vector2(25, 25)
+	mouse_button(panel_point, true)
+	check(not main.wind_input.dragging, "Lesson text panel blocks wind")
+	mouse_button(panel_point, false)
+	var skip_point: Vector2 = main.hud.free_button.get_global_rect().get_center()
+	mouse_button(skip_point, true)
+	mouse_button(skip_point, false)
+	await process_frame
+	await RenderingServer.frame_post_draw
+	check(main.play_mode == "free" and main.sim.plot_centers.size() == 2 and main.sim.peak_density == 0.0, "Skip button starts a fresh humidity-only dual-target game")
+	check(main.wind_input.sim == main.sim and main.wind_input.camera == main.weather_view.camera, "Mode change reconnects picking to the active weather and camera")
+	main.restart(false)
+	check(main.play_mode == "free" and main.sim.plot_centers.size() == 2, "Retry keeps the current free-play mode")
+	var revisit_point: Vector2 = main.hud.lesson_button.get_global_rect().get_center()
+	mouse_button(revisit_point, true)
+	mouse_button(revisit_point, false)
+	await process_frame
+	await RenderingServer.frame_post_draw
+	check(main.play_mode == "lesson" and is_equal_approx(main.sim.initial_water, lesson_initial), "Revisit button restores the same single-target lesson")
+	main.guide.phase = 2
+	main.restart(false)
+	check(main.guide.phase == 0 and main.sim.plot_water == 0.0, "Lesson retry resets its prompts and water together")
+	main.sim.outcome = "success"
+	main.guide.update(main.sim, 0.0)
+	main.hud.queue_redraw()
+	await process_frame
+	await RenderingServer.frame_post_draw
+	check(main.play_mode == "lesson" and main.hud.free_button.visible, "Lesson completion waits for an explicit enter-free-play action")
+	var continue_point: Vector2 = main.hud.free_button.get_global_rect().get_center()
+	mouse_button(continue_point, true)
+	mouse_button(continue_point, false)
+	await process_frame
+	await RenderingServer.frame_post_draw
+	check(main.play_mode == "free" and main.guide.phase == 0 and not main.wind_input.dragging, "Completion button enters clean free play without dragging or stale guide steps")
 	main.restart(true)
 	main.weather_view.update_weather(0.0, false)
 	var camera: Camera3D = main.weather_view.camera
@@ -84,6 +121,18 @@ func run() -> void:
 	root.push_input(pause_event)
 	main._process(0.0)
 	check(main.paused and not wind_input.enabled, "Pause disables wind input")
+	main.restart(false)
+	main.sim.cold.fill(0.4)
+	main.sim.refresh_display()
+	main.guide.update(main.sim, 0.1)
+	main.hud.queue_redraw()
+	await process_frame
+	await RenderingServer.frame_post_draw
+	check(main.hud.dismiss_hint.visible, "Actual cold in free play displays its optional hint")
+	var dismiss_point: Vector2 = main.hud.dismiss_hint.get_global_rect().get_center()
+	mouse_button(dismiss_point, true)
+	mouse_button(dismiss_point, false)
+	check(main.guide.cold_hint_left == 0.0 and not wind_input.dragging, "Hint can be dismissed without applying wind")
 	main.restart(false)
 	for arg in OS.get_cmdline_user_args():
 		if arg.begins_with("--scene-capture="):

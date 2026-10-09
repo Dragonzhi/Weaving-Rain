@@ -1,0 +1,71 @@
+extends RefCounted
+## Reads actual weather results. It never applies wind or modifies weather.
+var lesson := true
+var phase := 0
+var saw_rain := false
+var cold_hint_seen := false
+var cold_hint_left := 0.0
+
+func reset(is_lesson: bool) -> void:
+	lesson = is_lesson
+	phase = 0
+	saw_rain = false
+	cold_hint_seen = false
+	cold_hint_left = 0.0
+
+func update(sim: RefCounted, delta: float) -> void:
+	if sim.sandbox:
+		return
+	if lesson:
+		saw_rain = saw_rain or sim.total_rain_rate > 0.01
+		if sim.total_mountain_lift > 0.04 and sim.peak_density > 0.15:
+			phase = maxi(phase, 1)
+		if saw_rain or sim.plot_water > 0.01:
+			phase = maxi(phase, 2)
+		if sim.plot_water >= sim.settings.target_water:
+			phase = maxi(phase, 3)
+		if sim.outcome == "success":
+			phase = 4
+	else:
+		cold_hint_left = maxf(0.0, cold_hint_left - delta)
+		if not cold_hint_seen:
+			for strength in sim.display_cold:
+				if strength > 0.15:
+					cold_hint_seen = true
+					cold_hint_left = 12.0
+					break
+
+func title(sim: RefCounted) -> String:
+	if sim.outcome == "flood":
+		return "雨水过量 · 可以重试这一步"
+	return ["1 / 4  借山成云", "2 / 4  收厚成雨", "3 / 4  把雨送到土地", "4 / 4  安全收尾", "入门完成"][phase]
+
+func instruction(sim: RefCounted) -> String:
+	if sim.outcome == "flood":
+		return "按 R 重试；接近适量前就开始移云。"
+	if phase == 4:
+		return "这场雨刚刚好。可以进入 A、B 双目标自由局。"
+	if phase == 3:
+		return "移开虚线范围内的厚云与雨云，等待安全。"
+	if phase > 0 and sim.peak_density < 0.15 and sim.total_rain_rate < 0.01:
+		return "云已散薄：再把浅色湿空气推向山坡，补给云水。"
+	if phase == 2:
+		if sim.plot_water >= sim.settings.target_water * 0.7:
+			return "快够水了：提前把雨云移开，储水还会继续落下。"
+		return "把雨云慢慢送到 A 上方，观察左下角水量。"
+	if phase == 1:
+		return "从云边向内轻拨，收厚后保持片刻就会下雨。"
+	return "按住左键，把浅色细丝所在的湿空气送向山坡。"
+
+func detail(sim: RefCounted) -> String:
+	if sim.outcome == "flood":
+		return "切断补给不会立即停雨，已积存的云水仍会释放。"
+	if phase == 3:
+		return "保持适量，并让附近危险天气清除后维持 %.0f 秒。" % sim.settings.safe_seconds
+	if phase == 2:
+		return "雨线落在地块内才加水；移云期间仍会降雨。"
+	if phase == 1:
+		return "厚薄和成雨进度显示在云上；拨动太猛会把云吹散。"
+	if phase == 4:
+		return "自由局还可借灰蓝色冷空气组织下一场雨，也可继续借山。"
+	return "金色标记是引导位置；平地水平移动不会直接造云。"

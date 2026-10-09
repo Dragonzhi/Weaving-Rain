@@ -40,6 +40,8 @@ var peak_density := 0.0
 var total_rain_rate := 0.0
 var sandbox := false
 var relay_mode := false
+var cold_capable := false
+var total_mountain_lift := 0.0
 var cold := PackedFloat32Array()
 var display_cold := PackedFloat32Array()
 var cold_flow := PackedVector2Array()
@@ -52,16 +54,25 @@ var plot_centers := PackedVector2Array()
 var second_water := 0.0
 var plot_threats: Array[bool] = []
 var plot_safe_times := PackedFloat32Array()
+var smoothing_stencils: Array[PackedInt32Array] = []
 
-func _init(config: Resource = null, relay: bool = false) -> void:
+func _init(config: Resource = null, relay: bool = false, single_cold: bool = false) -> void:
 	settings = config if config != null else Settings.new()
 	relay_mode = relay
+	cold_capable = relay or single_cold
 	plot_centers.append(PLOT)
 	if relay_mode:
 		plot_centers.append(SECOND_PLOT)
 	for i in COUNT:
 		positions.append(cell_position(i))
 		slopes.append(slope(positions[i]))
+		var x := i % WIDTH
+		var z := floori(float(i) / WIDTH)
+		var left := maxi(x - 1, 0)
+		var right := mini(x + 1, WIDTH - 1)
+		var top := maxi(z - 1, 0) * WIDTH
+		var bottom := mini(z + 1, DEPTH - 1) * WIDTH
+		smoothing_stencils.append(PackedInt32Array([top + left, top + x, top + right, z * WIDTH + left, i, z * WIDTH + right, bottom + left, bottom + x, bottom + right]))
 	reset()
 
 func reset(test_cloud: bool = false) -> void:
@@ -81,6 +92,7 @@ func reset(test_cloud: bool = false) -> void:
 	low_wind.fill(Vector2.ZERO)
 	cold_lifted.fill(0.0)
 	total_cold_lift = 0.0
+	total_mountain_lift = 0.0
 	cold_used = 0.0
 	cold_lift_near_second = 0.0
 	cloud.fill(0.0)
@@ -242,7 +254,8 @@ func _step_fixed(dt: float) -> void:
 		cloud[i] += amount
 		lifted[i] = amount
 		last_lift += amount
-	if relay_mode and settings.cold_enabled:
+	total_mountain_lift += last_lift
+	if cold_capable and settings.cold_enabled:
 		_lift_at_cold_front(dt)
 	display_cloud = _smooth(cloud)
 	max_progress = 0.0
@@ -265,7 +278,7 @@ func _step_fixed(dt: float) -> void:
 			rain[i] -= fallen
 			cloud[i] -= fallen
 			total_rain_rate += fallen / dt
-			if relay_mode and settings.cold_enabled:
+			if cold_capable and settings.cold_enabled:
 				cold[i] = minf(settings.cold_cap, cold[i] + fallen * settings.cold_from_rain)
 			var p := positions[i]
 			var credited := false
@@ -304,18 +317,18 @@ func _transport(dt: float) -> void:
 	for i in COUNT:
 		var x := float(i % WIDTH)
 		var z := float(floori(float(i) / WIDTH))
-		if humidity[i] > 0.0000001:
-			_scatter(next_humidity, humidity[i], x, z, low_wind[i] * dt / CELL)
-		if cold[i] > 0.0000001:
-			_scatter(next_cold, cold[i], x, z, low_wind[i] * dt / CELL)
+		if humidity[i] > 0.0000001 or cold[i] > 0.0000001:
+			_scatter_low(next_humidity, next_cold, i, x, z, low_wind[i] * dt / CELL)
 		if cloud[i] <= 0.0:
 			continue
 		var rain_fraction := rain[i] / maxf(cloud[i], 0.0001)
 		var response := clampf(1.0 / (1.0 + display_cloud[i] * 0.22) * lerpf(1.0, 0.42, rain_fraction), settings.rain_response, 1.0)
 		var shift := wind[i] * dt * response / CELL
 		_scatter(next_cloud, cloud[i], x, z, shift)
-		_scatter(next_rain, rain[i], x, z, shift)
-		_scatter(next_charge, charge[i], x, z, shift)
+		if rain[i] > 0.0:
+			_scatter(next_rain, rain[i], x, z, shift)
+		if charge[i] > 0.0:
+			_scatter(next_charge, charge[i], x, z, shift)
 	humidity = next_humidity
 	cloud = next_cloud
 	rain = next_rain
@@ -326,19 +339,14 @@ func _update_cold_flow() -> void:
 	display_cold = _smooth(cold)
 	for i in COUNT:
 		var velocity := Vector2.ZERO
-		if relay_mode and settings.cold_enabled:
+		if cold_capable and settings.cold_enabled:
 			velocity = (-cold_gradient(i) * settings.cold_outflow).limit_length(settings.cold_max_speed)
 		cold_flow[i] = velocity
 		low_wind[i] = (wind[i] + velocity).limit_length(settings.max_wind)
 
 func cold_gradient(i: int) -> Vector2:
-	var x := i % WIDTH
-	var z := floori(float(i) / WIDTH)
-	var left := i - 1 if x > 0 else i
-	var right := i + 1 if x < WIDTH - 1 else i
-	var top := i - WIDTH if z > 0 else i
-	var bottom := i + WIDTH if z < DEPTH - 1 else i
-	return Vector2(display_cold[right] - display_cold[left], display_cold[bottom] - display_cold[top]) / (2.0 * CELL)
+	var n := smoothing_stencils[i]
+	return Vector2(display_cold[n[5]] - display_cold[n[3]], display_cold[n[7]] - display_cold[n[1]]) / (2.0 * CELL)
 
 func _lift_at_cold_front(dt: float) -> void:
 	for i in COUNT:
@@ -382,6 +390,9 @@ func water_for(target: int) -> float:
 	return plot_water if target == 0 else second_water
 
 func _scatter(target: PackedFloat32Array, amount: float, x: float, z: float, shift: Vector2) -> void:
+	if shift == Vector2.ZERO:
+		target[int(z) * WIDTH + int(x)] += amount
+		return
 	var gx := clampf(x + shift.x, 0.0, WIDTH - 1.0)
 	var gz := clampf(z + shift.y, 0.0, DEPTH - 1.0)
 	var left := floori(gx)
@@ -395,18 +406,39 @@ func _scatter(target: PackedFloat32Array, amount: float, x: float, z: float, shi
 	target[bottom * WIDTH + left] += amount * (1.0 - fx) * fz
 	target[bottom * WIDTH + right] += amount * fx * fz
 
+func _scatter_low(next_humidity: PackedFloat32Array, next_cold: PackedFloat32Array, i: int, x: float, z: float, shift: Vector2) -> void:
+	# The two low-air fields share a displacement, so compute its stencil once.
+	var wet := humidity[i] if humidity[i] > 0.0000001 else 0.0
+	var cool := cold[i] if cold[i] > 0.0000001 else 0.0
+	if shift == Vector2.ZERO:
+		next_humidity[i] += wet
+		next_cold[i] += cool
+		return
+	var gx := clampf(x + shift.x, 0.0, WIDTH - 1.0)
+	var gz := clampf(z + shift.y, 0.0, DEPTH - 1.0)
+	var left := floori(gx)
+	var top := floori(gz)
+	var fx := gx - left
+	var fz := gz - top
+	var right := mini(left + 1, WIDTH - 1)
+	var bottom := mini(top + 1, DEPTH - 1)
+	if wet > 0.0:
+		next_humidity[top * WIDTH + left] += wet * (1.0 - fx) * (1.0 - fz)
+		next_humidity[top * WIDTH + right] += wet * fx * (1.0 - fz)
+		next_humidity[bottom * WIDTH + left] += wet * (1.0 - fx) * fz
+		next_humidity[bottom * WIDTH + right] += wet * fx * fz
+	if cool > 0.0:
+		next_cold[top * WIDTH + left] += cool * (1.0 - fx) * (1.0 - fz)
+		next_cold[top * WIDTH + right] += cool * fx * (1.0 - fz)
+		next_cold[bottom * WIDTH + left] += cool * (1.0 - fx) * fz
+		next_cold[bottom * WIDTH + right] += cool * fx * fz
+
 func _smooth(field: PackedFloat32Array) -> PackedFloat32Array:
 	var result := PackedFloat32Array()
 	result.resize(COUNT)
 	for i in COUNT:
-		var x := i % WIDTH
-		var z := floori(float(i) / WIDTH)
-		var left := maxi(x - 1, 0)
-		var right := mini(x + 1, WIDTH - 1)
-		var top := maxi(z - 1, 0) * WIDTH
-		var mid := z * WIDTH
-		var bottom := mini(z + 1, DEPTH - 1) * WIDTH
-		result[i] = (field[top + left] + field[top + x] * 2.0 + field[top + right] + field[mid + left] * 2.0 + field[i] * 4.0 + field[mid + right] * 2.0 + field[bottom + left] + field[bottom + x] * 2.0 + field[bottom + right]) / 16.0
+		var n := smoothing_stencils[i]
+		result[i] = (field[n[0]] + field[n[1]] * 2.0 + field[n[2]] + field[n[3]] * 2.0 + field[i] * 4.0 + field[n[5]] * 2.0 + field[n[6]] + field[n[7]] * 2.0 + field[n[8]]) / 16.0
 	return result
 
 func refresh_display() -> void:

@@ -13,8 +13,11 @@ if (-not (Test-Path -LiteralPath $cacheDirectory)) {
 $checks = @(
     @{ Name = 'weather'; Script = 'res://tests/test_weather.gd'; Headless = $true },
     @{ Name = 'cold-weather'; Script = 'res://tests/test_cold_weather.gd'; Headless = $true },
-    @{ Name = 'scene'; Script = 'res://tests/test_scene.gd'; Headless = $false },
+    @{ Name = 'onboarding'; Script = 'res://tests/test_onboarding.gd'; Headless = $true },
+    @{ Name = 'scene'; Script = 'res://tests/test_scene.gd'; Headless = $false; Args = @('--fresh-guide') },
+    @{ Name = 'render-fields'; Script = 'res://tests/test_render_fields.gd'; Headless = $false; Args = @('--free-play') },
     @{ Name = 'replay'; Script = 'res://tests/replay_weather.gd'; Headless = $true },
+    @{ Name = 'lesson-replay'; Script = 'res://tests/replay_weather.gd'; Headless = $true; Args = @('--lesson', '--snapshot=res://.godot/lesson-snapshot.json') },
     @{ Name = 'dual-mountain'; Script = 'res://tests/replay_relay.gd'; Headless = $true; Args = @('--mountain') },
     @{ Name = 'dual-relay'; Script = 'res://tests/replay_relay.gd'; Headless = $true; Args = @('--snapshot=res://.godot/relay-snapshot.json') }
 )
@@ -30,4 +33,4 @@ foreach ($check in $checks) {
         throw "Check failed: $($check.Name). See $logPath"
     }
 }
-Write-Output 'All baseline, cold-weather, viewport, and both dual-route playthrough checks passed.'
+Write-Output 'All weather, onboarding, viewport, and four playthrough checks passed.'

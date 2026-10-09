@@ -38,8 +38,10 @@ func run() -> void:
 	main.sim.rain_lost = state.rain_lost
 	main.sim.initial_water = state.initial_water
 	main.sim.total_rain_rate = state.rain_rate
+	main.sim.total_mountain_lift = state.get("mountain_lift", 0.0)
 	main.sim.refresh_display()
 	main.sim.update_goal(0.0)
+	main.guide.update(main.sim, 0.0)
 	main.weather_view.elapsed = state.get("time", 10.0)
 	if state.has("stroke"):
 		var a := Vector2(state.stroke[0][0], state.stroke[0][1])
