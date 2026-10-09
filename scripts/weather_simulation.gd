@@ -10,6 +10,7 @@ const CLOUD_HEIGHT := 3.6
 const CLOUD_BOTTOM := 2.8
 const CLOUD_TOP := 4.4
 const PLOT := Vector2(2.8, 1.2)
+const SECOND_PLOT := Vector2(3.6, -2.2)
 const PLOT_HALF := 1.25
 const SAFE_HALF := 2.1
 const MOUNTAIN := Vector2(-1.7, -0.6)
@@ -38,9 +39,26 @@ var threat := false
 var peak_density := 0.0
 var total_rain_rate := 0.0
 var sandbox := false
+var relay_mode := false
+var cold := PackedFloat32Array()
+var display_cold := PackedFloat32Array()
+var cold_flow := PackedVector2Array()
+var low_wind := PackedVector2Array()
+var cold_lifted := PackedFloat32Array()
+var total_cold_lift := 0.0
+var cold_used := 0.0
+var cold_lift_near_second := 0.0
+var plot_centers := PackedVector2Array()
+var second_water := 0.0
+var plot_threats: Array[bool] = []
+var plot_safe_times := PackedFloat32Array()
 
-func _init(config: Resource = null) -> void:
+func _init(config: Resource = null, relay: bool = false) -> void:
 	settings = config if config != null else Settings.new()
+	relay_mode = relay
+	plot_centers.append(PLOT)
+	if relay_mode:
+		plot_centers.append(SECOND_PLOT)
 	for i in COUNT:
 		positions.append(cell_position(i))
 		slopes.append(slope(positions[i]))
@@ -54,6 +72,17 @@ func reset(test_cloud: bool = false) -> void:
 	charge.resize(COUNT)
 	lifted.resize(COUNT)
 	wind.resize(COUNT)
+	cold.resize(COUNT)
+	cold_flow.resize(COUNT)
+	low_wind.resize(COUNT)
+	cold_lifted.resize(COUNT)
+	cold.fill(0.0)
+	cold_flow.fill(Vector2.ZERO)
+	low_wind.fill(Vector2.ZERO)
+	cold_lifted.fill(0.0)
+	total_cold_lift = 0.0
+	cold_used = 0.0
+	cold_lift_near_second = 0.0
 	cloud.fill(0.0)
 	rain.fill(0.0)
 	charge.fill(0.0)
@@ -64,12 +93,19 @@ func reset(test_cloud: bool = false) -> void:
 		var p := positions[i]
 		var distance := pow((p.x + 6.2) / 3.0, 2) + pow((p.y - 1.4) / 3.6, 2)
 		humidity[i] = settings.initial_humidity * exp(-distance * 1.4)
+		if relay_mode:
+			var east := pow((p.x - 5.6) / 3.2, 2) + pow((p.y - 1.0) / 3.4, 2)
+			humidity[i] += settings.initial_humidity * 0.9 * exp(-east * 1.4)
 		if test_cloud:
 			cloud[i] = 1.25 * exp(-pow((p.x - 0.6) / 2.1, 2) - pow((p.y - 0.3) / 1.0, 2))
 			cloud[i] += 0.75 * exp(-pow((p.x + 1.4) / 1.4, 2) - pow((p.y + 0.6) / 1.1, 2))
 			cloud[i] += 0.70 * exp(-pow((p.x - 2.6) / 1.5, 2) - pow((p.y - 0.9) / 0.8, 2))
 		initial_water += humidity[i] + cloud[i]
 	plot_water = 0.0
+	second_water = 0.0
+	plot_threats.assign([false, false] if relay_mode else [false])
+	plot_safe_times.resize(plot_centers.size())
+	plot_safe_times.fill(0.0)
 	rain_lost = 0.0
 	safe_time = 0.0
 	outcome = "playing"
@@ -159,6 +195,7 @@ func stroke(from: Vector2, to: Vector2, speed: float) -> void:
 				if distance < settings.brush_radius:
 					var weight := pow(1.0 - distance / settings.brush_radius, 2)
 					wind[i] = (wind[i] + impulse * weight * 3.0).limit_length(settings.max_wind)
+					low_wind[i] = (wind[i] + cold_flow[i]).limit_length(settings.max_wind)
 
 func step(dt: float) -> void:
 	if outcome != "playing":
@@ -173,6 +210,7 @@ func step(dt: float) -> void:
 
 func _step_fixed(dt: float) -> void:
 	var new_wind := wind.duplicate()
+	var wind_fade := exp(-settings.wind_decay * dt)
 	for i in COUNT:
 		var x := i % WIDTH
 		var z := floori(float(i) / WIDTH)
@@ -190,19 +228,23 @@ func _step_fixed(dt: float) -> void:
 		if z < DEPTH - 1:
 			average += wind[i + WIDTH]
 			count += 1.0
-		new_wind[i] = wind[i].lerp(average / count, settings.wind_spread * dt) * exp(-settings.wind_decay * dt)
+		new_wind[i] = wind[i].lerp(average / count, settings.wind_spread * dt) * wind_fade
 	wind = new_wind
+	_update_cold_flow()
 	_transport(dt)
 	lifted.fill(0.0)
+	cold_lifted.fill(0.0)
 	last_lift = 0.0
 	for i in COUNT:
-		var uphill := maxf(0.0, wind[i].dot(slopes[i]))
+		var uphill := maxf(0.0, low_wind[i].dot(slopes[i]))
 		var amount := humidity[i] * (1.0 - exp(-uphill * settings.lift_rate * dt))
 		humidity[i] -= amount
 		cloud[i] += amount
 		lifted[i] = amount
 		last_lift += amount
-	refresh_display()
+	if relay_mode and settings.cold_enabled:
+		_lift_at_cold_front(dt)
+	display_cloud = _smooth(cloud)
 	max_progress = 0.0
 	total_rain_rate = 0.0
 	for i in COUNT:
@@ -223,33 +265,49 @@ func _step_fixed(dt: float) -> void:
 			rain[i] -= fallen
 			cloud[i] -= fallen
 			total_rain_rate += fallen / dt
+			if relay_mode and settings.cold_enabled:
+				cold[i] = minf(settings.cold_cap, cold[i] + fallen * settings.cold_from_rain)
 			var p := positions[i]
-			if absf(p.x - PLOT.x) <= PLOT_HALF and absf(p.y - PLOT.y) <= PLOT_HALF:
-				plot_water += fallen * settings.plot_water_scale
-			else:
+			var credited := false
+			for target in plot_centers.size():
+				var center := plot_centers[target]
+				if absf(p.x - center.x) <= PLOT_HALF and absf(p.y - center.y) <= PLOT_HALF:
+					if target == 0:
+						plot_water += fallen * settings.plot_water_scale
+					else:
+						second_water += fallen * settings.plot_water_scale
+					credited = true
+					break
+			if not credited:
 				rain_lost += fallen
 			if rain[i] < settings.rain_end_density:
 				humidity[i] += rain[i]
 				cloud[i] -= rain[i]
 				rain[i] = 0.0
+	var cold_fade := exp(-settings.cold_decay * dt)
+	for i in COUNT:
+		cold[i] *= cold_fade
 	refresh_display()
-	if not sandbox:
-		update_goal(dt)
+	update_goal(dt)
 
 func _transport(dt: float) -> void:
 	var next_humidity := PackedFloat32Array()
 	var next_cloud := PackedFloat32Array()
 	var next_rain := PackedFloat32Array()
 	var next_charge := PackedFloat32Array()
+	var next_cold := PackedFloat32Array()
 	next_humidity.resize(COUNT)
 	next_cloud.resize(COUNT)
 	next_rain.resize(COUNT)
 	next_charge.resize(COUNT)
+	next_cold.resize(COUNT)
 	for i in COUNT:
 		var x := float(i % WIDTH)
 		var z := float(floori(float(i) / WIDTH))
 		if humidity[i] > 0.0000001:
-			_scatter(next_humidity, humidity[i], x, z, wind[i] * dt / CELL)
+			_scatter(next_humidity, humidity[i], x, z, low_wind[i] * dt / CELL)
+		if cold[i] > 0.0000001:
+			_scatter(next_cold, cold[i], x, z, low_wind[i] * dt / CELL)
 		if cloud[i] <= 0.0:
 			continue
 		var rain_fraction := rain[i] / maxf(cloud[i], 0.0001)
@@ -262,6 +320,66 @@ func _transport(dt: float) -> void:
 	cloud = next_cloud
 	rain = next_rain
 	charge = next_charge
+	cold = next_cold
+
+func _update_cold_flow() -> void:
+	display_cold = _smooth(cold)
+	for i in COUNT:
+		var velocity := Vector2.ZERO
+		if relay_mode and settings.cold_enabled:
+			velocity = (-cold_gradient(i) * settings.cold_outflow).limit_length(settings.cold_max_speed)
+		cold_flow[i] = velocity
+		low_wind[i] = (wind[i] + velocity).limit_length(settings.max_wind)
+
+func cold_gradient(i: int) -> Vector2:
+	var x := i % WIDTH
+	var z := floori(float(i) / WIDTH)
+	var left := i - 1 if x > 0 else i
+	var right := i + 1 if x < WIDTH - 1 else i
+	var top := i - WIDTH if z > 0 else i
+	var bottom := i + WIDTH if z < DEPTH - 1 else i
+	return Vector2(display_cold[right] - display_cold[left], display_cold[bottom] - display_cold[top]) / (2.0 * CELL)
+
+func _lift_at_cold_front(dt: float) -> void:
+	for i in COUNT:
+		if cold[i] < settings.cold_minimum or humidity[i] < 0.001:
+			continue
+		var gradient := cold_gradient(i)
+		if gradient.length() < 0.035:
+			continue
+		var outward := -gradient.normalized()
+		# Require moisture moving against the outward front. Contact or co-flow is insufficient.
+		var incoming := maxf(0.0, -low_wind[i].dot(outward) - 0.08)
+		var squeeze := incoming * minf(gradient.length() * 2.0, 1.0)
+		var strength := smoothstep(settings.cold_minimum, 0.8, cold[i])
+		var amount := humidity[i] * (1.0 - exp(-squeeze * strength * settings.cold_lift_rate * dt))
+		amount = minf(amount, cold[i] / maxf(settings.cold_lift_cost, 0.001))
+		humidity[i] -= amount
+		cloud[i] += amount
+		cold[i] = maxf(0.0, cold[i] - amount * settings.cold_lift_cost)
+		lifted[i] += amount
+		cold_lifted[i] = amount
+		last_lift += amount
+		total_cold_lift += amount
+		cold_used += amount * settings.cold_lift_cost
+		if absf(positions[i].x - SECOND_PLOT.x) <= SAFE_HALF and absf(positions[i].y - SECOND_PLOT.y) <= SAFE_HALF:
+			cold_lift_near_second += amount
+
+func velocity_at(p: Vector2, low: bool = true) -> Vector2:
+	if not contains(p):
+		return Vector2.ZERO
+	var g := (p - ORIGIN) / CELL - Vector2(0.5, 0.5)
+	var x := floori(g.x)
+	var z := floori(g.y)
+	var field := low_wind if low else wind
+	var a := field[clampi(z, 0, DEPTH - 1) * WIDTH + clampi(x, 0, WIDTH - 1)]
+	var b := field[clampi(z, 0, DEPTH - 1) * WIDTH + clampi(x + 1, 0, WIDTH - 1)]
+	var c := field[clampi(z + 1, 0, DEPTH - 1) * WIDTH + clampi(x, 0, WIDTH - 1)]
+	var d := field[clampi(z + 1, 0, DEPTH - 1) * WIDTH + clampi(x + 1, 0, WIDTH - 1)]
+	return a.lerp(b, g.x - x).lerp(c.lerp(d, g.x - x), g.y - z)
+
+func water_for(target: int) -> float:
+	return plot_water if target == 0 else second_water
 
 func _scatter(target: PackedFloat32Array, amount: float, x: float, z: float, shift: Vector2) -> void:
 	var gx := clampf(x + shift.x, 0.0, WIDTH - 1.0)
@@ -295,30 +413,42 @@ func refresh_display() -> void:
 	display_cloud = _smooth(cloud)
 	display_rain = _smooth(rain)
 	display_charge = _smooth(charge)
+	display_cold = _smooth(cold)
 	peak_density = 0.0
 	for q in display_cloud:
 		peak_density = maxf(peak_density, q)
 
 func update_goal(dt: float) -> void:
 	threat = false
-	for i in COUNT:
-		var p := positions[i]
-		if absf(p.x - PLOT.x) <= SAFE_HALF and absf(p.y - PLOT.y) <= SAFE_HALF:
-			var visible_progress: bool = charge[i] > 0.01 and display_cloud[i] > 0.12
-			if rain[i] > 0.0 or display_cloud[i] >= settings.cloud_threshold or visible_progress:
-				threat = true
+	var complete := true
+	for target in plot_centers.size():
+		var danger := false
+		var center := plot_centers[target]
+		var lo := Vector2i(((center - Vector2.ONE * SAFE_HALF - ORIGIN) / CELL).floor())
+		var hi := Vector2i(((center + Vector2.ONE * SAFE_HALF - ORIGIN) / CELL).ceil())
+		for z in range(maxi(0, lo.y), mini(DEPTH, hi.y)):
+			for x in range(maxi(0, lo.x), mini(WIDTH, hi.x)):
+				var i := z * WIDTH + x
+				var p := positions[i]
+				if absf(p.x - center.x) <= SAFE_HALF and absf(p.y - center.y) <= SAFE_HALF:
+					var visible_progress: bool = charge[i] > 0.01 and display_cloud[i] > 0.12
+					if rain[i] > 0.0 or display_cloud[i] >= settings.cloud_threshold or visible_progress:
+						danger = true
+						break
+			if danger:
 				break
-	if plot_water > settings.flood_water:
-		outcome = "flood"
-	elif plot_water >= settings.target_water:
-		safe_time = 0.0 if threat else safe_time + dt
-		if safe_time >= settings.safe_seconds:
-			outcome = "success"
-	else:
-		safe_time = 0.0
+		plot_threats[target] = danger
+		threat = threat or danger
+		if water_for(target) > settings.flood_water and not sandbox:
+			outcome = "flood"
+		plot_safe_times[target] = plot_safe_times[target] + dt if water_for(target) >= settings.target_water and not danger else 0.0
+		complete = complete and plot_safe_times[target] >= settings.safe_seconds
+	safe_time = plot_safe_times[0]
+	if complete and outcome != "flood" and not sandbox:
+		outcome = "success"
 
 func water_total() -> float:
-	var total: float = rain_lost + plot_water / settings.plot_water_scale
+	var total: float = rain_lost + (plot_water + second_water) / settings.plot_water_scale
 	for i in COUNT:
 		total += humidity[i] + cloud[i]
 	return total

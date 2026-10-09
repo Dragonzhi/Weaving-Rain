@@ -16,6 +16,16 @@ extends Resource
 @export var rain_rate: float = 0.16
 @export var rain_end_density: float = 0.025
 @export var plot_water_scale: float = 6.0
+@export_group("Cold Air")
+@export var cold_enabled: bool = true
+@export var cold_from_rain: float = 5.0
+@export var cold_cap: float = 3.0
+@export var cold_decay: float = 0.045
+@export var cold_outflow: float = 1.6
+@export var cold_max_speed: float = 1.1
+@export var cold_lift_rate: float = 3.5
+@export var cold_lift_cost: float = 0.45
+@export var cold_minimum: float = 0.10
 @export_group("Goal")
 @export var target_water: float = 100.0
 @export var flood_water: float = 150.0

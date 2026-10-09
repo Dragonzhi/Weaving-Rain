@@ -37,6 +37,8 @@ func run() -> void:
 	var wind_input: Node = main.wind_input
 	var hit: Vector3 = wind_input.pick(point)
 	check(hit.y > 3.0, "Picking starts at visible cloud rather than its ground shadow")
+	var outside: Vector3 = wind_input.pick(Vector2(-100000, -100000))
+	check(not Sim.contains(Vector2(outside.x, outside.z)), "Off-window rays without plane intersections are safely rejected")
 	mouse_button(point, true)
 	check(wind_input.dragging, "Viewport mouse press begins a stroke")
 	var reference: float = wind_input.reference_height
@@ -45,6 +47,11 @@ func run() -> void:
 	for wind in main.sim.wind:
 		wind_sum += wind.length()
 	check(wind_sum > 0.1, "Viewport mouse motion produces local wind")
+	main.weather_view.update_weather(0.0, false)
+	check(main.weather_view.visible_wind_lines > 0, "Actual viewport stroke creates visible wind ribbons")
+	var age: float = main.weather_view.wind_traces[0].age
+	main.weather_view.update_weather(0.5, false)
+	check(main.weather_view.wind_traces[0].age == age, "Paused rendering freezes wind trace movement and lifetime")
 	main.sim.cloud.fill(0.0)
 	main.sim.refresh_display()
 	mouse_motion(point + Vector2(85, 25))
@@ -61,8 +68,16 @@ func run() -> void:
 	mouse_button(button_point, true)
 	check(not wind_input.dragging, "UI buttons do not create wind strokes")
 	mouse_button(button_point, false)
+	var card_point := Vector2(80, main.hud.size.y - 65)
+	mouse_button(card_point, true)
+	check(not wind_input.dragging, "Drawn water cards also block accidental wind strokes")
+	mouse_button(card_point, false)
 	main.restart(false)
 	check(main.sim.peak_density == 0.0 and not main.sim.sandbox, "Restart returns from lab to humidity-only gameplay")
+	check(main.weather_view.plot_materials.size() == 2 and main.sim.second_water == 0.0, "Normal scene has two independent targets")
+	main.cold_lab()
+	check(main.sim.sandbox and main.sim.total_rain_rate == 0.0, "Cold lab is separate from normal completion")
+	main.restart(false)
 	var pause_event := InputEventKey.new()
 	pause_event.keycode = KEY_SPACE
 	pause_event.pressed = true

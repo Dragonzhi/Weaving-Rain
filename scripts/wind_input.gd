@@ -1,4 +1,5 @@
 extends Node
+signal stroke_applied(from: Vector2, to: Vector2, height: float)
 const Sim = preload("res://scripts/weather_simulation.gd")
 var sim: RefCounted
 var camera: Camera3D
@@ -10,6 +11,7 @@ var brush_point := Vector3.ZERO
 var last_point := Vector2.ZERO
 var last_time := 0
 var last_force := 0.0
+var hud: Control
 
 func setup(model: RefCounted, view_camera: Camera3D) -> void:
 	sim = model
@@ -33,11 +35,13 @@ func pick(screen: Vector2) -> Vector3:
 	if cloud_hit != null:
 		return cloud_hit
 	# Trace the same terrain height function used to construct the visible island.
-	var start: Vector3 = _on_plane(screen, 3.15)
-	var end: Vector3 = _on_plane(screen, 0.20)
-	var previous := start
+	var start: Variant = _on_plane(screen, 3.15)
+	var end: Variant = _on_plane(screen, 0.20)
+	if start == null or end == null:
+		return Vector3(Sim.ORIGIN.x - 1.0, 0.0, Sim.ORIGIN.y - 1.0)
+	var previous: Vector3 = start
 	for i in 65:
-		var p := start.lerp(end, float(i) / 64.0)
+		var p: Vector3 = start.lerp(end, float(i) / 64.0)
 		var surface := Sim.terrain_height(Vector2(p.x, p.z)) + 0.30
 		if p.y <= surface:
 			var high := previous
@@ -61,6 +65,12 @@ func update_hover() -> void:
 		hover_valid = false
 		return
 	var screen := get_viewport().get_mouse_position()
+	if hud != null and hud.blocks_wind(screen):
+		hover_valid = false
+		return
+	if not get_viewport().get_visible_rect().has_point(screen):
+		hover_valid = false
+		return
 	if dragging:
 		var point: Variant = _on_plane(screen, reference_height)
 		if point != null:
@@ -75,6 +85,8 @@ func _unhandled_input(event: InputEvent) -> void:
 			cancel()
 			return
 		if not enabled or sim.outcome != "playing":
+			return
+		if hud != null and hud.blocks_wind(event.position):
 			return
 		brush_point = pick(event.position)
 		if not Sim.contains(Vector2(brush_point.x, brush_point.z)):
@@ -97,12 +109,16 @@ func _unhandled_input(event: InputEvent) -> void:
 		var dt := maxf(float(now - last_time) / 1000000.0, 0.001)
 		var speed := point.distance_to(last_point) / dt
 		sim.stroke(last_point, point, speed)
+		if point.distance_to(last_point) > 0.001:
+			stroke_applied.emit(last_point, point, reference_height)
 		last_force = minf(speed / 16.0, 1.0)
 		last_point = point
 		last_time = now
 		get_viewport().set_input_as_handled()
 
 func _input(event: InputEvent) -> void:
+	if event is InputEventMouseMotion and dragging and hud != null and hud.blocks_wind(event.position):
+		cancel()
 	# Release is observed even if the cursor finishes over a UI button.
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and not event.pressed:
 		cancel()
