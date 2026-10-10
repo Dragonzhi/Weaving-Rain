@@ -23,6 +23,8 @@ func run() -> void:
 		return
 	var state: Dictionary = JSON.parse_string(file.get_as_text())
 	file.close()
+	if state.has("layout") and main.sim.layout_id != state.layout:
+		main.select_layout(state.layout)
 	main.sim.humidity = PackedFloat32Array(state.humidity)
 	main.sim.cloud = PackedFloat32Array(state.cloud)
 	main.sim.rain = PackedFloat32Array(state.rain)

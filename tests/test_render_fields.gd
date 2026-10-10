@@ -63,6 +63,7 @@ func run() -> void:
 	view.update_weather(1.0, false)
 	check(view.rain_material.get_shader_parameter("visual_time") == frozen_time, "Paused rain animation also freezes on GPU")
 	main.sim.rain.fill(0.0)
+	main.sim.refresh_display()
 	view.update_weather(0.0, false)
 	check(view.rainfall.visible_instance_count == 0 and view.rain_indices.is_empty(), "Stopped rain removes all displayed drops without leftover particles")
 	await process_frame

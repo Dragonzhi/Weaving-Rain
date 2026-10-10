@@ -1,6 +1,7 @@
 shader_type spatial;
 render_mode unshaded;
 uniform sampler2D water_map : filter_linear, repeat_disable;
+#include "res://shaders/cloud_field.gdshaderinc"
 uniform vec4 base_color : source_color = vec4(0.55, 0.72, 0.51, 1.0);
 uniform bool shore = false;
 varying vec3 world_position;
@@ -16,8 +17,7 @@ void fragment() {
 	if (!shore && world_position.y > 0.65) {
 		color = mix(color, vec3(0.39, 0.62, 0.48) * tone, smoothstep(0.65, 2.6, world_position.y) * 0.6);
 	}
-	vec2 uv = (world_position.xz + vec2(12.0, 10.0)) / vec2(24.0, 20.0);
-	float q = texture(water_map, uv).r;
+	float q = cloud_state(world_position.xz).r;
 	color *= 1.0 - smoothstep(0.06, 1.5, q) * 0.22;
 	ALBEDO = color;
 }

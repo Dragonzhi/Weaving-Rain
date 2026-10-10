@@ -21,11 +21,11 @@ func run() -> void:
 	var press := InputEventMouseButton.new()
 	press.button_index = MOUSE_BUTTON_LEFT
 	press.pressed = true
-	press.position = camera.unproject_position(Vector3(from.x, Sim.terrain_height(from) + 0.30, from.y))
+	press.position = camera.unproject_position(Vector3(from.x, main.sim.terrain.height(from) + 0.30, from.y))
 	root.push_input(press, true)
 	var motion := InputEventMouseMotion.new()
 	motion.button_mask = MOUSE_BUTTON_MASK_LEFT
-	motion.position = camera.unproject_position(Vector3(to.x, Sim.terrain_height(to) + 0.30, to.y))
+	motion.position = camera.unproject_position(Vector3(to.x, main.sim.terrain.height(to) + 0.30, to.y))
 	root.push_input(motion, true)
 	var cost := 0.0
 	var frame_cost := 0.0

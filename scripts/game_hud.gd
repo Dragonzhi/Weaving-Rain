@@ -4,8 +4,10 @@ signal sandbox_requested
 signal cold_lab_requested
 signal free_play_requested
 signal lesson_requested
+signal layout_requested(id: String)
 const Sim = preload("res://scripts/weather_simulation.gd")
-var sim: RefCounted
+const Layouts = preload("res://scripts/weather_layouts.gd")
+var sim: Sim
 var view: Node3D
 var wind_input: Node
 var paused := false
@@ -23,6 +25,8 @@ var play_mode := "free"
 var free_button: Button
 var lesson_button: Button
 var dismiss_hint: Button
+var layout_selector: OptionButton
+var panel_styles: Dictionary = {}
 const INK := Color("f0f6e9")
 const MUTED := Color("d5e9db")
 const PANEL := Color(0.12, 0.31, 0.34, 0.86)
@@ -63,7 +67,12 @@ func setup(model: RefCounted, weather_view: Node3D, input: Node) -> void:
 	dismiss_hint.text = "知道了"
 	dismiss_hint.pressed.connect(func(): guide.cold_hint_left = 0.0)
 	add_child(dismiss_hint)
-	for button in [retry, sandbox_button, cold_button, free_button, lesson_button, dismiss_hint]:
+	layout_selector = OptionButton.new()
+	for id in Layouts.IDS:
+		layout_selector.add_item(Layouts.get_layout(id).title)
+	layout_selector.item_selected.connect(func(index): layout_requested.emit(Layouts.IDS[index]))
+	add_child(layout_selector)
+	for button in [retry, sandbox_button, cold_button, free_button, lesson_button, dismiss_hint, layout_selector]:
 		button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 		var style := StyleBoxFlat.new()
 		style.bg_color = PANEL
@@ -82,7 +91,9 @@ func _text(at: Vector2, text: String, font_size: int = 16, color := INK) -> void
 	draw_string(font, at, text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, color)
 
 func _rounded(rect: Rect2, color: Color, radius: int = 12) -> void:
-	var style := StyleBoxFlat.new()
+	if not panel_styles.has(radius):
+		panel_styles[radius] = StyleBoxFlat.new()
+	var style: StyleBoxFlat = panel_styles[radius]
 	style.bg_color = color
 	style.corner_radius_top_left = radius
 	style.corner_radius_top_right = radius
@@ -96,7 +107,7 @@ func _project(point: Vector3) -> Vector2:
 func blocks_wind(point: Vector2) -> bool:
 	if status_rect.has_point(point) or guide_rect.has_point(point):
 		return true
-	for button in [retry, sandbox_button, cold_button, free_button, lesson_button, dismiss_hint]:
+	for button in [retry, sandbox_button, cold_button, free_button, lesson_button, dismiss_hint, layout_selector]:
 		if button.visible and button.get_global_rect().has_point(point):
 			return true
 	for target in sim.plot_centers.size():
@@ -106,7 +117,7 @@ func blocks_wind(point: Vector2) -> bool:
 	return debug_visible and Rect2(28, 140, 310, 166).has_point(point)
 
 func _guide_marker(p: Vector2, label: String, cloud_height: bool = false) -> void:
-	var height := Sim.CLOUD_TOP + 0.1 if cloud_height else Sim.terrain_height(p) + 0.35
+	var height: float = Sim.CLOUD_TOP + 0.1 if cloud_height else sim.terrain.height(p) + 0.35
 	var at := _project(Vector3(p.x, height, p.y))
 	# Static gold brackets distinguish tutorial annotations from real moving wind.
 	var color := Color(0.96, 0.84, 0.61, 0.8)
@@ -145,7 +156,8 @@ func _draw_guide() -> void:
 				var low_air: bool = guide.phase == 0 or sim.peak_density < 0.15
 				_guide_marker(p, "浅色细丝 · 湿空气" if low_air else "轻拨云边，向内收拢", not low_air)
 				if low_air:
-					var slope_point: Vector2 = Sim.MOUNTAIN + (p - Sim.MOUNTAIN).normalized() * 1.8
+					var mountain: Vector2 = sim.terrain.mountain
+					var slope_point: Vector2 = mountain + (p - mountain).normalized() * 1.8
 					_guide_marker(slope_point, "送向这侧山坡")
 		elif guide.phase == 2:
 			_guide_marker(Sim.PLOT, "雨线落进 A 才加水")
@@ -174,7 +186,7 @@ func _ground_square(half: float, center: Vector2 = Sim.PLOT) -> PackedVector2Arr
 	var result := PackedVector2Array()
 	for offset in [Vector2(-half, -half), Vector2(half, -half), Vector2(half, half), Vector2(-half, half)]:
 		var p: Vector2 = center + offset
-		result.append(_project(Vector3(p.x, Sim.terrain_height(p) + 0.06, p.y)))
+		result.append(_project(Vector3(p.x, sim.terrain.height(p) + 0.06, p.y)))
 	return result
 
 func _draw_world_feedback() -> void:
@@ -198,7 +210,7 @@ func _draw_world_feedback() -> void:
 		var p: Vector3 = center + Vector3(cos(angle), 0, sin(angle)) * sim.settings.brush_radius
 		ring.append(_project(p))
 	draw_polyline(ring, Color(0.95, 1, 0.91, 0.65 if wind_input.dragging else 0.35), 1.7, true)
-	var projected := Vector3(center.x, Sim.terrain_height(Vector2(center.x, center.z)) + 0.05, center.z)
+	var projected := Vector3(center.x, sim.terrain.height(Vector2(center.x, center.z)) + 0.05, center.z)
 	if center.y - projected.y > 0.8:
 		draw_dashed_line(_project(center), _project(projected), Color(0.88, 0.98, 0.91, 0.45), 1.0, 4.0)
 		draw_circle(_project(projected), 3.0, Color(0.93, 1, 0.91, 0.7))
@@ -230,6 +242,11 @@ func _draw() -> void:
 	lesson_button.visible = play_mode != "lesson"
 	lesson_button.position = Vector2(w - 192, 72)
 	lesson_button.size = Vector2(164, 36)
+	layout_selector.visible = play_mode == "free"
+	layout_selector.position = Vector2(28, 322 if debug_visible else 129)
+	layout_selector.size = Vector2(218, 36)
+	if layout_selector.visible:
+		layout_selector.select(Layouts.IDS.find(sim.layout_id))
 	sandbox_button.visible = debug_visible
 	cold_button.visible = debug_visible
 	sandbox_button.position = Vector2(w - 176, 116)
@@ -242,14 +259,19 @@ func _draw() -> void:
 	_text(Vector2(34, 86), "W E A V I N G   R A I N", 12, MUTED)
 	_text(Vector2(34, 112), "单目标入门" if play_mode == "lesson" else "双目标自由局" if sim.relay_mode else "单目标开发基线", 14, MUTED)
 	var status := "把湿空气推向山坡，再把厚云送到地块上方"
+	if play_mode == "free":
+		status = sim.layout.hint
 	if sim.peak_density >= sim.settings.cloud_threshold and sim.total_rain_rate < 0.01:
 		status = "厚云正在维持 · 轻拨修正，避免散开"
 	elif sim.total_rain_rate > 0.01:
 		status = "冷风正在形成 · 把湿空气迎向它的前沿" if sim.relay_mode else "已经开始下雨 · 留意落点与地块水量"
-		if sim.plot_water > 70.0 and sim.plot_water < sim.settings.target_water:
-			status = "A 快够水了 · 提前移云，储水还会继续落下"
-	if sim.plot_water >= sim.settings.target_water and sim.relay_mode and sim.second_water < sim.settings.target_water:
+		for target in sim.plot_centers.size():
+			if sim.water_for(target) > sim.settings.target_water * 0.7 and sim.water_for(target) < sim.settings.target_water:
+				status = "%s 快够水了 · 提前移云，储水还会继续落下" % ("A" if target == 0 else "B")
+	if sim.relay_mode and sim.plot_water >= sim.settings.target_water and sim.second_water < sim.settings.target_water:
 		status = "A 水量已够 · 提早移云，借残留冷风照顾 B"
+	elif sim.relay_mode and sim.second_water >= sim.settings.target_water and sim.plot_water < sim.settings.target_water:
+		status = "B 水量已够 · 提早移云，借残留冷风照顾 A"
 	elif sim.plot_water >= sim.settings.target_water:
 		status = "水量已够 · 移开危险雨云，或切断补给后等储水耗尽"
 	if sim.sandbox:

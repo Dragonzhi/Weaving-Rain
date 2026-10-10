@@ -80,6 +80,7 @@ func run() -> void:
 	check(wind_input.dragging, "Viewport mouse press begins a stroke")
 	var reference: float = wind_input.reference_height
 	mouse_motion(point + Vector2(55, 0))
+	wind_input.flush()
 	var wind_sum := 0.0
 	for wind in main.sim.wind:
 		wind_sum += wind.length()
@@ -110,6 +111,39 @@ func run() -> void:
 	check(not wind_input.dragging, "Drawn water cards also block accidental wind strokes")
 	mouse_button(card_point, false)
 	main.restart(false)
+	for layout_index in [1, 2]:
+		main.hud.queue_redraw()
+		await process_frame
+		await RenderingServer.frame_post_draw
+		var selector_point: Vector2 = main.hud.layout_selector.get_global_rect().get_center()
+		mouse_button(selector_point, true)
+		mouse_button(selector_point, false)
+		var popup: PopupMenu = main.hud.layout_selector.get_popup()
+		check(popup.visible and not wind_input.dragging, "Opening layout selector does not stroke the weather")
+		popup.index_pressed.emit(layout_index)
+		popup.hide()
+		await process_frame
+		await RenderingServer.frame_post_draw
+		var id: String = preload("res://scripts/weather_layouts.gd").IDS[layout_index]
+		check(main.sim.layout_id == id and main.sim.peak_density == 0.0 and main.wind_input.sim == main.sim, "Selecting layout rebuilds a clean world with connected input")
+		var geometry_matches := 0
+		for child in main.weather_view.get_children():
+			if child is MeshInstance3D:
+				for target in 2:
+					if child.material_override == main.weather_view.plot_materials[target]:
+						var p: Vector2 = main.sim.plot_centers[target]
+						if is_equal_approx(child.position.x, p.x) and is_equal_approx(child.position.z, p.y):
+							geometry_matches += 1
+		check(geometry_matches == 2, "Displayed targets match the selected simulation coverage")
+		main.paused = true
+		main.wind_input.dragging = true
+		main.restart(false)
+		check(main.sim.layout_id == id and not main.paused and not wind_input.dragging, "Retry preserves selected layout and clears paused drag state")
+	main.switch_mode("lesson")
+	check(main.sim.plot_centers.size() == 1 and main.sim.layout_id == "standard", "Revisiting lesson preserves its independent layout")
+	main.enter_free_play()
+	check(main.sim.layout_id == "close", "Returning from lesson preserves the selected free-play layout")
+	main.select_layout("standard")
 	check(main.sim.peak_density == 0.0 and not main.sim.sandbox, "Restart returns from lab to humidity-only gameplay")
 	check(main.weather_view.plot_materials.size() == 2 and main.sim.second_water == 0.0, "Normal scene has two independent targets")
 	main.cold_lab()
@@ -133,6 +167,20 @@ func run() -> void:
 	mouse_button(dismiss_point, true)
 	mouse_button(dismiss_point, false)
 	check(main.guide.cold_hint_left == 0.0 and not wind_input.dragging, "Hint can be dismissed without applying wind")
+	main.restart(false)
+	# A delayed frame must retain its fixed steps across budgeted recovery frames.
+	main.sim.sandbox = true
+	main.sim.cloud.fill(2.8)
+	main.sim.rain.fill(2.8)
+	main.sim.cold.fill(1.4)
+	main.sim.wind.fill(Vector2(2.0, 0.0))
+	main.sim.refresh_display()
+	main._process(0.1)
+	var recovered_steps: int = main.frame_steps
+	for attempt in 12:
+		main._process(0.0)
+		recovered_steps += main.frame_steps
+	check(recovered_steps == 6 and main.accumulator < 0.000001, "Budgeted catch-up retains all six fixed steps without discarding weather time")
 	main.restart(false)
 	for arg in OS.get_cmdline_user_args():
 		if arg.begins_with("--scene-capture="):

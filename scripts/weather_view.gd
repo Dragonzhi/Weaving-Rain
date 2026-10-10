@@ -9,7 +9,7 @@ const VAPOR_COUNT := 210
 const RAIN_COUNT := 750
 const LIFT_COUNT := 120
 
-var sim: RefCounted
+var sim: Sim
 var camera: Camera3D
 var image: Image
 var water_texture: ImageTexture
@@ -40,9 +40,20 @@ var rain_anchors := PackedVector3Array()
 var rain_phases := PackedFloat32Array()
 var rain_uploads := 0
 var air_material: ShaderMaterial
+var map_data := PackedFloat32Array()
+var air_data := PackedFloat32Array()
+var map_revision := -1
+var rain_revision := -1
+var line_revision := -1
+var line_dirty := true
+var ribbon_vertices := PackedVector3Array()
+var ribbon_colors := PackedColorArray()
+var line_cursor := 0
+var ribbon_points := PackedVector3Array()
 
 func setup(model: RefCounted) -> void:
 	sim = model
+	ribbon_points.resize(4)
 	rng.seed = 44721
 	image = Image.create(Sim.WIDTH, Sim.DEPTH, false, Image.FORMAT_RGBAF)
 	water_texture = ImageTexture.create_from_image(image)
@@ -57,7 +68,7 @@ func setup(model: RefCounted) -> void:
 			var p: Vector2 = sim.positions[i]
 			var x := p.x + sin(i * 37.1 + j * 17.7) * 0.20
 			var z := p.y + sin(i * 13.7 + j * 28.9) * 0.20
-			rain_anchors.append(Vector3(x, Sim.terrain_height(Vector2(x, z)) + 0.15, z))
+			rain_anchors.append(Vector3(x, sim.terrain.height(Vector2(x, z)) + 0.15, z))
 			rain_phases.append(fposmod(i * 0.19 + j * 0.37, 1.0))
 	reset_tracers()
 
@@ -88,11 +99,11 @@ func _vertex(st: SurfaceTool, p: Vector3, normal: Vector3) -> void:
 	st.add_vertex(p)
 
 func _top_vertex(st: SurfaceTool, p: Vector2, height: float) -> void:
-	var slope := Sim.slope(p)
+	var slope: Vector2 = sim.terrain.slope(p)
 	_vertex(st, Vector3(p.x, height, p.y), Vector3(-slope.x, 1.0, -slope.y).normalized())
 
 func _island_point(angle: float, radius: float) -> Vector2:
-	return Vector2(-0.6, 0.3) + Vector2(cos(angle) * 8.5, sin(angle) * 5.5) * Sim.coast_radius(angle) * radius
+	return sim.terrain.island_point(angle, radius)
 
 func _create_scene() -> void:
 	var environment := WorldEnvironment.new()
@@ -132,7 +143,7 @@ func _create_scene() -> void:
 			var p2 := _island_point(a, r1)
 			var p3 := _island_point(b, r1)
 			for p in [p0, p2, p1, p1, p2, p3]:
-				_top_vertex(top, p, maxf(0.22, Sim.terrain_height(p)))
+				_top_vertex(top, p, maxf(0.22, sim.terrain.height(p)))
 	top.index()
 	_mesh_instance(top.commit(), _terrain_material(Color("9bbb83")))
 	var shore := SurfaceTool.new()
@@ -159,12 +170,17 @@ func _create_scene() -> void:
 		_create_plot(target)
 	plot_material = plot_materials[0]
 	for p in [Vector2(-5.4, -1.6), Vector2(-3.8, 3.2), Vector2(5.7, -1.8), Vector2(1.2, -3.7)]:
+		if not sim.terrain.is_land(p): continue
+		var near_plot := false
+		for plot in sim.plot_centers:
+			near_plot = near_plot or p.distance_to(plot) < Sim.PLOT_HALF * 1.5
+		if near_plot: continue
 		var rock := SphereMesh.new()
 		rock.radius = 0.23
 		rock.height = 0.38
 		rock.radial_segments = 6
 		rock.rings = 3
-		_mesh_instance(rock, _terrain_material(Color("6f917c")), Vector3(p.x, Sim.terrain_height(p) + 0.09, p.y))
+		_mesh_instance(rock, _terrain_material(Color("6f917c")), Vector3(p.x, sim.terrain.height(p) + 0.09, p.y))
 
 func _create_plot(center: Vector2) -> void:
 	var plot_mesh := BoxMesh.new()
@@ -195,11 +211,11 @@ func _create_river() -> void:
 	for i in 70:
 		var t0 := float(i) / 70.0
 		var t1 := float(i + 1) / 70.0
-		var p0 := Vector2(-1.0 + t0 * 8.0, -1.0 + t0 * 3.8 + sin(t0 * 9.0) * 0.45)
-		var p1 := Vector2(-1.0 + t1 * 8.0, -1.0 + t1 * 3.8 + sin(t1 * 9.0) * 0.45)
+		var p0: Vector2 = sim.terrain.river_point(t0)
+		var p1: Vector2 = sim.terrain.river_point(t1)
 		var side := Vector2(-(p1 - p0).y, (p1 - p0).x).normalized() * 0.13
 		for p in [p0 - side, p1 - side, p0 + side, p1 - side, p1 + side, p0 + side]:
-			_vertex(st, Vector3(p.x, Sim.terrain_height(p) + 0.022, p.y), Vector3.UP)
+			_vertex(st, Vector3(p.x, sim.terrain.height(p) + 0.022, p.y), Vector3.UP)
 	_mesh_instance(st.commit(), _material(Color("72ccd0")))
 
 func _multimesh(count: int, mesh: Mesh, color: Color) -> MultiMesh:
@@ -257,6 +273,7 @@ func _create_weather() -> void:
 		lift_age.append(-1.0)
 
 func reset_tracers() -> void:
+	line_dirty = true
 	rng.seed = 44721
 	vapor_positions.resize(VAPOR_COUNT)
 	for i in VAPOR_COUNT:
@@ -279,7 +296,7 @@ func _create_low_air() -> void:
 			var p := Sim.ORIGIN + Vector2(x, z) * Sim.CELL
 			for offset in [Vector2.ZERO, Vector2(0, Sim.CELL), Vector2(Sim.CELL, 0), Vector2(Sim.CELL, 0), Vector2(0, Sim.CELL), Vector2.ONE * Sim.CELL]:
 				var q: Vector2 = p + offset
-				_vertex(mesh, Vector3(q.x, Sim.terrain_height(q) + 0.20, q.y), Vector3.UP)
+				_vertex(mesh, Vector3(q.x, sim.terrain.height(q) + 0.20, q.y), Vector3.UP)
 	air_material = ShaderMaterial.new()
 	air_material.shader = AIR_SHADER
 	air_material.set_shader_parameter("air_map", air_texture)
@@ -287,6 +304,7 @@ func _create_low_air() -> void:
 	air.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 
 func add_wind_stroke(from: Vector2, to: Vector2, height: float) -> void:
+	line_dirty = true
 	wind_spawn_distance += from.distance_to(to)
 	if wind_spawn_distance < 0.20:
 		return
@@ -302,29 +320,43 @@ func add_wind_stroke(from: Vector2, to: Vector2, height: float) -> void:
 
 func _ribbon(center: Vector2, velocity: Vector2, height: float, low: bool, color: Color, width: float, length: float, segments: int = 3) -> void:
 	var direction := velocity.normalized() if velocity.length() > 0.025 else Vector2.RIGHT
-	var points := PackedVector3Array()
 	var p := center
 	for k in segments + 1:
-		var y := Sim.terrain_height(p) + height if low else maxf(height, Sim.terrain_height(p) + 0.10)
-		points.append(Vector3(p.x, y, p.y))
-		var v: Vector2 = sim.velocity_at(p, low)
+		var y: float = sim.terrain.height(p) + height if low else maxf(height, sim.terrain.height(p) + 0.10)
+		ribbon_points[k] = Vector3(p.x, y, p.y)
+		if k == segments: break
+		var v: Vector2 = velocity if k == 0 else sim.velocity_at(p, low)
 		if v.length() > 0.025:
 			direction = v.normalized()
 		p -= direction * length / segments
 	for k in segments:
-		var tangent := (points[k + 1] - points[k]).normalized()
+		var tangent := (ribbon_points[k + 1] - ribbon_points[k]).normalized()
 		var side := tangent.cross(camera.global_basis.z).normalized() * width
 		var a := color
 		var b := color
 		a.a *= sin((k + 0.5) / (segments + 1.0) * PI)
 		b.a *= sin((k + 1.5) / (segments + 1.0) * PI)
-		line_vertices.append_array(PackedVector3Array([points[k] - side, points[k] + side, points[k + 1] - side, points[k + 1] - side, points[k] + side, points[k + 1] + side]))
-		line_colors.append_array(PackedColorArray([a, a, b, b, a, b]))
+		ribbon_vertices[line_cursor] = ribbon_points[k] - side
+		ribbon_vertices[line_cursor + 1] = ribbon_points[k] + side
+		ribbon_vertices[line_cursor + 2] = ribbon_points[k + 1] - side
+		ribbon_vertices[line_cursor + 3] = ribbon_points[k + 1] - side
+		ribbon_vertices[line_cursor + 4] = ribbon_points[k] + side
+		ribbon_vertices[line_cursor + 5] = ribbon_points[k + 1] + side
+		ribbon_colors[line_cursor] = a
+		ribbon_colors[line_cursor + 1] = a
+		ribbon_colors[line_cursor + 2] = b
+		ribbon_colors[line_cursor + 3] = b
+		ribbon_colors[line_cursor + 4] = a
+		ribbon_colors[line_cursor + 5] = b
+		line_cursor += 6
 
 func _update_lines(dt: float, moving: bool) -> void:
 	lines.clear_surfaces()
 	line_vertices.resize(0)
 	line_colors.resize(0)
+	ribbon_vertices.resize((VAPOR_COUNT + 96 + 48 * 3) * 6)
+	ribbon_colors.resize(ribbon_vertices.size())
+	line_cursor = 0
 	visible_wind_lines = 0
 	for i in VAPOR_COUNT:
 		var p := vapor_positions[i]
@@ -371,6 +403,8 @@ func _update_lines(dt: float, moving: bool) -> void:
 		var height: float = 0.37 if trace.low else trace.height
 		_ribbon(p, velocity, height, trace.low, Color(0.98, 0.99, 0.89, alpha), 0.015, 0.16 + minf(velocity.length(), 5.0) * 0.18)
 		visible_wind_lines += 1
+	line_vertices = ribbon_vertices.slice(0, line_cursor)
+	line_colors = ribbon_colors.slice(0, line_cursor)
 	if not line_vertices.is_empty():
 		var arrays := []
 		arrays.resize(Mesh.ARRAY_MAX)
@@ -379,13 +413,30 @@ func _update_lines(dt: float, moving: bool) -> void:
 		lines.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
 
 func update_map() -> void:
+	map_data.resize(Sim.COUNT * 4)
+	air_data.resize(Sim.COUNT * 4)
+	var cloud: PackedFloat32Array = sim.display_cloud
+	var rain: PackedFloat32Array = sim.display_rain
+	var charge: PackedFloat32Array = sim.display_charge
+	var humidity: PackedFloat32Array = sim.humidity
+	var cold: PackedFloat32Array = sim.display_cold
+	var hold: float = sim.settings.hold_seconds
 	for i in Sim.COUNT:
-		var q: float = sim.display_cloud[i]
-		var progress: float = sim.display_charge[i] / maxf(q * sim.settings.hold_seconds, 0.0001)
-		image.set_pixel(i % Sim.WIDTH, floori(float(i) / Sim.WIDTH), Color(q, sim.display_rain[i], progress, sim.humidity[i]))
-		air_image.set_pixel(i % Sim.WIDTH, floori(float(i) / Sim.WIDTH), Color(sim.humidity[i], sim.display_cold[i], 0.0, 1.0))
+		var q := cloud[i]
+		var progress := charge[i] / maxf(q * hold, 0.0001)
+		var offset := i * 4
+		map_data[offset] = q
+		map_data[offset + 1] = rain[i]
+		map_data[offset + 2] = progress
+		map_data[offset + 3] = humidity[i]
+		air_data[offset] = humidity[i]
+		air_data[offset + 1] = cold[i]
+		air_data[offset + 3] = 1.0
+	image.set_data(Sim.WIDTH, Sim.DEPTH, false, Image.FORMAT_RGBAF, map_data.to_byte_array())
+	air_image.set_data(Sim.WIDTH, Sim.DEPTH, false, Image.FORMAT_RGBAF, air_data.to_byte_array())
 	water_texture.update(image)
 	air_texture.update(air_image)
+	map_revision = sim.revision
 
 func _transform(point: Vector3, scale: float) -> Transform3D:
 	return Transform3D(Basis().scaled(Vector3.ONE * scale), point)
@@ -393,9 +444,13 @@ func _transform(point: Vector3, scale: float) -> Transform3D:
 func update_weather(dt: float, moving: bool) -> void:
 	if moving:
 		elapsed += dt
-	update_map()
+	if map_revision != sim.revision:
+		update_map()
 	air_material.set_shader_parameter("visual_time", elapsed)
-	_update_lines(dt, moving)
+	if moving or line_dirty or line_revision != sim.revision:
+		_update_lines(dt, moving)
+		line_revision = sim.revision
+		line_dirty = false
 	if moving and sim.last_lift > 0.001:
 		for attempt in 8:
 			var index := rng.randi_range(0, Sim.COUNT - 1)
@@ -403,7 +458,7 @@ func update_weather(dt: float, moving: bool) -> void:
 				for i in LIFT_COUNT:
 					if lift_age[i] < 0.0:
 						var p: Vector2 = sim.positions[index]
-						lift_positions[i] = Vector3(p.x, Sim.terrain_height(p) + 0.35, p.y)
+						lift_positions[i] = Vector3(p.x, sim.terrain.height(p) + 0.35, p.y)
 						lift_age[i] = 0.0
 						break
 	for i in LIFT_COUNT:
@@ -413,7 +468,10 @@ func update_weather(dt: float, moving: bool) -> void:
 			if lift_positions[i].y > Sim.CLOUD_HEIGHT:
 				lift_age[i] = -1.0
 		ascent.set_instance_transform(i, _transform(lift_positions[i], 1.1 if lift_age[i] >= 0.0 else 0.0))
-	_update_rain()
+	if rain_revision != sim.revision:
+		_update_rain()
+		rain_revision = sim.revision
+	rain_material.set_shader_parameter("visual_time", elapsed)
 	for target in plot_materials.size():
 		var water: float = clampf(sim.water_for(target) / sim.settings.target_water, 0.0, 1.0)
 		plot_materials[target].albedo_color = Color("bf936e").lerp(Color("8eaa78"), water)
@@ -422,8 +480,9 @@ func update_weather(dt: float, moving: bool) -> void:
 
 func _update_rain() -> void:
 	var total := 0
+	var rain: PackedFloat32Array = sim.rain
 	for i in Sim.COUNT:
-		rain_drop_counts[i] = clampi(ceili(sim.rain[i] * 5.0), 1, 9) if sim.rain[i] > 0.0 else 0
+		rain_drop_counts[i] = clampi(ceili(rain[i] * 5.0), 1, 9) if rain[i] > 0.0 else 0
 		total += rain_drop_counts[i]
 	var count := mini(total, RAIN_COUNT)
 	var selected := PackedInt32Array()

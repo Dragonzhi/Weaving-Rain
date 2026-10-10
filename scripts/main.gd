@@ -4,8 +4,10 @@ const WeatherView = preload("res://scripts/weather_view.gd")
 const WindInput = preload("res://scripts/wind_input.gd")
 const HUD = preload("res://scripts/game_hud.gd")
 const Onboarding = preload("res://scripts/onboarding.gd")
+const Layouts = preload("res://scripts/weather_layouts.gd")
+const SIMULATION_BUDGET_US := 8000
 @export var weather_settings: Resource = preload("res://scripts/weather_settings.gd").new()
-var sim: RefCounted
+var sim: Simulation
 var weather_view: Node3D
 var wind_input: Node
 var hud: Control
@@ -14,10 +16,20 @@ var accumulator := 0.0
 var guide := Onboarding.new()
 var play_mode := "lesson"
 var preferences_path := "user://onboarding.cfg"
+var free_layout := "standard"
+var frame_simulation_ms := 0.0
+var frame_view_ms := 0.0
+var frame_pick_ms := 0.0
+var frame_steps := 0
+var frame_input_ms := 0.0
 
 func _ready() -> void:
 	var args := OS.get_cmdline_user_args()
 	play_mode = initial_mode(args)
+	for arg in args:
+		if arg.begins_with("--layout="):
+			free_layout = Layouts.get_layout(arg.trim_prefix("--layout=")).id
+			play_mode = "free"
 	sim = _new_simulation()
 	guide.reset(play_mode == "lesson")
 	weather_view = WeatherView.new()
@@ -40,6 +52,7 @@ func _ready() -> void:
 	hud.cold_lab_requested.connect(cold_lab)
 	hud.free_play_requested.connect(enter_free_play)
 	hud.lesson_requested.connect(func(): switch_mode("lesson"))
+	hud.layout_requested.connect(select_layout)
 	for arg in args:
 		if arg == "--cloud-lab":
 			restart(true)
@@ -69,7 +82,11 @@ func restart(test_cloud: bool) -> void:
 	weather_view.reset_tracers()
 
 func _new_simulation() -> RefCounted:
-	return Simulation.new(weather_settings, play_mode == "free", play_mode == "lesson")
+	return Simulation.new(weather_settings, play_mode == "free", play_mode == "lesson", free_layout)
+
+func select_layout(id: String) -> void:
+	free_layout = Layouts.get_layout(id).id
+	switch_mode("free")
 
 func switch_mode(mode: String) -> void:
 	wind_input.cancel()
@@ -106,7 +123,7 @@ func cold_lab() -> void:
 	restart(true)
 	for i in Simulation.COUNT:
 		var p: Vector2 = sim.positions[i]
-		sim.cloud[i] = 2.1 * exp(-p.distance_squared_to(Simulation.PLOT) / 1.7)
+		sim.cloud[i] = 2.1 * exp(-p.distance_squared_to(sim.plot_centers[0]) / 1.7)
 		sim.rain[i] = sim.cloud[i]
 		sim.humidity[i] += 2.2 * exp(-p.distance_squared_to(Vector2(5.6, 1.8)) / 3.0)
 	sim.initial_water = sim.water_total()
@@ -115,17 +132,34 @@ func cold_lab() -> void:
 func _process(delta: float) -> void:
 	var moving: bool = not paused and sim.outcome == "playing"
 	var start := Time.get_ticks_usec()
+	if moving: wind_input.flush()
+	frame_input_ms = (Time.get_ticks_usec() - start) / 1000.0
+	start = Time.get_ticks_usec()
+	frame_steps = 0
 	if moving:
 		# Limit catch-up after debugger stalls without skipping simulation steps.
 		accumulator += minf(delta, 0.1)
+		var last_step_us := 0
 		while accumulator >= Simulation.FIXED_STEP:
+			# Keep pending fixed steps after a stall, instead of creating another long frame.
+			# Always advance at least once; further steps must fit the measured CPU budget.
+			if frame_steps > 0 and Time.get_ticks_usec() - start + last_step_us > SIMULATION_BUDGET_US:
+				break
+			var step_start := Time.get_ticks_usec()
 			sim.step(Simulation.FIXED_STEP)
 			guide.update(sim, Simulation.FIXED_STEP)
+			last_step_us = Time.get_ticks_usec() - step_start
 			accumulator -= Simulation.FIXED_STEP
-	hud.simulation_ms = lerpf(hud.simulation_ms, (Time.get_ticks_usec() - start) / 1000.0, 0.05)
+			frame_steps += 1
+	frame_simulation_ms = (Time.get_ticks_usec() - start) / 1000.0
+	hud.simulation_ms = lerpf(hud.simulation_ms, frame_simulation_ms, 0.05)
+	start = Time.get_ticks_usec()
 	weather_view.update_weather(minf(delta, 0.1), moving)
+	frame_view_ms = (Time.get_ticks_usec() - start) / 1000.0
 	wind_input.enabled = moving
+	start = Time.get_ticks_usec()
 	wind_input.update_hover()
+	frame_pick_ms = (Time.get_ticks_usec() - start) / 1000.0
 	hud.paused = paused
 	hud.frame_ms = lerpf(hud.frame_ms, delta * 1000.0, 0.05)
 	hud.queue_redraw()

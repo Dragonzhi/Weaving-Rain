@@ -179,5 +179,14 @@ func run() -> void:
 	check(valid, "Cloud fields stay nonnegative and activated rain stays a subset")
 	conservation.reset()
 	check(conservation.plot_water == 0.0 and conservation.outcome == "playing" and total(conservation.cloud) == 0.0, "Retry restores deterministic humidity-only start")
+	var impulse := PackedFloat32Array()
+	impulse.resize(Sim.COUNT)
+	var center := 20 * Sim.WIDTH + 24
+	impulse[center] = 1.0
+	var spread := conservation._smooth(impulse)
+	check(is_equal_approx(total(spread), 1.0) and is_equal_approx(spread[center], 0.25) and is_equal_approx(spread[center - Sim.WIDTH - 1], 0.0625), "Display smoothing preserves the original symmetric impulse footprint and total")
+	impulse.fill(2.0)
+	spread = conservation._smooth(impulse)
+	check(Array(spread).min() == 2.0 and Array(spread).max() == 2.0, "Separable smoothing preserves constant fields at clamped borders")
 	print("WEATHER TESTS: ", checks, " checks, ", failures, " failures, ", (Time.get_ticks_usec() - started) / 1000.0, " ms")
 	quit(0 if failures == 0 else 1)

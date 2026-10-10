@@ -14,12 +14,19 @@ $checks = @(
     @{ Name = 'weather'; Script = 'res://tests/test_weather.gd'; Headless = $true },
     @{ Name = 'cold-weather'; Script = 'res://tests/test_cold_weather.gd'; Headless = $true },
     @{ Name = 'onboarding'; Script = 'res://tests/test_onboarding.gd'; Headless = $true },
+    @{ Name = 'layouts'; Script = 'res://tests/test_layouts.gd'; Headless = $true },
+    @{ Name = 'wind-path'; Script = 'res://tests/test_wind_path.gd'; Headless = $true },
     @{ Name = 'scene'; Script = 'res://tests/test_scene.gd'; Headless = $false; Args = @('--fresh-guide') },
     @{ Name = 'render-fields'; Script = 'res://tests/test_render_fields.gd'; Headless = $false; Args = @('--free-play') },
+    @{ Name = 'cloud-surface'; Script = 'res://tests/test_cloud_surface.gd'; Headless = $false },
     @{ Name = 'replay'; Script = 'res://tests/replay_weather.gd'; Headless = $true },
     @{ Name = 'lesson-replay'; Script = 'res://tests/replay_weather.gd'; Headless = $true; Args = @('--lesson', '--snapshot=res://.godot/lesson-snapshot.json') },
     @{ Name = 'dual-mountain'; Script = 'res://tests/replay_relay.gd'; Headless = $true; Args = @('--mountain') },
-    @{ Name = 'dual-relay'; Script = 'res://tests/replay_relay.gd'; Headless = $true; Args = @('--snapshot=res://.godot/relay-snapshot.json') }
+    @{ Name = 'dual-relay'; Script = 'res://tests/replay_relay.gd'; Headless = $true; Args = @('--snapshot=res://.godot/relay-snapshot.json') },
+    @{ Name = 'far-mountain'; Script = 'res://tests/replay_relay.gd'; Headless = $true; Args = @('--layout=far', '--mountain-with-cold') },
+    @{ Name = 'far-relay'; Script = 'res://tests/replay_relay.gd'; Headless = $true; Args = @('--layout=far', '--snapshot=res://.godot/far-snapshot.json') },
+    @{ Name = 'close-mountain'; Script = 'res://tests/replay_relay.gd'; Headless = $true; Args = @('--layout=close', '--mountain-with-cold', '--snapshot=res://.godot/close-snapshot.json') },
+    @{ Name = 'close-reverse'; Script = 'res://tests/replay_relay.gd'; Headless = $true; Args = @('--layout=close', '--mountain-with-cold', '--reverse') }
 )
 foreach ($check in $checks) {
     $logPath = Join-Path $cacheDirectory ($check.Name + '-check.log')
@@ -33,4 +40,4 @@ foreach ($check in $checks) {
         throw "Check failed: $($check.Name). See $logPath"
     }
 }
-Write-Output 'All weather, onboarding, viewport, and four playthrough checks passed.'
+Write-Output 'All weather, onboarding, layout, wind-path, cloud-surface, viewport, and eight playthrough checks passed.'
