@@ -1,0 +1,51 @@
+[gd_resource type="Resource" script_class="WRMapDefinition" load_steps=11 format=3]
+
+[ext_resource type="Script" path="res://scripts/map_definition.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/map_mountain.gd" id="2"]
+[ext_resource type="Script" path="res://scripts/map_humidity.gd" id="3"]
+[ext_resource type="Script" path="res://scripts/plot_region.gd" id="4"]
+
+[sub_resource type="Resource" id="WestMountain"]
+script = ExtResource("2")
+position = Vector2(-4, -1)
+radius = 1.8
+height = 2.1
+
+[sub_resource type="Resource" id="EastMountain"]
+script = ExtResource("2")
+position = Vector2(4, -2.2)
+radius = 1.8
+height = 2.3
+
+[sub_resource type="Resource" id="West"]
+script = ExtResource("3")
+position = Vector2(-6, -1)
+
+[sub_resource type="Resource" id="East"]
+script = ExtResource("3")
+position = Vector2(6, 1)
+
+[sub_resource type="Resource" id="Circle"]
+script = ExtResource("4")
+shape = "circle"
+
+[sub_resource type="Resource" id="Ellipse"]
+script = ExtResource("4")
+shape = "ellipse"
+half_axes = Vector2(1.5, 0.9)
+
+[resource]
+script = ExtResource("1")
+id = "valleys"
+title = "第二关 · 两山分雨"
+hint = "两侧山坡都能造雨 · 东侧湿空气也可迎向已有冷风，在目标附近接力"
+shape = "long"
+island_center = Vector2(0, 0)
+island_axes = Vector2(9.5, 5.5)
+river_enabled = false
+star_level = true
+time_limit_seconds = 180.0
+mountains = Array[ExtResource("2")]([SubResource("WestMountain"), SubResource("EastMountain")])
+plots = PackedVector2Array(-4, 2.1, 0, 2.3, 3.8, 2.5)
+plot_regions = Array[ExtResource("4")]([null, SubResource("Circle"), SubResource("Ellipse")])
+humidity_sources = Array[ExtResource("3")]([SubResource("West"), SubResource("East")])

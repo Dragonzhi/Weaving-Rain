@@ -14,13 +14,34 @@ var last_force := 0.0
 var hud: Control
 var path_points := PackedVector2Array()
 var path_times := PackedFloat64Array()
+var tool := "brush"
+var source_tier := 1
+var gesture_start := Vector2.ZERO
+var gesture_time := 0.0
+var gesture_distance := 0.0
+var gesture_direction := Vector2.ZERO
+var gesture_strength := 0.0
+var meaningful_distance := 0.0
+var last_motion_seconds := 0.0
+var message := ""
+var message_until := 0
 
 func setup(model: RefCounted, view_camera: Camera3D) -> void:
 	sim = model
 	camera = view_camera
+	if not get_viewport().mouse_exited.is_connected(_on_viewport_exit):
+		get_viewport().mouse_exited.connect(_on_viewport_exit)
+
+func _on_viewport_exit() -> void:
+	flush()
+	cancel()
 
 func cancel() -> void:
+	if sim != null: sim.clear_held_wind()
 	dragging = false
+	gesture_distance = 0.0
+	meaningful_distance = 0.0
+	gesture_direction = Vector2.ZERO
 	last_force = 0.0
 	path_points.resize(0)
 	path_times.resize(0)
@@ -30,6 +51,10 @@ func append_point(point: Vector2, seconds: float) -> void:
 	path_times.append(seconds)
 
 func flush() -> void:
+	if tool != "brush":
+		path_points.resize(0)
+		path_times.resize(0)
+		return
 	if path_points.size() < 2: return
 	var emitted := path_points[0]
 	var emitted_time := path_times[0]
@@ -66,7 +91,35 @@ func apply_segment(a: Vector2, b: Vector2, from_time: float, to_time: float) -> 
 	var speed := a.distance_to(b) / maxf(to_time - from_time, 0.001)
 	sim.stroke(a, b, speed)
 	stroke_applied.emit(a, b, reference_height)
-	last_force = minf(speed / 16.0, 1.0)
+	last_force = minf(speed / sim.settings.stroke_speed_full, 1.0)
+	meaningful_distance += a.distance_to(b)
+	if meaningful_distance >= 0.125:
+		gesture_direction = (b - a).normalized()
+		gesture_strength = last_force
+
+func select_tool(value: String) -> void:
+	cancel()
+	tool = value
+
+func update_held(now_seconds: float = -1.0) -> void:
+	var now := Time.get_ticks_usec() / 1000000.0 if now_seconds < 0.0 else now_seconds
+	if enabled and dragging and tool == "brush" and gesture_direction != Vector2.ZERO and now - last_motion_seconds >= 0.12:
+		sim.set_held_wind(Vector2(brush_point.x, brush_point.z), gesture_direction, gesture_strength)
+	else: sim.clear_held_wind()
+
+func release_at(screen: Vector2) -> void:
+	if not dragging: return
+	var valid: bool = get_viewport().get_visible_rect().has_point(screen) and (hud == null or not hud.blocks_wind(screen))
+	if tool == "source" and valid and enabled:
+		var hit: Variant = _on_plane(screen, reference_height)
+		if hit != null and Sim.contains(Vector2(hit.x, hit.z)) and gesture_start.distance_to(Vector2(hit.x, hit.z)) >= 0.25:
+			var end := Vector2(hit.x, hit.z)
+			var result := sim.add_wind_source(gesture_start, end - gesture_start, source_tier / 2.0, end)
+			if not result.ok:
+				message = result.reason
+				message_until = Time.get_ticks_msec() + 2500
+	elif tool == "brush": flush()
+	cancel()
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_APPLICATION_FOCUS_OUT:
@@ -130,9 +183,13 @@ func update_hover() -> void:
 	hover_valid = Sim.contains(Vector2(brush_point.x, brush_point.z))
 
 func _unhandled_input(event: InputEvent) -> void:
-	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
+	if event is InputEventMouseButton and event.pressed and event.button_index in [MOUSE_BUTTON_WHEEL_UP, MOUSE_BUTTON_WHEEL_DOWN]:
+		if enabled and dragging and tool == "source" and sim.outcome == "playing" and (hud == null or not hud.blocks_wind(event.position)):
+			source_tier = clampi(source_tier + (1 if event.button_index == MOUSE_BUTTON_WHEEL_UP else -1), 0, 2)
+			get_viewport().set_input_as_handled()
+	elif event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
 		if not event.pressed:
-			cancel()
+			release_at(event.position)
 			return
 		if not enabled or sim.outcome != "playing":
 			return
@@ -144,10 +201,18 @@ func _unhandled_input(event: InputEvent) -> void:
 		reference_height = brush_point.y
 		last_point = Vector2(brush_point.x, brush_point.z)
 		last_time = Time.get_ticks_usec()
+		gesture_start = last_point
+		source_tier = 1
+		gesture_time = last_time / 1000000.0
+		last_motion_seconds = gesture_time
 		append_point(last_point, last_time / 1000000.0)
 		dragging = true
 		get_viewport().set_input_as_handled()
 	elif event is InputEventMouseMotion and dragging:
+		if not get_viewport().get_visible_rect().has_point(event.position):
+			flush()
+			cancel()
+			return
 		if not enabled:
 			cancel()
 			return
@@ -157,6 +222,11 @@ func _unhandled_input(event: InputEvent) -> void:
 		brush_point = hit
 		var point := Vector2(brush_point.x, brush_point.z)
 		var now := Time.get_ticks_usec()
+		var distance := point.distance_to(last_point)
+		gesture_distance += distance
+		if distance > 0.00001:
+			last_motion_seconds = now / 1000000.0
+			sim.clear_held_wind()
 		append_point(point, now / 1000000.0)
 		last_point = point
 		last_time = now
@@ -168,5 +238,4 @@ func _input(event: InputEvent) -> void:
 		cancel()
 	# Release is observed even if the cursor finishes over a UI button.
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and not event.pressed:
-		flush()
-		cancel()
+		release_at(event.position)

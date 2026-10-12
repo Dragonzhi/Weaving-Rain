@@ -27,6 +27,9 @@ func push(sim: RefCounted, at: Vector2, direction: Vector2, length: float = 2.2,
 func feed_mountain(sim: RefCounted) -> void:
 	var source := Vector2(-6, 1)
 	var mountain: Vector2 = sim.terrain.mountain
+	var target_index := second_index if reached_first else first_index
+	for candidate in sim.terrain.mountains:
+		if candidate.position.distance_to(sim.plot_centers[target_index]) < mountain.distance_to(sim.plot_centers[target_index]): mountain = candidate.position
 	var best := 0.0
 	for i in Sim.COUNT:
 		var p: Vector2 = sim.positions[i]
@@ -63,7 +66,7 @@ func snapshot(sim: RefCounted, tick: int) -> void:
 			var velocities: Array = []
 			for v in sim.wind:
 				velocities.append([v.x, v.y])
-			file.store_string(JSON.stringify({"layout": sim.layout_id, "humidity": Array(sim.humidity), "cloud": Array(sim.cloud), "rain": Array(sim.rain), "charge": Array(sim.charge), "cold": Array(sim.cold), "wind": velocities, "plot_water": sim.plot_water, "second_water": sim.second_water, "rain_lost": sim.rain_lost, "initial_water": sim.initial_water, "rain_rate": sim.total_rain_rate, "cold_lift": sim.total_cold_lift, "time": tick / 60.0, "stroke": [[last_from.x, last_from.y], [last_to.x, last_to.y]]}))
+			file.store_string(JSON.stringify({"layout": sim.layout_id, "humidity": Array(sim.humidity), "cloud": Array(sim.cloud), "rain": Array(sim.rain), "charge": Array(sim.charge), "cold": Array(sim.cold), "wind": velocities, "plot_water": sim.plot_water, "second_water": sim.second_water, "rain_lost": sim.rain_lost, "escaped_water": sim.escaped_water, "initial_water": sim.initial_water, "rain_rate": sim.total_rain_rate, "cold_lift": sim.total_cold_lift, "time": tick / 60.0, "stroke": [[last_from.x, last_from.y], [last_to.x, last_to.y]]}))
 			file.close()
 
 func run() -> void:
@@ -145,6 +148,8 @@ func run() -> void:
 				var edge := Vector2(cos(angle), sin(angle))
 				push(sim, target + edge * 1.7, -edge, 1.0, 8.0)
 		sim.step(Sim.FIXED_STEP)
+		# Star levels end only through the same explicit settlement API used by the HUD.
+		if sim.star_level and sim.can_finish(): sim.finish()
 		if reached_first and sim.second_water >= 30.0 and sim.total_cold_lift - first_cold_lift > 2.0 and not captured:
 			snapshot(sim, tick)
 			captured = true
@@ -155,4 +160,5 @@ func run() -> void:
 	var relay_lift: float = sim.total_cold_lift - first_cold_lift
 	var near_lift: float = sim.cold_lift_near_second - first_near_lift
 	print("DUAL RESULT ", layout, " ", mode, " cold_enabled=", sim.settings.cold_enabled, ": ", sim.outcome, " A=", sim.plot_water, " B=", sim.second_water, " strokes=", strokes, " front_strokes=", front_strokes, " second_lift=", relay_lift, " near_B=", near_lift, " water_error=", sim.water_total() - sim.initial_water)
+	if sim.star_level: print("STAR RESULT ", layout, " stars=", sim.result_stars, " water=", sim.plot_waters, " destroyed=", sim.plot_destroyed)
 	quit(0 if sim.outcome == "success" and (mode == "mountain" or (near_lift > 2.0 and front_strokes > 0)) else 1)

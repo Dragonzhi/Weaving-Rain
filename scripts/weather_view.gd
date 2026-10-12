@@ -1,10 +1,12 @@
 extends Node3D
 const Sim = preload("res://scripts/weather_simulation.gd")
 const CLOUD_SHADER = preload("res://shaders/cloud.gdshader")
+const CLOUD_BOUNDS_SHADER = preload("res://shaders/cloud_bounds.gdshader")
 const TERRAIN_SHADER = preload("res://shaders/terrain.gdshader")
 const OCEAN_SHADER = preload("res://shaders/ocean.gdshader")
 const AIR_SHADER = preload("res://shaders/low_air.gdshader")
 const RAIN_SHADER = preload("res://shaders/rain.gdshader")
+const ARROW_SHADER = preload("res://shaders/weather_arrows.gdshader")
 const VAPOR_COUNT := 210
 const RAIN_COUNT := 750
 const LIFT_COUNT := 120
@@ -13,6 +15,7 @@ var sim: Sim
 var camera: Camera3D
 var image: Image
 var water_texture: ImageTexture
+var cloud_bounds_viewport: SubViewport
 var cloud_material: ShaderMaterial
 var rainfall: MultiMesh
 var ascent: MultiMesh
@@ -33,6 +36,16 @@ var line_material: StandardMaterial3D
 var wind_traces: Array[Dictionary] = []
 var visible_wind_lines := 0
 var wind_spawn_distance := 0.0
+var source_emission: Dictionary = {}
+var source_trace_serial := 0
+var visible_source_lines := 0
+var field_emission := 0.0
+var field_line_revision := -1
+var field_line_refresh := -1.0
+var field_line_candidates := PackedInt32Array()
+var field_line_serial := 0
+var front_line_cells := PackedInt32Array()
+var front_line_revision := -1
 var rain_material: ShaderMaterial
 var rain_indices := PackedInt32Array()
 var rain_drop_counts := PackedInt32Array()
@@ -50,6 +63,20 @@ var ribbon_vertices := PackedVector3Array()
 var ribbon_colors := PackedColorArray()
 var line_cursor := 0
 var ribbon_points := PackedVector3Array()
+var ribbon_eye := Vector3.ZERO
+var arrows_enabled := true
+var arrow_mesh := ArrayMesh.new()
+var arrow_material: ShaderMaterial
+var arrow_instances := MultiMesh.new()
+var arrow_candidates: Array[Dictionary] = []
+var arrow_refresh := -1.0
+var interaction_point := Vector2.ZERO
+var interaction_until := -1.0
+var visible_arrows := 0
+const WET_ARROW := Color("ef987f")
+const COLD_ARROW := Color("78b8d8")
+const CLOUD_ARROW := Color("e6f1ed")
+const LIFT_ARROW := Color("e7c77a")
 
 func setup(model: RefCounted) -> void:
 	sim = model
@@ -57,6 +84,18 @@ func setup(model: RefCounted) -> void:
 	rng.seed = 44721
 	image = Image.create(Sim.WIDTH, Sim.DEPTH, false, Image.FORMAT_RGBAF)
 	water_texture = ImageTexture.create_from_image(image)
+	cloud_bounds_viewport = SubViewport.new()
+	cloud_bounds_viewport.size = Vector2i(Sim.WIDTH, Sim.DEPTH)
+	cloud_bounds_viewport.disable_3d = true
+	cloud_bounds_viewport.use_hdr_2d = true
+	add_child(cloud_bounds_viewport)
+	var bounds_material := ShaderMaterial.new()
+	bounds_material.shader = CLOUD_BOUNDS_SHADER
+	bounds_material.set_shader_parameter("water_map", water_texture)
+	var bounds_rect := ColorRect.new()
+	bounds_rect.size = cloud_bounds_viewport.size
+	bounds_rect.material = bounds_material
+	cloud_bounds_viewport.add_child(bounds_rect)
 	air_image = Image.create(Sim.WIDTH, Sim.DEPTH, false, Image.FORMAT_RGBAF)
 	air_texture = ImageTexture.create_from_image(air_image)
 	update_map()
@@ -92,6 +131,7 @@ func _terrain_material(color: Color, shore: bool = false) -> ShaderMaterial:
 	material.set_shader_parameter("base_color", color)
 	material.set_shader_parameter("shore", shore)
 	material.set_shader_parameter("water_map", water_texture)
+	material.set_shader_parameter("edge_fade", sim.settings.open_boundary)
 	return material
 
 func _vertex(st: SurfaceTool, p: Vector3, normal: Vector3) -> void:
@@ -165,15 +205,15 @@ func _create_scene() -> void:
 		for p in [v2, v2 - Vector3.UP * 0.65, v3, v3, v2 - Vector3.UP * 0.65, v3 - Vector3.UP * 0.65]:
 			_vertex(shore, p, normal)
 	_mesh_instance(shore.commit(), _terrain_material(Color("e5d6a4"), true))
-	_create_river()
-	for target in sim.plot_centers:
+	if sim.layout.get("river_enabled", true): _create_river()
+	for target in sim.plot_centers.size():
 		_create_plot(target)
 	plot_material = plot_materials[0]
 	for p in [Vector2(-5.4, -1.6), Vector2(-3.8, 3.2), Vector2(5.7, -1.8), Vector2(1.2, -3.7)]:
 		if not sim.terrain.is_land(p): continue
 		var near_plot := false
 		for plot in sim.plot_centers:
-			near_plot = near_plot or p.distance_to(plot) < Sim.PLOT_HALF * 1.5
+			near_plot = near_plot or p.distance_to(plot) < sim.plot_half * 1.5
 		if near_plot: continue
 		var rock := SphereMesh.new()
 		rock.radius = 0.23
@@ -182,15 +222,17 @@ func _create_scene() -> void:
 		rock.rings = 3
 		_mesh_instance(rock, _terrain_material(Color("6f917c")), Vector3(p.x, sim.terrain.height(p) + 0.09, p.y))
 
-func _create_plot(center: Vector2) -> void:
-	var plot_mesh := BoxMesh.new()
-	plot_mesh.size = Vector3(Sim.PLOT_HALF * 2.0, 0.035, Sim.PLOT_HALF * 2.0)
+func _create_plot(target: int) -> void:
+	var center: Vector2 = sim.plot_centers[target]
+	var region: WRPlotRegion = sim.plot_regions[target]
+	var plot_mesh := region.mesh(sim.plot_half)
 	var material := _material(Color("bf936b"))
 	plot_materials.append(material)
 	_mesh_instance(plot_mesh, material, Vector3(center.x, 0.255, center.y))
 	for row in 3:
 		for column in 3:
 			var point := Vector3(center.x - 0.75 + column * 0.75, 0.29, center.y - 0.75 + row * 0.75)
+			if not region.contains(Vector2(point.x, point.z) - center, sim.plot_half): continue
 			var stem := CylinderMesh.new()
 			stem.top_radius = 0.024
 			stem.bottom_radius = 0.024
@@ -227,16 +269,19 @@ func _multimesh(count: int, mesh: Mesh, color: Color) -> MultiMesh:
 	node.multimesh = multi
 	node.material_override = _material(color)
 	node.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	node.custom_aabb = AABB(Vector3(-13, -1, -11), Vector3(26, 8, 22))
+	node.custom_aabb = AABB(Vector3(-17, -1, -15), Vector3(34, 8, 30))
 	add_child(node)
 	return multi
 
 func _create_weather() -> void:
 	var box := BoxMesh.new()
-	box.size = Vector3(24, Sim.CLOUD_TOP - Sim.CLOUD_BOTTOM, 20)
+	box.size = Vector3(32, Sim.CLOUD_TOP - Sim.CLOUD_BOTTOM, 28)
 	cloud_material = ShaderMaterial.new()
 	cloud_material.shader = CLOUD_SHADER
 	cloud_material.set_shader_parameter("water_map", water_texture)
+	cloud_material.set_shader_parameter("cloud_bounds", cloud_bounds_viewport.get_texture())
+	cloud_material.set_shader_parameter("use_cloud_bounds", true)
+	cloud_material.set_shader_parameter("edge_fade", sim.settings.open_boundary)
 	cloud_material.set_shader_parameter("threshold", sim.settings.cloud_threshold)
 	cloud_material.set_shader_parameter("ray_direction", -camera.global_basis.z)
 	var clouds := _mesh_instance(box, cloud_material, Vector3(0, (Sim.CLOUD_TOP + Sim.CLOUD_BOTTOM) * 0.5, 0))
@@ -251,6 +296,28 @@ func _create_weather() -> void:
 	line_material.cull_mode = BaseMaterial3D.CULL_DISABLED
 	line_node = _mesh_instance(lines, line_material)
 	line_node.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	arrow_material = ShaderMaterial.new()
+	arrow_material.shader = ARROW_SHADER
+	arrow_material.set_shader_parameter("water_map", water_texture)
+	arrow_material.set_shader_parameter("ray_direction", -camera.global_basis.z)
+	arrow_material.set_shader_parameter("threshold", sim.settings.cloud_threshold)
+	arrow_material.set_shader_parameter("edge_fade", sim.settings.open_boundary)
+	var arrow_arrays := []
+	arrow_arrays.resize(Mesh.ARRAY_MAX)
+	arrow_arrays[Mesh.ARRAY_VERTEX] = PackedVector3Array([Vector3(0,-1,0), Vector3(0,1,0), Vector3(0.68,-1,0), Vector3(0,1,0), Vector3(0.68,1,0), Vector3(0.68,-1,0), Vector3(0.68,-3,0), Vector3(0.68,3,0), Vector3(1,0,0)])
+	arrow_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrow_arrays)
+	arrow_instances.transform_format = MultiMesh.TRANSFORM_3D
+	arrow_instances.use_colors = true
+	arrow_instances.use_custom_data = true
+	arrow_instances.instance_count = 32
+	arrow_instances.visible_instance_count = 0
+	arrow_instances.mesh = arrow_mesh
+	var arrow_node := MultiMeshInstance3D.new()
+	arrow_node.multimesh = arrow_instances
+	arrow_node.material_override = arrow_material
+	arrow_node.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	arrow_node.custom_aabb = AABB(Vector3(-17, -1, -15), Vector3(34, 8, 30))
+	add_child(arrow_node)
 	var drop := BoxMesh.new()
 	drop.size = Vector3(0.018, 0.22, 0.018)
 	rainfall = MultiMesh.new()
@@ -266,7 +333,7 @@ func _create_weather() -> void:
 	rain_node.multimesh = rainfall
 	rain_node.material_override = rain_material
 	rain_node.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	rain_node.custom_aabb = AABB(Vector3(-13, -1, -11), Vector3(26, 8, 22))
+	rain_node.custom_aabb = AABB(Vector3(-17, -1, -15), Vector3(34, 8, 30))
 	add_child(rain_node)
 	for i in LIFT_COUNT:
 		lift_positions.append(Vector3.ZERO)
@@ -282,9 +349,22 @@ func reset_tracers() -> void:
 		lift_age[i] = -1.0
 	elapsed = 0.0
 	wind_traces.clear()
+	source_emission.clear()
+	source_trace_serial = 0
+	visible_source_lines = 0
+	field_emission = 0.0
+	field_line_revision = -1
+	field_line_refresh = -1.0
+	field_line_candidates.clear()
+	field_line_serial = 0
+	front_line_revision = -1
 	lines.clear_surfaces()
 	visible_wind_lines = 0
 	wind_spawn_distance = 0.0
+	arrow_candidates.clear()
+	arrow_refresh = -1.0
+	interaction_until = -1.0
+	arrow_instances.visible_instance_count = 0
 	rain_indices.resize(0)
 	rainfall.visible_instance_count = 0
 
@@ -300,6 +380,7 @@ func _create_low_air() -> void:
 	air_material = ShaderMaterial.new()
 	air_material.shader = AIR_SHADER
 	air_material.set_shader_parameter("air_map", air_texture)
+	air_material.set_shader_parameter("edge_fade", sim.settings.open_boundary)
 	var air := _mesh_instance(mesh.commit(), air_material)
 	air.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 
@@ -319,38 +400,50 @@ func add_wind_stroke(from: Vector2, to: Vector2, height: float) -> void:
 		wind_traces.pop_front()
 
 func _ribbon(center: Vector2, velocity: Vector2, height: float, low: bool, color: Color, width: float, length: float, segments: int = 3) -> void:
+	var vertices := ribbon_vertices
+	var colors := ribbon_colors
+	var points := ribbon_points
+	var eye := ribbon_eye
 	var direction := velocity.normalized() if velocity.length() > 0.025 else Vector2.RIGHT
 	var p := center
 	for k in segments + 1:
-		var y: float = sim.terrain.height(p) + height if low else maxf(height, sim.terrain.height(p) + 0.10)
-		ribbon_points[k] = Vector3(p.x, y, p.y)
+		var y := height
+		if low:
+			y += sim.terrain.height(p)
+		elif height < sim.terrain.maximum_height + 0.10:
+			y = maxf(height, sim.terrain.height(p) + 0.10)
+		points[k] = Vector3(p.x, y, p.y)
 		if k == segments: break
 		var v: Vector2 = velocity if k == 0 else sim.velocity_at(p, low)
 		if v.length() > 0.025:
 			direction = v.normalized()
 		p -= direction * length / segments
 	for k in segments:
-		var tangent := (ribbon_points[k + 1] - ribbon_points[k]).normalized()
-		var side := tangent.cross(camera.global_basis.z).normalized() * width
+		var tangent := (points[k + 1] - points[k]).normalized()
+		var side := tangent.cross(eye).normalized() * width
 		var a := color
 		var b := color
 		a.a *= sin((k + 0.5) / (segments + 1.0) * PI)
 		b.a *= sin((k + 1.5) / (segments + 1.0) * PI)
-		ribbon_vertices[line_cursor] = ribbon_points[k] - side
-		ribbon_vertices[line_cursor + 1] = ribbon_points[k] + side
-		ribbon_vertices[line_cursor + 2] = ribbon_points[k + 1] - side
-		ribbon_vertices[line_cursor + 3] = ribbon_points[k + 1] - side
-		ribbon_vertices[line_cursor + 4] = ribbon_points[k] + side
-		ribbon_vertices[line_cursor + 5] = ribbon_points[k + 1] + side
-		ribbon_colors[line_cursor] = a
-		ribbon_colors[line_cursor + 1] = a
-		ribbon_colors[line_cursor + 2] = b
-		ribbon_colors[line_cursor + 3] = b
-		ribbon_colors[line_cursor + 4] = a
-		ribbon_colors[line_cursor + 5] = b
+		vertices[line_cursor] = points[k] - side
+		vertices[line_cursor + 1] = points[k] + side
+		vertices[line_cursor + 2] = points[k + 1] - side
+		vertices[line_cursor + 3] = points[k + 1] - side
+		vertices[line_cursor + 4] = points[k] + side
+		vertices[line_cursor + 5] = points[k + 1] + side
+		colors[line_cursor] = a
+		colors[line_cursor + 1] = a
+		colors[line_cursor + 2] = b
+		colors[line_cursor + 3] = b
+		colors[line_cursor + 4] = a
+		colors[line_cursor + 5] = b
 		line_cursor += 6
 
 func _update_lines(dt: float, moving: bool) -> void:
+	if moving:
+		_emit_source_lines(dt)
+		_emit_field_lines(dt)
+	ribbon_eye = camera.global_basis.z
 	lines.clear_surfaces()
 	line_vertices.resize(0)
 	line_colors.resize(0)
@@ -358,6 +451,7 @@ func _update_lines(dt: float, moving: bool) -> void:
 	ribbon_colors.resize(ribbon_vertices.size())
 	line_cursor = 0
 	visible_wind_lines = 0
+	visible_source_lines = 0
 	for i in VAPOR_COUNT:
 		var p := vapor_positions[i]
 		var velocity: Vector2 = sim.velocity_at(p)
@@ -370,14 +464,22 @@ func _update_lines(dt: float, moving: bool) -> void:
 				vapor_positions[i] = Vector2(rng.randf_range(-10.5, 8.0), rng.randf_range(-6.0, 7.0))
 			continue
 		var phase := elapsed * 1.1 + i * 1.7
-		var opacity := clampf(q * 0.32, 0.0, 0.70) * (0.82 + 0.18 * sin(phase))
+		var opacity := clampf(q * 0.32, 0.0, 0.70) * sim.edge_visibility(p) * (0.82 + 0.18 * sin(phase))
 		# Local bobbing makes still moisture discoverable without inventing horizontal wind.
 		_ribbon(p, velocity, 0.33 + 0.08 * sin(phase), true, Color(0.91, 0.98, 0.85, opacity), 0.011, 0.16 + minf(velocity.length(), 4.0) * 0.13, 1)
-	var front_cells := PackedInt32Array()
-	for i in range(0, Sim.COUNT, 5):
-		if sim.display_cold[i] < 0.12 or sim.cold_gradient(i).length() < 0.04:
-			continue
-		front_cells.append(i)
+	if front_line_revision != sim.revision:
+		front_line_cells.clear()
+		var cool := sim.display_cold
+		var left := sim.neighbor_left
+		var right := sim.neighbor_right
+		var top := sim.neighbor_top
+		var bottom := sim.neighbor_bottom
+		for i in range(0, Sim.COUNT, 5):
+			if cool[i] < 0.12: continue
+			var gradient := Vector2(cool[right[i]] - cool[left[i]], cool[bottom[i]] - cool[top[i]]) / (2.0 * Sim.CELL)
+			if gradient.length() >= 0.04: front_line_cells.append(i)
+		front_line_revision = sim.revision
+	var front_cells := front_line_cells
 	# Cap passive front annotations across the whole field; active strokes stay curved.
 	var stride := maxi(1, ceili(front_cells.size() / 96.0))
 	for index in range(0, front_cells.size(), stride):
@@ -397,12 +499,13 @@ func _update_lines(dt: float, moving: bool) -> void:
 		if trace.age > 2.4 or not Sim.contains(p):
 			wind_traces.remove_at(i)
 			continue
-		var alpha := minf(velocity.length() / 2.0, 0.85) * maxf(0.0, 1.0 - trace.age / 2.4)
+		var alpha := minf(velocity.length() / 2.0, 0.85) * maxf(0.0, 1.0 - trace.age / 2.4) * sim.edge_visibility(p)
 		if alpha < 0.015:
 			continue
 		var height: float = 0.37 if trace.low else trace.height
 		_ribbon(p, velocity, height, trace.low, Color(0.98, 0.99, 0.89, alpha), 0.015, 0.16 + minf(velocity.length(), 5.0) * 0.18)
 		visible_wind_lines += 1
+		if trace.get("source", false): visible_source_lines += 1
 	line_vertices = ribbon_vertices.slice(0, line_cursor)
 	line_colors = ribbon_colors.slice(0, line_cursor)
 	if not line_vertices.is_empty():
@@ -411,6 +514,65 @@ func _update_lines(dt: float, moving: bool) -> void:
 		arrays[Mesh.ARRAY_VERTEX] = line_vertices
 		arrays[Mesh.ARRAY_COLOR] = line_colors
 		lines.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+
+func _emit_source_lines(dt: float) -> void:
+	# Per-source visual-time accumulators: emission does not depend on mouse
+	# event frequency, and pausing neither emits nor ages existing ribbons.
+	var active: Array[int] = []
+	if sim.outcome != "playing":
+		source_emission.clear()
+		return
+	for source in sim.wind_sources:
+		active.append(source.id)
+		var fade := minf(1.0, source.remaining / source.fade)
+		var accumulated: float = source_emission.get(source.id, 0.0) + dt * (4.0 + source.strength * 8.0) * fade
+		var emit := mini(floori(accumulated), 6)
+		source_emission[source.id] = accumulated - floorf(accumulated)
+		for index in emit:
+			# Distributed along the entire band, with soft lateral coverage.
+			# Visual seeds do not consume the vapor/stroke random generator.
+			source_trace_serial += 1
+			var angle := source_trace_serial * 2.39996323
+			var radius := sim.settings.brush_radius * fposmod(source_trace_serial * 0.61803399, 1.0) * 0.9
+			var along := fposmod(source_trace_serial * 0.754877666, 1.0)
+			var p: Vector2 = source.position.lerp(source.end, along) + Vector2(cos(angle), sin(angle)) * radius
+			wind_traces.append({"p": p, "height": 0.37, "low": true, "age": 0.0, "source": true})
+			if sim.sample_cloud(sim.display_cloud, p) > 0.06:
+				wind_traces.append({"p": p, "height": Sim.CLOUD_TOP + 0.05, "low": false, "age": 0.0, "source": true})
+	for id in source_emission.keys():
+		if not id in active: source_emission.erase(id)
+	# Shared ribbon budget for mouse and persistent sources.
+	while wind_traces.size() > 48: wind_traces.pop_front()
+
+func _emit_field_lines(dt: float) -> void:
+	# White lines describe actual wind, including cold outflow and residual wind
+	# in dry air. Sample the published field without depending on interaction.
+	if sim.outcome != "playing": return
+	if field_line_revision != sim.revision and elapsed >= field_line_refresh:
+		field_line_refresh = elapsed + 0.1
+		field_line_candidates.clear()
+		var low := sim.low_wind
+		var high := sim.wind
+		for i in Sim.COUNT:
+			if low[i].length_squared() > 0.0036:
+				field_line_candidates.append(i * 2)
+			if high[i].length_squared() > 0.0036:
+				field_line_candidates.append(i * 2 + 1)
+		field_line_revision = sim.revision
+	if field_line_candidates.is_empty():
+		field_emission = 0.0
+		return
+	field_emission += dt * 12.0
+	var emit := mini(floori(field_emission), 6)
+	field_emission -= floorf(field_emission)
+	for index in emit:
+		field_line_serial += 1
+		var n := mini(field_line_candidates.size() - 1, floori(fposmod(field_line_serial * 0.61803399, 1.0) * field_line_candidates.size()))
+		# Packed cell/layer indices avoid a temporary dictionary per windy cell.
+		var candidate: int = field_line_candidates[n]
+		var low := candidate % 2 == 0
+		wind_traces.append({"p": sim.positions[candidate / 2], "height": 0.37 if low else Sim.CLOUD_TOP + 0.05, "low": low, "age": 0.0, "field": true})
+	while wind_traces.size() > 48: wind_traces.pop_front()
 
 func update_map() -> void:
 	map_data.resize(Sim.COUNT * 4)
@@ -421,25 +583,155 @@ func update_map() -> void:
 	var humidity: PackedFloat32Array = sim.humidity
 	var cold: PackedFloat32Array = sim.display_cold
 	var hold: float = sim.settings.hold_seconds
+	var water_pixels := map_data
+	var air_pixels := air_data
 	for i in Sim.COUNT:
 		var q := cloud[i]
 		var progress := charge[i] / maxf(q * hold, 0.0001)
 		var offset := i * 4
-		map_data[offset] = q
-		map_data[offset + 1] = rain[i]
-		map_data[offset + 2] = progress
-		map_data[offset + 3] = humidity[i]
-		air_data[offset] = humidity[i]
-		air_data[offset + 1] = cold[i]
-		air_data[offset + 3] = 1.0
+		water_pixels[offset] = q
+		water_pixels[offset + 1] = rain[i]
+		water_pixels[offset + 2] = progress
+		water_pixels[offset + 3] = humidity[i]
+		air_pixels[offset] = humidity[i]
+		air_pixels[offset + 1] = cold[i]
+		air_pixels[offset + 3] = 1.0
 	image.set_data(Sim.WIDTH, Sim.DEPTH, false, Image.FORMAT_RGBAF, map_data.to_byte_array())
 	air_image.set_data(Sim.WIDTH, Sim.DEPTH, false, Image.FORMAT_RGBAF, air_data.to_byte_array())
 	water_texture.update(image)
+	# Godot renders viewport dependencies before materials sampling their textures.
+	# Recompute the conservative bound on GPU from the same publication, no readback.
+	cloud_bounds_viewport.render_target_update_mode = SubViewport.UPDATE_ONCE
 	air_texture.update(air_image)
 	map_revision = sim.revision
 
 func _transform(point: Vector3, scale: float) -> Transform3D:
 	return Transform3D(Basis().scaled(Vector3.ONE * scale), point)
+
+func note_interaction(point: Vector2) -> void:
+	interaction_point = point
+	interaction_until = elapsed + 2.0
+
+func _near_interaction(point: Vector2) -> float:
+	var fade := 0.0
+	if interaction_until > elapsed and point.distance_to(interaction_point) < sim.settings.brush_radius * 2.0:
+		fade = minf(1.0, (interaction_until - elapsed) / 2.0)
+	for source in sim.wind_sources:
+		if point.distance_to(Geometry2D.get_closest_point_to_segment(point, source.position, source.end)) < sim.settings.brush_radius * 2.0:
+			fade = maxf(fade, minf(1.0, source.remaining / source.fade))
+	return fade
+
+func _arrow_context_cells() -> PackedInt32Array:
+	var centers := PackedVector2Array()
+	if interaction_until > elapsed: centers.append(interaction_point)
+	for source in sim.wind_sources:
+		var count := maxi(1, ceili(source.position.distance_to(source.end) / (sim.settings.brush_radius * 2.0)))
+		for n in count + 1: centers.append(source.position.lerp(source.end, float(n) / count))
+	var cells := PackedInt32Array()
+	var groups: Array[PackedInt32Array] = []
+	var biggest := 0
+	var seen: Dictionary = {}
+	var radius: float = sim.settings.brush_radius * 2.0
+	for center in centers:
+		var group := PackedInt32Array()
+		var lo := Vector2i(((center - Vector2.ONE * radius - Sim.ORIGIN) / Sim.CELL).floor())
+		var hi := Vector2i(((center + Vector2.ONE * radius - Sim.ORIGIN) / Sim.CELL).ceil())
+		for z in range(maxi(0, lo.y), mini(Sim.DEPTH, hi.y), 2):
+			for x in range(maxi(0, lo.x), mini(Sim.WIDTH, hi.x), 2):
+				var i := z * Sim.WIDTH + x
+				if not seen.has(i) and sim.positions[i].distance_to(center) < radius:
+					seen[i] = true
+					group.append(i)
+		groups.append(group)
+		biggest = maxi(biggest, group.size())
+	# Round-robin the active brush and each source so one cannot consume all arrows.
+	for index in biggest:
+		for group in groups:
+			if index < group.size(): cells.append(group[index])
+	return cells
+
+func _arrow_shape(point: Vector3, direction: Vector3, color: Color, length: float, movement: Vector3, phase: float) -> void:
+	var side := direction.cross(-camera.global_basis.z).normalized() * 0.022
+	var basis := Basis(direction * length, side, direction.cross(side).normalized())
+	arrow_instances.set_instance_transform(visible_arrows, Transform3D(basis, point))
+	arrow_instances.set_instance_color(visible_arrows, color)
+	arrow_instances.set_instance_custom_data(visible_arrows, Color(movement.x, movement.z, phase, movement.y))
+
+func _update_arrows() -> void:
+	arrow_material.set_shader_parameter("visual_time", elapsed)
+	if not arrows_enabled or sim.outcome != "playing":
+		arrow_instances.visible_instance_count = 0
+		visible_arrows = 0
+		return
+	if elapsed < arrow_refresh: return
+	if elapsed >= arrow_refresh:
+		arrow_refresh = elapsed + 0.1
+		arrow_candidates.clear()
+		# Read the newest actual transfers, not hypothetical directions or old gradients.
+		if sim.last_lift > 0.001:
+			for i in Sim.COUNT:
+				if sim.lifted[i] > 0.0002:
+					arrow_candidates.append({"i": i, "kind": "lift"})
+					if arrow_candidates.size() >= 8: break
+		var context_cells := _arrow_context_cells()
+		var moving_count := 0
+		for i in context_cells:
+			var p: Vector2 = sim.positions[i]
+			if _near_interaction(p) <= 0.0: continue
+			if sim.low_wind[i].length() >= 0.08:
+				if sim.humidity[i] >= 0.06 and moving_count < 16:
+					arrow_candidates.append({"i": i, "kind": "wet"})
+					moving_count += 1
+				if sim.display_cold[i] >= 0.12 and moving_count < 16:
+					arrow_candidates.append({"i": i, "kind": "cold"})
+					moving_count += 1
+			if moving_count >= 16: break
+		var clouds := 0
+		for i in context_cells:
+			if _near_interaction(sim.positions[i]) > 0.0 and sim.display_cloud[i] >= 0.06 and sim.cloud_velocity_at(sim.positions[i]).length() >= 0.08 and clouds < 8:
+				arrow_candidates.append({"i": i, "kind": "cloud"})
+				clouds += 1
+				if clouds >= 8: break
+	if arrow_candidates.is_empty():
+		arrow_instances.visible_instance_count = 0
+		visible_arrows = 0
+		return
+	visible_arrows = 0
+	for candidate in arrow_candidates:
+		var i: int = candidate.i
+		var p: Vector2 = sim.positions[i]
+		var phase := fposmod(i * 0.37, 1.0)
+		var color := WET_ARROW
+		var alpha := _near_interaction(p)
+		var velocity: Vector2 = sim.velocity_at(p)
+		var height: float = sim.terrain.height(p) + 0.42
+		var point := Vector3(p.x, height, p.y)
+		var direction := Vector3(velocity.x, 0, velocity.y).normalized()
+		var movement := Vector3(velocity.x, 0, velocity.y) / 0.65
+		if candidate.kind == "lift":
+			if sim.lifted[i] <= 0.0002: continue
+			color = LIFT_ARROW
+			alpha = 0.8
+			movement = Vector3(0, maxf(0.0, Sim.CLOUD_HEIGHT - height), 0)
+			direction = Vector3.UP
+		elif candidate.kind == "cloud":
+			if sim.display_cloud[i] < 0.06: continue
+			color = CLOUD_ARROW
+			velocity = sim.cloud_velocity_at(p)
+			direction = Vector3(velocity.x, 0, velocity.y).normalized()
+			point.y = Sim.CLOUD_TOP + 0.03
+			movement = Vector3(velocity.x, 0, velocity.y) / 0.65
+		elif candidate.kind == "cold":
+			if sim.display_cold[i] < 0.12: continue
+			color = COLD_ARROW
+			point.y += 0.10
+		elif sim.humidity[i] < 0.06: continue
+		if candidate.kind != "lift":
+			if velocity.length() < 0.08 or alpha <= 0.0: continue
+		color.a = alpha * sim.edge_visibility(p)
+		_arrow_shape(point, direction, color, 0.35 + minf(velocity.length(), 4.0) * 0.08, movement, phase)
+		visible_arrows += 1
+	arrow_instances.visible_instance_count = visible_arrows
 
 func update_weather(dt: float, moving: bool) -> void:
 	if moving:
@@ -447,6 +739,7 @@ func update_weather(dt: float, moving: bool) -> void:
 	if map_revision != sim.revision:
 		update_map()
 	air_material.set_shader_parameter("visual_time", elapsed)
+	_update_arrows()
 	if moving or line_dirty or line_revision != sim.revision:
 		_update_lines(dt, moving)
 		line_revision = sim.revision
@@ -475,29 +768,32 @@ func update_weather(dt: float, moving: bool) -> void:
 	for target in plot_materials.size():
 		var water: float = clampf(sim.water_for(target) / sim.settings.target_water, 0.0, 1.0)
 		plot_materials[target].albedo_color = Color("bf936e").lerp(Color("8eaa78"), water)
-		if sim.water_for(target) > sim.settings.flood_water:
+		if sim.plot_destroyed[target]:
 			plot_materials[target].albedo_color = Color("718e95")
 
 func _update_rain() -> void:
 	var total := 0
 	var rain: PackedFloat32Array = sim.rain
+	var counts := rain_drop_counts
 	for i in Sim.COUNT:
-		rain_drop_counts[i] = clampi(ceili(rain[i] * 5.0), 1, 9) if rain[i] > 0.0 else 0
-		total += rain_drop_counts[i]
+		counts[i] = clampi(ceili(rain[i] * 5.0), 1, 9) if rain[i] > 0.0 else 0
+		total += counts[i]
 	var count := mini(total, RAIN_COUNT)
 	var selected := PackedInt32Array()
 	selected.resize(count)
 	# Spread the capped display budget over the whole actual rainy area.
 	var ordinal := 0
 	var chosen := 0
+	var next_target := floori(0.5 * total / count) if count > 0 else 0
 	for i in Sim.COUNT:
 		while chosen < count:
-			var target := floori((chosen + 0.5) * total / count)
-			if target >= ordinal + rain_drop_counts[i]:
+			if next_target >= ordinal + counts[i]:
 				break
-			selected[chosen] = i * 9 + target - ordinal
+			selected[chosen] = i * 9 + next_target - ordinal
 			chosen += 1
-		ordinal += rain_drop_counts[i]
+			if chosen < count: next_target = floori((chosen + 0.5) * total / count)
+		ordinal += counts[i]
+		if chosen == count: break
 	if selected != rain_indices:
 		rain_indices = selected
 		var buffer := PackedFloat32Array()

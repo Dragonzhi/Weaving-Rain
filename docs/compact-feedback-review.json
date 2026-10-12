@@ -1,0 +1,353 @@
+{
+  "stage": "流动表现、持续风线与紧凑地块界面",
+  "date": "2026-10-11",
+  "engine": "Godot 4.7.2 stable",
+  "renderer": "Forward+ / D3D12",
+  "gpu": "NVIDIA GeForce RTX 4060 Laptop GPU",
+  "rendered_resolution": [
+    1920,
+    1080
+  ],
+  "checks": {
+    "total": 508,
+    "replays": 17,
+    "compact_feedback": 21,
+    "map_window_layouts": 18,
+    "map_layouts": [
+      "standard",
+      "far",
+      "close",
+      "ridges",
+      "meadow",
+      "valleys"
+    ],
+    "window_sizes": [
+      [
+        1920,
+        1080
+      ],
+      [
+        1280,
+        800
+      ],
+      [
+        1024,
+        768
+      ]
+    ],
+    "all_passed": true,
+    "headless_optimization_regression": [
+      {
+        "route": "meadow-abc",
+        "before_sha256": "b420db930450533d24820ae70526ab87bb191b7ef4dde10139515edb1a0362fd",
+        "after_sha256": "b420db930450533d24820ae70526ab87bb191b7ef4dde10139515edb1a0362fd",
+        "byte_equal": true
+      },
+      {
+        "route": "meadow-cab",
+        "before_sha256": "c44454e241ae3c8cc6cfecc4fb2476e87718106091505bd03116da0a1673b139",
+        "after_sha256": "c44454e241ae3c8cc6cfecc4fb2476e87718106091505bd03116da0a1673b139",
+        "byte_equal": true
+      },
+      {
+        "route": "valleys-mountain",
+        "before_sha256": "ad27fdbd6ab8c3a979e06e9d29b2f2c257fb0ee3f0cfbbe20573c3e5f7afbf8b",
+        "after_sha256": "ad27fdbd6ab8c3a979e06e9d29b2f2c257fb0ee3f0cfbbe20573c3e5f7afbf8b",
+        "byte_equal": true
+      },
+      {
+        "route": "valleys-relay",
+        "before_sha256": "cab5885e5524f8869b5b634465b1ea79aa3dd4f66357ecec48a866b9520cae61",
+        "after_sha256": "cab5885e5524f8869b5b634465b1ea79aa3dd4f66357ecec48a866b9520cae61",
+        "byte_equal": true
+      },
+      {
+        "route": "valleys-late",
+        "before_sha256": "43a41d42c29eadcbbac85245497afc896f36078a87558998f71acd19a7d687c1",
+        "after_sha256": "43a41d42c29eadcbbac85245497afc896f36078a87558998f71acd19a7d687c1",
+        "byte_equal": true
+      }
+    ]
+  },
+  "normal_start_source_route": {
+    "blocked": 0,
+    "cloud_presses": 6,
+    "cold_lift": 54.8211014080992,
+    "commands": 104,
+    "created": true,
+    "destroyed": [
+      false,
+      false,
+      false
+    ],
+    "elapsed": 52.316666666665,
+    "events": 3336,
+    "front_strokes": 0,
+    "input_disabled": true,
+    "input_pick_error": 0.0,
+    "layout": "meadow",
+    "limit": 180.0,
+    "order": [
+      0,
+      1,
+      2
+    ],
+    "outcome": "success",
+    "per_target": [
+      {
+        "distance": 40.4999990463257,
+        "front": 0,
+        "strokes": 22,
+        "transport": 17
+      },
+      {
+        "distance": 43.2000000476837,
+        "front": 0,
+        "strokes": 33,
+        "transport": 18
+      },
+      {
+        "distance": 38.100001335144,
+        "front": 0,
+        "strokes": 49,
+        "transport": 16
+      }
+    ],
+    "removed": true,
+    "route": "mountain",
+    "source_active_mountain_lift": 58.5870552565503,
+    "source_seconds": 3.01666666666666,
+    "stars": 3,
+    "strokes": 104,
+    "transport_distance": 121.800000429153,
+    "transport_strokes": 51,
+    "use_source": true,
+    "water": [
+      112.560582342022,
+      100.90255345087,
+      103.589392795479
+    ],
+    "water_error": -0.00130071213357041
+  },
+  "runtime": {
+    "status": "awaiting_idle_acceptance",
+    "accepted": false,
+    "all_passed": false,
+    "context": "用户确认其他重任务正在运行，并选择先交付试玩，空闲后复测；停止剩余采样。",
+    "diagnostic_label": "compact-shared-load",
+    "completed_diagnostic_samples": 7,
+    "planned_acceptance_samples": 12,
+    "warmup_seconds": 5,
+    "sample_seconds": 60,
+    "threshold_p95_ms": 16.7,
+    "threshold_p99_ms": 20,
+    "minimum_simulation_ratio": 0.99,
+    "maximum_final_backlog_ms": 100,
+    "stress_drag_sources": 2,
+    "arrow_limit": 32,
+    "wind_ribbon_limit": 48,
+    "review_command": "tests/review_runtime.ps1 -Label compact-final -Layouts meadow,valleys -WindTools -WindLines",
+    "cases": [
+      {
+        "arrows_enabled": true,
+        "drag": false,
+        "final_backlog_ms": 6.81818181818455,
+        "frames": 6319,
+        "gpu_ms": 1.82923817925107,
+        "input_ms": 0.146962494065517,
+        "kind": "cloud",
+        "layout": "meadow",
+        "max_backlog_ms": 477.236000000001,
+        "min_sources": 0,
+        "p50": 10.638,
+        "p95": 18.596,
+        "p99": 25.331,
+        "peak_arrows": 0,
+        "peak_source_lines": 0,
+        "pick_ms": 0.14883813557698,
+        "sample_seconds": 60.0,
+        "sim_ms": 4.10291877670517,
+        "simulation_seconds": 60.0,
+        "slow_33ms": 6,
+        "steps_per_frame": 0.568602626997943,
+        "view_ms": 2.56433752621063,
+        "meets_thresholds": false
+      },
+      {
+        "arrows_enabled": true,
+        "drag": true,
+        "final_backlog_ms": 758.129424242403,
+        "frames": 4437,
+        "gpu_ms": 2.5147344947318,
+        "input_ms": 0.109116970926302,
+        "kind": "cloud",
+        "layout": "meadow",
+        "max_backlog_ms": 1114.95642424241,
+        "min_sources": 2,
+        "p50": 14.601,
+        "p95": 19.318,
+        "p99": 23.217,
+        "peak_arrows": 32,
+        "peak_source_lines": 43,
+        "pick_ms": 0.00294047581980243,
+        "sample_seconds": 60.0,
+        "sim_ms": 6.87090138677597,
+        "simulation_seconds": 59.2333333333333,
+        "slow_33ms": 4,
+        "steps_per_frame": 0.798737885958981,
+        "view_ms": 3.22767200001409,
+        "meets_thresholds": false
+      },
+      {
+        "arrows_enabled": true,
+        "drag": false,
+        "final_backlog_ms": 4.91878787878784,
+        "frames": 7213,
+        "gpu_ms": 1.61790370901497,
+        "input_ms": 0.0555617634826002,
+        "kind": "rain",
+        "layout": "meadow",
+        "max_backlog_ms": 26.3160000000022,
+        "min_sources": 0,
+        "p50": 7.133,
+        "p95": 14.34,
+        "p99": 15.941,
+        "peak_arrows": 0,
+        "peak_source_lines": 0,
+        "pick_ms": 0.0616376298518084,
+        "sample_seconds": 60.0,
+        "sim_ms": 3.4045741521385,
+        "simulation_seconds": 60.0166666666667,
+        "slow_33ms": 0,
+        "steps_per_frame": 0.498267017884375,
+        "view_ms": 2.41049607696174,
+        "meets_thresholds": true
+      },
+      {
+        "arrows_enabled": true,
+        "drag": true,
+        "final_backlog_ms": 3603.35325925942,
+        "frames": 3372,
+        "gpu_ms": 2.46112487720566,
+        "input_ms": 0.125286180308423,
+        "kind": "rain",
+        "layout": "meadow",
+        "max_backlog_ms": 5036.51792592599,
+        "min_sources": 2,
+        "p50": 16.394,
+        "p95": 27.283,
+        "p99": 33.69,
+        "peak_arrows": 32,
+        "peak_source_lines": 43,
+        "pick_ms": 0.0037058120944746,
+        "sample_seconds": 60.0,
+        "sim_ms": 9.70157790721382,
+        "simulation_seconds": 56.4,
+        "slow_33ms": 49,
+        "steps_per_frame": 1.0,
+        "view_ms": 4.12383084732725,
+        "meets_thresholds": false
+      },
+      {
+        "arrows_enabled": true,
+        "drag": false,
+        "final_backlog_ms": 1.11022302462516e-13,
+        "frames": 6807,
+        "gpu_ms": 1.63942879342956,
+        "input_ms": 0.116137799324225,
+        "kind": "cold",
+        "layout": "meadow",
+        "max_backlog_ms": 36.1111111111113,
+        "min_sources": 0,
+        "p50": 11.181,
+        "p95": 14.738,
+        "p99": 16.533,
+        "peak_arrows": 0,
+        "peak_source_lines": 0,
+        "pick_ms": 0.122071576780451,
+        "sample_seconds": 60.0,
+        "sim_ms": 3.62148885109079,
+        "simulation_seconds": 60.0,
+        "slow_33ms": 0,
+        "steps_per_frame": 0.528132804465991,
+        "view_ms": 2.48440512753416,
+        "meets_thresholds": true
+      },
+      {
+        "arrows_enabled": true,
+        "drag": true,
+        "final_backlog_ms": 3.5981515151527,
+        "frames": 5006,
+        "gpu_ms": 2.36596904027667,
+        "input_ms": 0.103163004394727,
+        "kind": "cold",
+        "layout": "meadow",
+        "max_backlog_ms": 259.339666666667,
+        "min_sources": 2,
+        "p50": 13.906,
+        "p95": 16.67,
+        "p99": 19.231,
+        "peak_arrows": 32,
+        "peak_source_lines": 43,
+        "pick_ms": 0.00272412820191942,
+        "sample_seconds": 60.0,
+        "sim_ms": 5.79925456639533,
+        "simulation_seconds": 60.0,
+        "slow_33ms": 0,
+        "steps_per_frame": 0.717738713543748,
+        "view_ms": 3.10310186370106,
+        "meets_thresholds": true
+      },
+      {
+        "arrows_enabled": true,
+        "drag": false,
+        "final_backlog_ms": 5137.37485714291,
+        "frames": 4577,
+        "gpu_ms": 2.3138333054539,
+        "input_ms": 0.14657002403321,
+        "kind": "cloud",
+        "layout": "valleys",
+        "max_backlog_ms": 5190.03141269844,
+        "min_sources": 0,
+        "p50": 10.716,
+        "p95": 19.055,
+        "p99": 56.32,
+        "peak_arrows": 0,
+        "peak_source_lines": 0,
+        "pick_ms": 0.555307746272121,
+        "sample_seconds": 60.0,
+        "sim_ms": 4.53626659110771,
+        "simulation_seconds": 45.35,
+        "slow_33ms": 91,
+        "steps_per_frame": 0.592090889228752,
+        "view_ms": 2.75693600475202,
+        "meets_thresholds": false
+      }
+    ]
+  },
+  "limitations": [
+    "正常开局的真实鼠标自动回放不是玩家手感验收。",
+    "本轮没有重新比较持续风的省操作收益，前轮未观察到收益的结论保留。",
+    "第一关偏难的反馈保留，地图、时限、星级与天气规则未调整。",
+    "共享负载诊断中帧时间和模拟积累超标，本轮性能验收未通过；不能仅因后台负载就认定改动没有开销。",
+    "上一阶段通过的性能结果不能代表本轮，需空闲时重新完成两关十二项采样。",
+    "动态短片使用隔离表现的开发夹具，不是正常通关录像。",
+    "水滴轮廓为后续美术方向，本轮使用小水量条。"
+  ],
+  "screenshots": {
+    "normal_start": [
+      "previews/wind-source-play.png",
+      "previews/wind-flow-rain.png",
+      "previews/wind-tools-result.png"
+    ],
+    "development_fixture": [
+      "previews/compact-wind-ui.png",
+      "previews/wind-source-preview.png",
+      "previews/wind-tools-paused.png"
+    ],
+    "motion_clip": "previews/wind-flow-motion.mp4",
+    "motion_clip_frames": 36,
+    "motion_clip_fps": 24,
+    "motion_clip_seconds": 1.5
+  }
+}

@@ -35,8 +35,12 @@ func run() -> void:
 	var lesson_initial: float = main.sim.initial_water
 	var panel_point: Vector2 = main.hud.guide_rect.position + Vector2(25, 25)
 	mouse_button(panel_point, true)
-	check(not main.wind_input.dragging, "Lesson text panel blocks wind")
+	check(not main.hud.blocks_wind(panel_point), "Lesson text leaves weather gestures available")
 	mouse_button(panel_point, false)
+	var menu_point: Vector2 = main.hud.menu_button.get_global_rect().get_center()
+	mouse_button(menu_point, true)
+	mouse_button(menu_point, false)
+	await RenderingServer.frame_post_draw
 	var skip_point: Vector2 = main.hud.free_button.get_global_rect().get_center()
 	mouse_button(skip_point, true)
 	mouse_button(skip_point, false)
@@ -46,6 +50,9 @@ func run() -> void:
 	check(main.wind_input.sim == main.sim and main.wind_input.camera == main.weather_view.camera, "Mode change reconnects picking to the active weather and camera")
 	main.restart(false)
 	check(main.play_mode == "free" and main.sim.plot_centers.size() == 2, "Retry keeps the current free-play mode")
+	mouse_button(menu_point, true)
+	mouse_button(menu_point, false)
+	await RenderingServer.frame_post_draw
 	var revisit_point: Vector2 = main.hud.lesson_button.get_global_rect().get_center()
 	mouse_button(revisit_point, true)
 	mouse_button(revisit_point, false)
@@ -99,7 +106,7 @@ func run() -> void:
 	mouse_button(point, true)
 	main.hud.queue_redraw()
 	await process_frame
-	var button_point: Vector2 = main.hud.retry.global_position + main.hud.retry.size * 0.5
+	var button_point: Vector2 = main.hud.menu_button.get_global_rect().get_center()
 	mouse_button(button_point, false)
 	check(not wind_input.dragging, "Releasing over UI cannot leave a stuck stroke")
 	main.restart(true)
@@ -108,7 +115,7 @@ func run() -> void:
 	mouse_button(button_point, false)
 	var card_point := Vector2(80, main.hud.size.y - 65)
 	mouse_button(card_point, true)
-	check(not wind_input.dragging, "Drawn water cards also block accidental wind strokes")
+	check(not main.hud.blocks_wind(card_point), "Removed water-card area allows weather input")
 	mouse_button(card_point, false)
 	main.restart(false)
 	for layout_index in [1, 2]:

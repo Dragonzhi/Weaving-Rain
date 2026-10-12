@@ -1,0 +1,38 @@
+[gd_resource type="Resource" script_class="WRMapDefinition" format=3 uid="uid://bt34q6qasv24v"]
+
+[ext_resource type="Script" uid="uid://dp2dfiaoj2cor" path="res://scripts/map_definition.gd" id="1_map"]
+[ext_resource type="Script" uid="uid://de5at2q6fqxq" path="res://scripts/map_mountain.gd" id="2_mountain"]
+[ext_resource type="Script" uid="uid://cld12h4px3yir" path="res://scripts/map_humidity.gd" id="3_air"]
+
+[sub_resource type="Resource" id="Resource_hqcpj"]
+script = ExtResource("3_air")
+position = Vector2(-6, -1)
+
+[sub_resource type="Resource" id="Resource_uh0cd"]
+script = ExtResource("3_air")
+position = Vector2(6, 1)
+spread = Vector2(3.2, 3.4)
+concentration = 0.9
+
+[sub_resource type="Resource" id="Resource_arl6l"]
+script = ExtResource("2_mountain")
+position = Vector2(-3, -1)
+height = 2.1
+
+[sub_resource type="Resource" id="Resource_kyamn"]
+script = ExtResource("2_mountain")
+position = Vector2(3, 1)
+height = 2.3
+
+[resource]
+script = ExtResource("1_map")
+id = "ridges"
+title = "两山两路"
+hint = "两座山 · 分别组织迎坡补给，再安排输雨路线"
+shape = "long"
+island_center = Vector2(0, 0)
+island_axes = Vector2(9.5, 5.5)
+river_enabled = false
+mountains = Array[ExtResource("2_mountain")]([SubResource("Resource_arl6l"), SubResource("Resource_kyamn")])
+plots = PackedVector2Array(-6, 1.7, -0.78742075, 2.1504598)
+humidity_sources = Array[ExtResource("3_air")]([SubResource("Resource_hqcpj"), SubResource("Resource_uh0cd")])

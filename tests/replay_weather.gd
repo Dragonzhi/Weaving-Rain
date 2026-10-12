@@ -53,7 +53,7 @@ func run() -> void:
 			for arg in OS.get_cmdline_user_args():
 				if arg.begins_with("--snapshot="):
 					var file := FileAccess.open(arg.trim_prefix("--snapshot="), FileAccess.WRITE)
-					file.store_string(JSON.stringify({"humidity": Array(sim.humidity), "cloud": Array(sim.cloud), "rain": Array(sim.rain), "charge": Array(sim.charge), "plot_water": sim.plot_water, "rain_lost": sim.rain_lost, "initial_water": sim.initial_water, "rain_rate": sim.total_rain_rate, "mountain_lift": sim.total_mountain_lift}))
+					file.store_string(JSON.stringify({"humidity": Array(sim.humidity), "cloud": Array(sim.cloud), "rain": Array(sim.rain), "charge": Array(sim.charge), "plot_water": sim.plot_water, "rain_lost": sim.rain_lost, "escaped_water": sim.escaped_water, "initial_water": sim.initial_water, "rain_rate": sim.total_rain_rate, "mountain_lift": sim.total_mountain_lift}))
 					file.close()
 		if sim.outcome != "playing":
 			break

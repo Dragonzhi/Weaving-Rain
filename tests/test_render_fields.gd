@@ -68,6 +68,23 @@ func run() -> void:
 	check(view.rainfall.visible_instance_count == 0 and view.rain_indices.is_empty(), "Stopped rain removes all displayed drops without leftover particles")
 	await process_frame
 	await RenderingServer.frame_post_draw
+	# Bound must never underestimate the full B-spline footprint, including edges.
+	for i in Sim.COUNT:
+		main.sim.cloud[i] = fposmod(i * 0.071, 3.2) if i % 7 == 0 else 0.0
+	main.sim.refresh_display()
+	view.update_weather(0.0, false)
+	await process_frame
+	await RenderingServer.frame_post_draw
+	var bounds_image: Image = view.cloud_bounds_viewport.get_texture().get_image()
+	var conservative := true
+	for z in Sim.DEPTH:
+		for x in Sim.WIDTH:
+			var maximum := 0.0
+			for dz in range(-1, 3):
+				for dx in range(-1, 3):
+					maximum = maxf(maximum, main.sim.display_cloud[clampi(z + dz, 0, Sim.DEPTH - 1) * Sim.WIDTH + clampi(x + dx, 0, Sim.WIDTH - 1)])
+			conservative = conservative and bounds_image.get_pixel(x, z).r >= maximum
+	check(conservative, "GPU empty-space bounds never underestimate any current cloud footprint")
 	print("RENDER FIELD TESTS: ", checks, " checks, ", failures, " failures")
 	main.queue_free()
 	await process_frame

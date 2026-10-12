@@ -1,0 +1,103 @@
+{
+  "date": "2026-10-12",
+  "bug": "Redraw hid then showed a held close button, canceling release activation",
+  "reproduction": {
+    "press_seconds": 0.12,
+    "before_checks": 33,
+    "before_failures": 1,
+    "log": ".godot/band-close-before.log"
+  },
+  "fix": [
+    "Set final visibility without hide/show cycling",
+    "Capture source ID on button_down",
+    "Reset captured IDs for new simulations",
+    "Apply the same visibility fix to cold hint dismissal"
+  ],
+  "validation": {
+    "wind_tools_scene": 36,
+    "compact_feedback": 25,
+    "scene": 37,
+    "star_scene": 43,
+    "hud_layouts": 18,
+    "all_passed": true,
+    "click_hold_seconds": 0.12,
+    "route": {
+      "blocked": 0,
+      "cloud_presses": 5,
+      "cold_lift": 103.149038836222,
+      "commands": 87,
+      "created": true,
+      "destroyed": [
+        false,
+        false,
+        false
+      ],
+      "elapsed": 45.1499999999987,
+      "events": 3276,
+      "front_strokes": 0,
+      "input_disabled": true,
+      "input_pick_error": 0.0,
+      "layout": "meadow",
+      "limit": 180.0,
+      "order": [
+        0,
+        1,
+        2
+      ],
+      "outcome": "success",
+      "per_target": [
+        {
+          "distance": 33.2999992370605,
+          "front": 0,
+          "strokes": 29,
+          "transport": 14
+        },
+        {
+          "distance": 28.8000004291534,
+          "front": 0,
+          "strokes": 12,
+          "transport": 12
+        },
+        {
+          "distance": 44.6999998092651,
+          "front": 0,
+          "strokes": 46,
+          "transport": 19
+        }
+      ],
+      "placed_band": {
+        "end": [
+          -3.65793037414551,
+          0.294363021850586
+        ],
+        "lifetime": 30.0,
+        "radius": 1.5,
+        "start": [
+          -6.38675355911255,
+          1.54078722000122
+        ],
+        "strength": 0.5
+      },
+      "removed": true,
+      "route": "mountain",
+      "source_active_mountain_lift": 51.6065034645438,
+      "source_seconds": 3.01666666666666,
+      "stars": 3,
+      "strokes": 87,
+      "transport_distance": 106.799999475479,
+      "transport_strokes": 45,
+      "use_source": true,
+      "water": [
+        109.631020926477,
+        106.565751346789,
+        114.364783586802
+      ],
+      "water_error": -0.00106774603443682
+    }
+  },
+  "performance_status": "awaiting_idle_acceptance",
+  "notes": [
+    "Closing removes the band and stops source force; residual wind decays naturally",
+    "Previous same-frame clicks did not validate real user clicks"
+  ]
+}

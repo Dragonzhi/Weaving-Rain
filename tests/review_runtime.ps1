@@ -1,8 +1,8 @@
-param([string]$Label = 'final4')
+param([string]$Label = 'open-final', [string[]]$Layouts = @('standard', 'far', 'close', 'ridges'), [switch]$WindTools, [switch]$WindLines)
 $ErrorActionPreference = 'Stop'
 $projectRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
 $rows = @()
-foreach ($layout in @('standard', 'far', 'close')) {
+foreach ($layout in $Layouts) {
     $path = Join-Path $projectRoot ('.godot/runtime-' + $Label + '-' + $layout + '.json')
     $reports = @(Get-Content -LiteralPath $path -Raw | ConvertFrom-Json)
     if ($reports.Count -ne 6) { throw "Expected six runtime samples: $path" }
@@ -11,6 +11,12 @@ foreach ($layout in @('standard', 'far', 'close')) {
             $sample = @($reports | Where-Object { $_.layout -eq $layout -and $_.kind -eq $kind -and $_.drag -eq $drag })
             if ($sample.Count -ne 1) { throw "Missing or duplicate sample: $layout / $kind / $drag" }
             $row = $sample[0]
+			if ($WindTools -and $drag -and ($row.min_sources -lt 2 -or $row.peak_arrows -le 0 -or $row.peak_arrows -gt 32 -or $row.arrows_enabled -ne $true)) {
+				throw "Wind-tools stress did not contain two sources and 1-32 enabled arrows: $layout / $kind"
+			}
+			if ($WindLines -and $drag -and ($null -eq $row.peak_source_lines -or $row.peak_source_lines -le 0 -or $row.peak_source_lines -gt 48)) {
+				throw "Wind-line stress did not contain bounded persistent-source ribbons: $layout / $kind"
+			}
             $suffix = if ($drag) { '-drag' } else { '-idle' }
             $csvPath = Join-Path $projectRoot ('.godot/runtime-' + $Label + '-' + $layout + '-' + $kind + $suffix + '.csv')
             $lineCount = (Get-Content -LiteralPath $csvPath | Measure-Object -Line).Lines - 1
@@ -26,4 +32,4 @@ foreach ($layout in @('standard', 'far', 'close')) {
 $rows | Select-Object layout, kind, drag, frames, p95, p99, slow_33ms, simulation_seconds, final_backlog_ms | Format-Table -AutoSize
 $failed = @($rows | Where-Object { $_.p95 -gt 16.7 -or $_.p99 -gt 20.0 })
 if ($failed.Count -gt 0) { throw "$($failed.Count) runtime samples exceed P95 16.7 ms / P99 20 ms." }
-Write-Output 'All 18 runtime samples meet P95 <= 16.7 ms and P99 <= 20 ms.'
+Write-Output "All $($rows.Count) runtime samples meet P95 <= 16.7 ms and P99 <= 20 ms."

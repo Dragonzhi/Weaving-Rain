@@ -17,6 +17,7 @@ func run() -> void:
 	for i in Sim.COUNT:
 		var p: Vector2 = sim.positions[i]
 		sim.cloud[i] = 3.0 * exp(-p.distance_squared_to(Vector2(0.3, 0.2)) / 4.0)
+		if p.x > 13.0: sim.cloud[i] += 0.15
 		sim.cloud[i] += 1.3 * exp(-pow((p.x + 3.0) / 3.0, 2) - pow(p.y / 0.5, 2))
 	sim.refresh_display()
 	var texture_image := Image.create(Sim.WIDTH, Sim.DEPTH, false, Image.FORMAT_RGBAF)
@@ -29,7 +30,7 @@ func run() -> void:
 	viewport.render_target_update_mode = SubViewport.UPDATE_ONCE
 	root.add_child(viewport)
 	var shader := Shader.new()
-	shader.code = 'shader_type canvas_item; uniform sampler2D water_map : filter_linear, repeat_disable;\n#include "res://shaders/cloud_field.gdshaderinc"\nvoid fragment() { vec2 p = UV * vec2(24.0,20.0) - vec2(12.0,10.0); COLOR = vec4(cloud_state(p).r,0.0,0.0,1.0); }'
+	shader.code = 'shader_type canvas_item; uniform sampler2D water_map : filter_linear, repeat_disable;\n#include "res://shaders/cloud_field.gdshaderinc"\nvoid fragment() { vec2 p = UV * vec2(32.0,28.0) - vec2(16.0,14.0); COLOR = vec4(cloud_state(p).r,0.0,0.0,1.0); }'
 	var material := ShaderMaterial.new()
 	material.shader = shader
 	material.set_shader_parameter("water_map", ImageTexture.create_from_image(texture_image))
@@ -43,13 +44,14 @@ func run() -> void:
 	var error := 0.0
 	for z in 32:
 		for x in 64:
-			var p := Vector2((x + 0.5) / 64.0 * 24 - 12, (z + 0.5) / 32.0 * 20 - 10)
+			var p := Vector2((x + 0.5) / 64.0 * 32 - 16, (z + 0.5) / 32.0 * 28 - 14)
 			error = maxf(error, absf(actual.get_pixel(x, z).r - sim.sample_cloud(sim.display_cloud, p)))
 	check(error < 0.005, "GPU reconstruction must match the CPU cloud shape; max error=" + str(error))
 	var constant := PackedFloat32Array()
 	constant.resize(Sim.COUNT)
 	constant.fill(2.0)
 	check(is_equal_approx(sim.sample_cloud(constant, Vector2(-11.99, 9.99)), 2.0), "Clamped reconstruction preserves constant boundary fields")
+	check(is_equal_approx(sim.sample_cloud(constant, Vector2(15, 0)), 1.0) and sim.sample_cloud(constant, Vector2(16, 0)) == 0.0, "Extended sea fades consistently toward the open edge")
 	var previous := 0.0
 	var largest_change := 0.0
 	for n in 400:
@@ -79,6 +81,12 @@ func run() -> void:
 	await RenderingServer.frame_post_draw
 	var picture := root.get_texture().get_image()
 	picture.save_png("res://.godot/cloud-edge-check.png")
+	main.weather_view.cloud_material.set_shader_parameter("use_cloud_bounds", false)
+	await process_frame
+	await RenderingServer.frame_post_draw
+	var full_picture := root.get_texture().get_image()
+	check(picture.get_data() == full_picture.get_data(), "Empty-space skipping preserves the complete cloud image byte for byte")
+	main.weather_view.cloud_material.set_shader_parameter("use_cloud_bounds", true)
 	var rows: Array[Vector2i] = []
 	for y in picture.get_height():
 		for x in picture.get_width():

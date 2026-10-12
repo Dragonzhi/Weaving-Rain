@@ -1,0 +1,44 @@
+[gd_resource type="Resource" script_class="WRMapDefinition" load_steps=10 format=3]
+
+[ext_resource type="Script" path="res://scripts/map_definition.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/map_mountain.gd" id="2"]
+[ext_resource type="Script" path="res://scripts/map_humidity.gd" id="3"]
+[ext_resource type="Script" path="res://scripts/plot_region.gd" id="4"]
+
+[sub_resource type="Resource" id="Mountain"]
+script = ExtResource("2")
+position = Vector2(-1.7, -0.6)
+radius = 2.3
+height = 2.5
+
+[sub_resource type="Resource" id="West"]
+script = ExtResource("3")
+position = Vector2(-6.2, 1.4)
+
+[sub_resource type="Resource" id="East"]
+script = ExtResource("3")
+position = Vector2(5.6, 1)
+spread = Vector2(3.2, 3.4)
+concentration = 0.9
+
+[sub_resource type="Resource" id="Circle"]
+script = ExtResource("4")
+shape = "circle"
+
+[sub_resource type="Resource" id="Ellipse"]
+script = ExtResource("4")
+shape = "ellipse"
+half_axes = Vector2(1.6, 1.1)
+
+[resource]
+script = ExtResource("1")
+id = "meadow"
+title = "第一关 · 三处田园"
+hint = "借同一座山组织雨云 · 轮流照顾三处土地，雨量够前就开始移云"
+river_enabled = false
+star_level = true
+time_limit_seconds = 180.0
+mountains = Array[ExtResource("2")]([SubResource("Mountain")])
+plots = PackedVector2Array(2.8, 1.2, 3.6, -2.2, -4.5, 2.1)
+plot_regions = Array[ExtResource("4")]([null, SubResource("Circle"), SubResource("Ellipse")])
+humidity_sources = Array[ExtResource("3")]([SubResource("West"), SubResource("East")])

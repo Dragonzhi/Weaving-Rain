@@ -5,8 +5,17 @@ const WindInput = preload("res://scripts/wind_input.gd")
 const HUD = preload("res://scripts/game_hud.gd")
 const Onboarding = preload("res://scripts/onboarding.gd")
 const Layouts = preload("res://scripts/weather_layouts.gd")
+const ConfigLoader = preload("res://scripts/config_loader.gd")
+const LevelProgress = preload("res://scripts/level_progress.gd")
 const SIMULATION_BUDGET_US := 8000
-@export var weather_settings: Resource = preload("res://scripts/weather_settings.gd").new()
+@export var weather_settings: WRWeatherSettings = WRWeatherSettings.new()
+var settings_path := "res://configs/weather.tres"
+var custom_map: WRMapDefinition
+var custom_map_path := ""
+var pending_settings: WRWeatherSettings
+var tuning_message := ""
+var tuning_message_until := 0
+var development := false
 var sim: Simulation
 var weather_view: Node3D
 var wind_input: Node
@@ -16,6 +25,10 @@ var accumulator := 0.0
 var guide := Onboarding.new()
 var play_mode := "lesson"
 var preferences_path := "user://onboarding.cfg"
+var progress_path := "user://level_stars.cfg"
+var persist_progress := true
+var progress := LevelProgress.new()
+var result_recorded := false
 var free_layout := "standard"
 var frame_simulation_ms := 0.0
 var frame_view_ms := 0.0
@@ -25,11 +38,28 @@ var frame_input_ms := 0.0
 
 func _ready() -> void:
 	var args := OS.get_cmdline_user_args()
+	if persist_progress and not "--fresh-guide" in args: progress.read(progress_path)
+	if weather_settings == null: weather_settings = WRWeatherSettings.new()
+	if not weather_settings.resource_path.is_empty(): settings_path = weather_settings.resource_path
+	development = OS.has_feature("editor") or "--dev" in args
 	play_mode = initial_mode(args)
 	for arg in args:
 		if arg.begins_with("--layout="):
 			free_layout = Layouts.get_layout(arg.trim_prefix("--layout=")).id
 			play_mode = "free"
+		if arg.begins_with("--settings="): settings_path = arg.trim_prefix("--settings=")
+		if arg.begins_with("--map="):
+			custom_map_path = arg.trim_prefix("--map=")
+			play_mode = "free"
+	var loaded := ConfigLoader.settings(settings_path)
+	if loaded.errors.is_empty(): weather_settings = loaded.resource
+	else:
+		weather_settings = WRWeatherSettings.new()
+		_tuning_feedback("使用默认配置：" + "；".join(loaded.errors))
+	if not custom_map_path.is_empty():
+		var loaded_map := ConfigLoader.map(custom_map_path, weather_settings.plot_half)
+		if loaded_map.errors.is_empty(): custom_map = loaded_map.resource
+		else: _tuning_feedback("；".join(loaded_map.errors))
 	sim = _new_simulation()
 	guide.reset(play_mode == "lesson")
 	weather_view = WeatherView.new()
@@ -44,6 +74,7 @@ func _ready() -> void:
 	hud = HUD.new()
 	canvas.add_child(hud)
 	hud.setup(sim, weather_view, wind_input)
+	hud.reset_feedback()
 	hud.guide = guide
 	hud.play_mode = play_mode
 	wind_input.hud = hud
@@ -53,6 +84,11 @@ func _ready() -> void:
 	hud.free_play_requested.connect(enter_free_play)
 	hud.lesson_requested.connect(func(): switch_mode("lesson"))
 	hud.layout_requested.connect(select_layout)
+	hud.finish_requested.connect(finish_level)
+	hud.next_requested.connect(next_level)
+	hud.levels_requested.connect(func(): select_layout(Layouts.LEVELS[0]))
+	hud.best_stars = progress.best
+	hud.refresh_layouts()
 	for arg in args:
 		if arg == "--cloud-lab":
 			restart(true)
@@ -74,26 +110,50 @@ func initial_mode(args: PackedStringArray) -> String:
 	return mode
 
 func restart(test_cloud: bool) -> void:
+	var selected_tool: String = wind_input.tool
 	wind_input.cancel()
 	paused = false
 	accumulator = 0.0
+	var loaded := ConfigLoader.settings(settings_path)
+	if loaded.errors.is_empty():
+		var map_path := custom_map_path if not custom_map_path.is_empty() else "res://configs/maps/" + (free_layout if play_mode == "free" else "standard") + ".tres"
+		var loaded_map := ConfigLoader.map(map_path, loaded.resource.plot_half)
+		if loaded_map.errors.is_empty():
+			pending_settings = loaded.resource
+			if play_mode == "free": custom_map = loaded_map.resource
+		else: _tuning_feedback("重试保留原配置：" + "；".join(loaded_map.errors))
+	else: _tuning_feedback("重试保留原配置：" + "；".join(loaded.errors))
+	switch_mode(play_mode)
+	wind_input.select_tool(selected_tool)
 	sim.reset(test_cloud)
 	guide.reset(play_mode == "lesson")
 	weather_view.reset_tracers()
 
 func _new_simulation() -> RefCounted:
-	return Simulation.new(weather_settings, play_mode == "free", play_mode == "lesson", free_layout)
+	return Simulation.new(weather_settings, play_mode == "free", play_mode == "lesson", free_layout, custom_map)
 
 func select_layout(id: String) -> void:
-	free_layout = Layouts.get_layout(id).id
+	if custom_map != null and custom_map.id == id:
+		switch_mode("free")
+		return
+	var definition := Layouts.get_definition(id)
+	var loaded := ConfigLoader.map(definition.resource_path, weather_settings.plot_half)
+	if not loaded.errors.is_empty():
+		_tuning_feedback("地图未切换：" + "；".join(loaded.errors))
+		return
+	custom_map = loaded.resource
+	custom_map_path = definition.resource_path if not id in Layouts.IDS else ""
+	free_layout = definition.id
 	switch_mode("free")
 
 func switch_mode(mode: String) -> void:
+	_apply_pending_restart()
 	wind_input.cancel()
 	paused = false
 	accumulator = 0.0
 	play_mode = mode
 	sim = _new_simulation()
+	result_recorded = false
 	guide.reset(mode == "lesson")
 	remove_child(weather_view)
 	weather_view.queue_free()
@@ -101,11 +161,35 @@ func switch_mode(mode: String) -> void:
 	add_child(weather_view)
 	weather_view.setup(sim)
 	wind_input.setup(sim, weather_view.camera)
+	wind_input.select_tool("brush")
 	# Resolve the current view at emission time, including after mode changes.
+	wind_input.enabled = true
 	hud.sim = sim
+	hud.reset_feedback()
 	hud.view = weather_view
 	hud.play_mode = mode
+	hud.refresh_layouts()
 	hud.queue_redraw()
+
+func finish_level() -> void:
+	wind_input.cancel()
+	if sim.finish():
+		wind_input.enabled = false
+		record_result()
+
+func record_result() -> void:
+	if result_recorded or not sim.star_level or sim.sandbox or sim.outcome == "playing": return
+	result_recorded = true
+	var saved := progress.record(sim.layout_id, sim.result_stars, progress_path, persist_progress and not "--fresh-guide" in OS.get_cmdline_user_args())
+	hud.best_stars = progress.best
+	hud.refresh_layouts()
+	hud.queue_redraw()
+	if saved != OK: _tuning_feedback("本局结果有效，保存星数失败：" + error_string(saved))
+
+func next_level() -> void:
+	if not sim.star_level or sim.sandbox or sim.outcome != "success": return
+	var index := Layouts.LEVELS.find(sim.layout_id)
+	select_layout(Layouts.LEVELS[index + 1] if index >= 0 and index + 1 < Layouts.LEVELS.size() else Layouts.LEVELS[0])
 
 func enter_free_play() -> void:
 	switch_mode("free")
@@ -130,9 +214,13 @@ func cold_lab() -> void:
 	sim.refresh_display()
 
 func _process(delta: float) -> void:
+	record_result()
 	var moving: bool = not paused and sim.outcome == "playing"
 	var start := Time.get_ticks_usec()
-	if moving: wind_input.flush()
+	if moving:
+		wind_input.flush()
+		wind_input.update_hover()
+		wind_input.update_held()
 	frame_input_ms = (Time.get_ticks_usec() - start) / 1000.0
 	start = Time.get_ticks_usec()
 	frame_steps = 0
@@ -147,13 +235,21 @@ func _process(delta: float) -> void:
 				break
 			var step_start := Time.get_ticks_usec()
 			sim.step(Simulation.FIXED_STEP)
+			hud.update_feedback(Simulation.FIXED_STEP)
 			guide.update(sim, Simulation.FIXED_STEP)
 			last_step_us = Time.get_ticks_usec() - step_start
 			accumulator -= Simulation.FIXED_STEP
 			frame_steps += 1
+			if sim.outcome != "playing": break
+	if moving and sim.outcome != "playing":
+		moving = false
+		wind_input.cancel()
+		record_result()
 	frame_simulation_ms = (Time.get_ticks_usec() - start) / 1000.0
 	hud.simulation_ms = lerpf(hud.simulation_ms, frame_simulation_ms, 0.05)
 	start = Time.get_ticks_usec()
+	if wind_input.dragging:
+		weather_view.note_interaction(Vector2(wind_input.brush_point.x, wind_input.brush_point.z))
 	weather_view.update_weather(minf(delta, 0.1), moving)
 	frame_view_ms = (Time.get_ticks_usec() - start) / 1000.0
 	wind_input.enabled = moving
@@ -161,6 +257,7 @@ func _process(delta: float) -> void:
 	wind_input.update_hover()
 	frame_pick_ms = (Time.get_ticks_usec() - start) / 1000.0
 	hud.paused = paused
+	hud.tuning_message = tuning_message if Time.get_ticks_msec() < tuning_message_until else ""
 	hud.frame_ms = lerpf(hud.frame_ms, delta * 1000.0, 0.05)
 	hud.queue_redraw()
 
@@ -176,6 +273,8 @@ func _unhandled_key_input(event: InputEvent) -> void:
 			hud.debug_visible = not hud.debug_visible
 		KEY_F4:
 			cold_lab()
+		KEY_F6:
+			if development: reload_tuning()
 		KEY_SPACE:
 			paused = not paused
 			wind_input.cancel()
@@ -187,3 +286,37 @@ func _capture(path: String) -> void:
 	var result := get_viewport().get_texture().get_image().save_png(path)
 	print("CAPTURE ", path, " result=", result, " simulation_ms=", hud.simulation_ms, " frame_ms=", hud.frame_ms)
 	get_tree().quit(0 if result == OK else 1)
+
+func _tuning_feedback(message: String) -> void:
+	tuning_message = message
+	tuning_message_until = Time.get_ticks_msec() + 10000
+	print("TUNING ", message)
+
+func reload_tuning() -> bool:
+	var loaded := ConfigLoader.settings(settings_path)
+	if not loaded.errors.is_empty():
+		_tuning_feedback("配置未应用：" + "；".join(loaded.errors))
+		return false
+	var candidate: WRWeatherSettings = loaded.resource
+	var definition := custom_map if custom_map != null else Layouts.get_definition(free_layout if play_mode == "free" else "standard")
+	var map_errors := definition.validation_errors(candidate.plot_half)
+	if not map_errors.is_empty():
+		_tuning_feedback("配置未应用：" + "；".join(map_errors))
+		return false
+	# Never mutate the shared on-disk resource or deferred fields of the live simulation.
+	sim.settings.apply_live(candidate)
+	for i in Simulation.COUNT:
+		sim.wind[i] = sim.wind[i].limit_length(candidate.max_wind)
+	sim._update_cold_flow()
+	pending_settings = candidate
+	_tuning_feedback("已应用：拨风、续吹、风带力度／宽度与云响应；风带寿命／数量及天气规则重试生效")
+	return true
+
+func _apply_pending_restart() -> void:
+	if pending_settings != null:
+		weather_settings = pending_settings
+		pending_settings = null
+	if not custom_map_path.is_empty():
+		var loaded := ConfigLoader.map(custom_map_path, weather_settings.plot_half)
+		if loaded.errors.is_empty(): custom_map = loaded.resource
+		else: _tuning_feedback("地图未应用：" + "；".join(loaded.errors))

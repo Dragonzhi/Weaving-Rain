@@ -136,5 +136,18 @@ func run() -> void:
 	check(flood.outcome == "flood", "Overwatering either plot requires retry")
 	opposing.reset()
 	check(total(opposing.cold) == 0.0 and opposing.second_water == 0.0 and opposing.total_cold_lift == 0.0, "Retry clears cold, both goals and relay diagnostics")
+	var injected := empty()
+	injected.cold[20 * Sim.WIDTH + 30] = 2.0
+	injected._update_cold_flow()
+	var expected: PackedFloat32Array = injected._smooth(injected.cold)
+	check(injected.display_cold == expected and injected.cold_flow[20 * Sim.WIDTH + 29].length() > 0.0, "Direct cold injection invalidates the published smoothing cache")
+	injected.cold.fill(0.0)
+	injected.cold[20 * Sim.WIDTH + 30] = 1e-40
+	injected.refresh_display()
+	var numeric_safe := true
+	for tick in 32:
+		injected._update_cold_flow()
+		numeric_safe = numeric_safe and is_finite(exp(-0.03))
+	check(numeric_safe and injected.display_cold.to_byte_array() == injected._smooth(injected.cold).to_byte_array(), "Subnormal cold remnants safely reuse exact published bytes before subsequent math")
 	print("COLD WEATHER TESTS: ", checks, " checks, ", failures, " failures")
 	quit(0 if failures == 0 else 1)

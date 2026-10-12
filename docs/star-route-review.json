@@ -1,0 +1,255 @@
+{
+  "description": "Normal humidity opening; local strokes only, one per 0.5 seconds. Transport is the summed brush path for mountain feed, cloud delivery and transfer; it is not measured cloud travel. Automated evidence is not player difficulty acceptance.",
+  "routes": [
+    {
+      "case": "meadow-abc",
+      "layout": "meadow",
+      "route": "mountain",
+      "order": [
+        0,
+        1,
+        2
+      ],
+      "stars": 3,
+      "elapsed": 78.5166666666635,
+      "limit": 180.0,
+      "strokes": 158,
+      "transport_strokes": 72,
+      "transport_distance": 172.199996232986,
+      "front_strokes": 0,
+      "per_target": [
+        {
+          "distance": 41.399998664856,
+          "front": 0,
+          "strokes": 28,
+          "transport": 18
+        },
+        {
+          "distance": 90.8999977111816,
+          "front": 0,
+          "strokes": 71,
+          "transport": 37
+        },
+        {
+          "distance": 39.8999998569489,
+          "front": 0,
+          "strokes": 59,
+          "transport": 17
+        }
+      ],
+      "water": [
+        111.177416879389,
+        103.702262744611,
+        104.774478312502
+      ],
+      "destroyed": [
+        false,
+        false,
+        false
+      ],
+      "water_error": -0.00204744432608095,
+      "cold_lift": 57.538317170097,
+      "late_clear_seconds": 0.0
+    },
+    {
+      "case": "meadow-cab",
+      "layout": "meadow",
+      "route": "mountain",
+      "order": [
+        2,
+        0,
+        1
+      ],
+      "stars": 3,
+      "elapsed": 56.8499999999981,
+      "limit": 180.0,
+      "strokes": 114,
+      "transport_strokes": 85,
+      "transport_distance": 205.799999713898,
+      "front_strokes": 0,
+      "per_target": [
+        {
+          "distance": 69.5999991893768,
+          "front": 0,
+          "strokes": 38,
+          "transport": 29
+        },
+        {
+          "distance": 114.00000166893,
+          "front": 0,
+          "strokes": 60,
+          "transport": 47
+        },
+        {
+          "distance": 22.1999988555908,
+          "front": 0,
+          "strokes": 16,
+          "transport": 9
+        }
+      ],
+      "water": [
+        104.430685048366,
+        106.576785648101,
+        127.2674049645
+      ],
+      "destroyed": [
+        false,
+        false,
+        false
+      ],
+      "water_error": -0.00150172242888402,
+      "cold_lift": 75.5476503762586,
+      "late_clear_seconds": 0.0
+    },
+    {
+      "case": "valleys-mountain",
+      "layout": "valleys",
+      "route": "mountain",
+      "order": [
+        0,
+        1,
+        2
+      ],
+      "stars": 3,
+      "elapsed": 46.9166666666653,
+      "limit": 180.0,
+      "strokes": 85,
+      "transport_strokes": 64,
+      "transport_distance": 153.000004053116,
+      "front_strokes": 0,
+      "per_target": [
+        {
+          "distance": 16.5000014305115,
+          "front": 0,
+          "strokes": 16,
+          "transport": 7
+        },
+        {
+          "distance": 36.0000004768372,
+          "front": 0,
+          "strokes": 15,
+          "transport": 15
+        },
+        {
+          "distance": 100.500002145767,
+          "front": 0,
+          "strokes": 54,
+          "transport": 42
+        }
+      ],
+      "water": [
+        122.436894053184,
+        105.167902114521,
+        105.006906065555
+      ],
+      "destroyed": [
+        false,
+        false,
+        false
+      ],
+      "water_error": -0.00226070913083731,
+      "cold_lift": 51.2137735847253,
+      "late_clear_seconds": 0.0
+    },
+    {
+      "case": "valleys-relay",
+      "layout": "valleys",
+      "route": "relay",
+      "order": [
+        0,
+        1,
+        2
+      ],
+      "stars": 3,
+      "elapsed": 39.5166666666657,
+      "limit": 180.0,
+      "strokes": 70,
+      "transport_strokes": 47,
+      "transport_distance": 112.50000333786,
+      "front_strokes": 8,
+      "per_target": [
+        {
+          "distance": 14.1000010967255,
+          "front": 2,
+          "strokes": 15,
+          "transport": 6
+        },
+        {
+          "distance": 36.0000004768372,
+          "front": 0,
+          "strokes": 15,
+          "transport": 15
+        },
+        {
+          "distance": 62.4000017642975,
+          "front": 6,
+          "strokes": 40,
+          "transport": 26
+        }
+      ],
+      "water": [
+        133.709964105265,
+        110.917343637134,
+        106.96095422742
+      ],
+      "destroyed": [
+        false,
+        false,
+        false
+      ],
+      "water_error": -0.000922182739941491,
+      "cold_lift": 56.8041756453078,
+      "late_clear_seconds": 0.0
+    },
+    {
+      "case": "valleys-late",
+      "layout": "valleys",
+      "route": "mountain",
+      "order": [
+        0,
+        1,
+        2
+      ],
+      "stars": 2,
+      "elapsed": 36.3166666666659,
+      "limit": 180.0,
+      "strokes": 73,
+      "transport_strokes": 22,
+      "transport_distance": 49.5000009536743,
+      "front_strokes": 0,
+      "per_target": [
+        {
+          "distance": 9.30000042915344,
+          "front": 0,
+          "strokes": 16,
+          "transport": 4
+        },
+        {
+          "distance": 19.2000007629395,
+          "front": 0,
+          "strokes": 28,
+          "transport": 9
+        },
+        {
+          "distance": 20.9999997615814,
+          "front": 0,
+          "strokes": 29,
+          "transport": 9
+        }
+      ],
+      "water": [
+        193.24026041405,
+        102.489987472692,
+        124.54252388596
+      ],
+      "destroyed": [
+        true,
+        false,
+        false
+      ],
+      "water_error": -0.000380561067913732,
+      "cold_lift": 52.2098534774156,
+      "late_clear_seconds": 5.0
+    }
+  ]
+}

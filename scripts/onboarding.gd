@@ -44,7 +44,7 @@ func instruction(sim: RefCounted) -> String:
 	if sim.outcome == "flood":
 		return "按 R 重试；接近适量前就开始移云。"
 	if phase == 4:
-		return "这场雨刚刚好。可以进入 A、B 双目标自由局。"
+		return "这场雨刚刚好。进入自由局后，也可选择星级关卡。"
 	if phase == 3:
 		return "移开虚线范围内的厚云与雨云，等待安全。"
 	if phase > 0 and sim.peak_density < 0.15 and sim.total_rain_rate < 0.01:
@@ -52,10 +52,10 @@ func instruction(sim: RefCounted) -> String:
 	if phase == 2:
 		if sim.plot_water >= sim.settings.target_water * 0.7:
 			return "快够水了：提前把雨云移开，储水还会继续落下。"
-		return "把雨云慢慢送到 A 上方，观察左下角水量。"
+		return "把雨云慢慢送到 A 上方，观察地块旁的水量。"
 	if phase == 1:
 		return "从云边向内轻拨，收厚后保持片刻就会下雨。"
-	return "按住左键，把浅色细丝所在的湿空气送向山坡。"
+	return "拖出方向后按住续吹，把浅色湿空气送向山坡。"
 
 func detail(sim: RefCounted) -> String:
 	if sim.outcome == "flood":
@@ -65,7 +65,7 @@ func detail(sim: RefCounted) -> String:
 	if phase == 2:
 		return "雨线落在地块内才加水；移云期间仍会降雨。"
 	if phase == 1:
-		return "厚薄和成雨进度显示在云上；拨动太猛会把云吹散。"
+		return "观察云的厚薄与雨线；拨动太猛会把云吹散。"
 	if phase == 4:
 		return "自由局还可借灰蓝色冷空气组织下一场雨，也可继续借山。"
-	return "金色标记是引导位置；平地水平移动不会直接造云。"
+	return "底部持续风可拖出风带，滚轮调力度；金色上升箭头表示实际造云。"

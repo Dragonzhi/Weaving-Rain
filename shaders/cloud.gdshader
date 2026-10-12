@@ -1,6 +1,8 @@
 shader_type spatial;
 render_mode unshaded, fog_disabled, cull_back, depth_draw_never;
 uniform sampler2D water_map : filter_linear, repeat_disable;
+uniform sampler2D cloud_bounds : filter_nearest, repeat_disable;
+uniform bool use_cloud_bounds = false;
 uniform sampler2D depth_texture : hint_depth_texture, filter_nearest, repeat_disable;
 uniform float threshold = 1.4;
 uniform vec3 ray_direction = vec3(-0.5, -0.6, -0.6);
@@ -37,6 +39,17 @@ void fragment() {
 		float distance = (float(i) + 0.5) * dt;
 		if (distance >= travel) { break; }
 		vec3 p = ray_top + dir * distance;
+		// The shared density profile never extends beyond +/-0.7, for any water amount.
+		// Keep the original sample lattice; skip only samples with provably zero density.
+		if (abs(p.y - 3.6) > 0.70001) { continue; }
+		if (use_cloud_bounds) {
+			vec2 uv = (p.xz + vec2(16.0, 14.0)) / vec2(32.0, 28.0);
+			ivec2 size = textureSize(cloud_bounds, 0);
+			ivec2 cell = clamp(ivec2(floor(uv * vec2(size) - 0.5)), ivec2(0), size - ivec2(1));
+			float maximum = texelFetch(cloud_bounds, cell, 0).r;
+			float half_height = 0.12 + 0.58 * smoothstep(0.04, threshold * 1.8, maximum);
+			if (maximum < 0.04 || abs(p.y - 3.6) > half_height + 0.00001) { continue; }
+		}
 		vec4 s = cloud_state(p.xz);
 		float d = density(p, s.r);
 		if (d <= 0.0) { continue; }

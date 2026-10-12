@@ -44,6 +44,20 @@ func pointer(t: float, press: bool = false, release: bool = false) -> void:
 		root.push_input(event, true)
 	previous = screen
 
+func stress_sources() -> bool:
+	# Development pressure only: keep two simultaneous sources through the sample.
+	while main.sim.wind_sources.size() < 2:
+		var side := -1.0 if main.sim.wind_sources.is_empty() else 1.0
+		var start := Vector2(side * 8, side * 2)
+		var end := Vector2(-side * 7, -side * 2)
+		var placed: Dictionary = main.sim.add_wind_source(start, end - start, 1.0, end)
+		if not placed.ok:
+			push_error("Two-source stress requires source_limit >= 2: " + placed.reason)
+			quit(1)
+			return false
+	for source in main.sim.wind_sources: source.remaining = source.lifetime
+	return true
+
 func run() -> void:
 	var duration := 60.0
 	var warmup := 5.0
@@ -75,9 +89,14 @@ func run() -> void:
 			var sample_steps := 0
 			var max_backlog_ms := 0.0
 			var slow := 0
+			var peak_arrows := 0
+			var peak_source_lines := 0
+			var min_sources := 4
 			var previous_draw := Time.get_ticks_usec()
 			var trace := PackedStringArray(["frame_ms,steps,simulation_ms,view_ms,pick_ms,input_ms,gpu_ms"])
-			if drag: pointer(0.0, true)
+			if drag:
+				if not stress_sources(): return
+				pointer(0.0, true)
 			while true:
 				await process_frame
 				var t := (Time.get_ticks_usec() - start) / 1000000.0
@@ -86,6 +105,7 @@ func run() -> void:
 				var seeded := t - last_seed >= 5.0
 				if seeded:
 					seed_stress(kind)
+					if drag and not stress_sources(): return
 					last_seed = t
 				var input_start := Time.get_ticks_usec()
 				if drag: pointer(t)
@@ -95,6 +115,9 @@ func run() -> void:
 				var ms := (draw_time - previous_draw) / 1000.0
 				previous_draw = draw_time
 				if t >= warmup:
+					peak_arrows = maxi(peak_arrows, main.weather_view.visible_arrows)
+					peak_source_lines = maxi(peak_source_lines, main.weather_view.visible_source_lines)
+					min_sources = mini(min_sources, main.sim.wind_sources.size())
 					sample_steps += main.frame_steps
 					max_backlog_ms = maxf(max_backlog_ms, main.accumulator * 1000.0)
 				if t < warmup or seeded: continue
@@ -108,6 +131,10 @@ func run() -> void:
 			pointer(duration + warmup, false, true)
 			var count := frames.size()
 			var report := {"layout": main.sim.layout_id, "kind": kind, "drag": drag, "frames": count, "p50": percentile(frames, 0.5), "p95": percentile(frames, 0.95), "p99": percentile(frames, 0.99), "slow_33ms": slow, "sim_ms": sums.x / count, "view_ms": sums.y / count, "pick_ms": sums.z / count, "input_ms": input_sum / count, "gpu_ms": sums.w / count, "steps_per_frame": float(steps) / count, "sample_seconds": duration, "simulation_seconds": sample_steps * Sim.FIXED_STEP, "max_backlog_ms": max_backlog_ms, "final_backlog_ms": main.accumulator * 1000.0}
+			report["min_sources"] = min_sources
+			report["peak_arrows"] = peak_arrows
+			report["peak_source_lines"] = peak_source_lines
+			report["arrows_enabled"] = main.weather_view.arrows_enabled
 			reports.append(report)
 			print("RUNTIME ", JSON.stringify(report))
 			var csv := FileAccess.open("res://.godot/runtime-" + label + "-" + main.sim.layout_id + "-" + kind + ("-drag" if drag else "-idle") + ".csv", FileAccess.WRITE)

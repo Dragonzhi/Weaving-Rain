@@ -38,6 +38,7 @@ func run() -> void:
 			main.sim.wind[i] = Vector2(state.wind[i][0], state.wind[i][1])
 		main.sim._update_cold_flow()
 	main.sim.rain_lost = state.rain_lost
+	main.sim.escaped_water = state.get("escaped_water", 0.0)
 	main.sim.initial_water = state.initial_water
 	main.sim.total_rain_rate = state.rain_rate
 	main.sim.total_mountain_lift = state.get("mountain_lift", 0.0)

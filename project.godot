@@ -26,6 +26,10 @@ window/stretch/aspect="expand"
 window/size/min_width=1100
 window/size/min_height=700
 
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/weather_map_editor/plugin.cfg")
+
 [physics]
 
 3d/physics_engine="Jolt Physics"
