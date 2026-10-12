@@ -28,6 +28,8 @@ func signature() -> int:
 		map_definition.star_level, map_definition.time_limit_seconds, FileAccess.get_modified_time("res://configs/weather.tres")]
 	for region in map_definition.plot_regions:
 		values.append([region.shape, region.half_axes] if region != null else null)
+	for needs in map_definition.plot_needs:
+		values.append([needs.id, needs.display_name, needs.target_water, needs.flood_water, needs.appearance] if needs != null else null)
 	for m in map_definition.mountains:
 		values.append([m.position, m.radius, m.height] if m != null else null)
 	for source in map_definition.humidity_sources:
@@ -94,9 +96,13 @@ func rebuild() -> void:
 		var plot := region.mesh(plot_half)
 		var invalid := false
 		for error in errors:
-			invalid = invalid or error.begins_with("plots[%d]" % n) or error.begins_with("plots：")
+			invalid = invalid or error.begins_with("plots[%d]" % n) or error.begins_with("plots：") or error.begins_with("plot_needs[%d]" % n)
 		add_mesh(plot, Color("e68172") if invalid else Color("b99470"), Vector3(p.x, terrain.height(p) + 0.045, p.y))
-		add_label(String.chr(65 + n), Vector3(p.x, 0.6, p.y))
+		var label := String.chr(65 + n)
+		if n < map_definition.plot_needs.size() and map_definition.plot_needs[n] != null:
+			var needs := map_definition.plot_needs[n]
+			label += " %s\n%.0f–%.0f" % [needs.display_name, needs.target_water, needs.flood_water]
+		add_label(label, Vector3(p.x, 0.6, p.y))
 	for n in map_definition.mountains.size():
 		var m := map_definition.mountains[n]
 		if m != null:
@@ -195,8 +201,9 @@ func apply_collection(field: String, values: Array) -> void:
 	map_definition.emit_changed()
 	rebuild()
 
-func apply_plots(points: PackedVector2Array, regions: Array[WRPlotRegion]) -> void:
+func apply_plots(points: PackedVector2Array, regions: Array[WRPlotRegion], needs: Array[WRPlotNeeds] = []) -> void:
 	map_definition.plots = points
 	map_definition.plot_regions = regions
+	map_definition.plot_needs = needs
 	map_definition.emit_changed()
 	rebuild()

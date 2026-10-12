@@ -73,6 +73,7 @@ var second_water: float:
 		if plot_waters.size() < 2: plot_waters.resize(2)
 		plot_waters[1] = value
 var plot_regions: Array[WRPlotRegion] = []
+var plot_needs: Array[WRPlotNeeds] = []
 var plot_water_scales := PackedFloat64Array()
 var plot_destroyed: Array[bool] = []
 var star_level := false
@@ -137,6 +138,10 @@ func _init(config: Resource = null, relay: bool = false, single_cold: bool = fal
 		if relay_mode and target < layout.get("plot_regions", []).size() and layout.plot_regions[target] != null:
 			region = layout.plot_regions[target].duplicate(true)
 		plot_regions.append(region)
+		var needs: WRPlotNeeds = null
+		if relay_mode and target < layout.get("plot_needs", []).size() and layout.plot_needs[target] != null:
+			needs = layout.plot_needs[target].duplicate(true)
+		plot_needs.append(needs)
 		plot_water_scales.append(settings.plot_water_scale * 4.0 * plot_half * plot_half / region.area(plot_half))
 		safety_indices.append(PackedInt32Array())
 	for i in COUNT:
@@ -856,13 +861,28 @@ func velocity_at(p: Vector2, low: bool = true) -> Vector2:
 	var d := field[clampi(z + 1, 0, DEPTH - 1) * WIDTH + clampi(x + 1, 0, WIDTH - 1)]
 	return a.lerp(b, g.x - x).lerp(c.lerp(d, g.x - x), g.y - z)
 
+func required_water(target: int) -> float:
+	return plot_needs[target].target_water if plot_needs[target] != null else settings.target_water
+
+func flood_limit(target: int) -> float:
+	return plot_needs[target].flood_water if plot_needs[target] != null else settings.flood_water
+
+func plot_name(target: int) -> String:
+	return plot_needs[target].display_name if plot_needs[target] != null else ""
+
+func plot_progress(target: int) -> float:
+	return clampf(water_for(target) / required_water(target), 0.0, 1.0)
+
+func plot_warning(target: int) -> float:
+	return clampf((water_for(target) - required_water(target)) / (flood_limit(target) - required_water(target)), 0.0, 1.0)
+
 func water_for(target: int) -> float:
 	return plot_waters[target]
 
 func plot_status(target: int) -> String:
 	# One shared interpretation for the field card, transition feedback and final result.
 	if plot_destroyed[target]: return "destroyed"
-	if water_for(target) < settings.target_water: return "dry"
+	if water_for(target) < required_water(target): return "dry"
 	if plot_threats[target]: return "danger"
 	if plot_safe_times[target] < settings.safe_seconds: return "confirming"
 	return "safe"
@@ -941,11 +961,11 @@ func update_goal(dt: float) -> void:
 				danger = true
 				break
 		plot_threats[target] = danger
-		if water_for(target) > settings.flood_water and not sandbox:
+		if water_for(target) > flood_limit(target) and not sandbox:
 			plot_destroyed[target] = true
 			if not star_level: outcome = "flood"
 		threat = threat or (danger and not plot_destroyed[target])
-		plot_safe_times[target] = plot_safe_times[target] + dt if water_for(target) >= settings.target_water and not danger and not plot_destroyed[target] else 0.0
+		plot_safe_times[target] = plot_safe_times[target] + dt if water_for(target) >= required_water(target) and not danger and not plot_destroyed[target] else 0.0
 		complete = complete and plot_safe_times[target] >= settings.safe_seconds
 	safe_time = plot_safe_times[0]
 	if star_level:
@@ -996,8 +1016,8 @@ func weather_reserve() -> float:
 func minimum_water_needed() -> float:
 	var needed := INF
 	for target in plot_centers.size():
-		if plot_destroyed[target] or water_for(target) >= settings.target_water: continue
-		needed = minf(needed, (settings.target_water - water_for(target)) / plot_water_scales[target])
+		if plot_destroyed[target] or water_for(target) >= required_water(target): continue
+		needed = minf(needed, (required_water(target) - water_for(target)) / plot_water_scales[target])
 	return needed
 
 func water_insufficient() -> bool:

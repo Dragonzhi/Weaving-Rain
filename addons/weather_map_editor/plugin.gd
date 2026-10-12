@@ -108,7 +108,11 @@ func _process(_delta: float) -> void:
 	plot_list.clear()
 	for n in author.map_definition.mountains.size(): mountain_list.add_item("山 %d" % (n + 1))
 	for n in author.map_definition.humidity_sources.size(): air_list.add_item("湿空气 %d" % (n + 1))
-	for n in author.map_definition.plots.size(): plot_list.add_item("地块 " + String.chr(65 + n))
+	for n in author.map_definition.plots.size():
+		var label := "地块 " + String.chr(65 + n)
+		if n < author.map_definition.plot_needs.size() and author.map_definition.plot_needs[n] != null:
+			label += " · " + author.map_definition.plot_needs[n].display_name
+		plot_list.add_item(label)
 	if mountain_list.item_count > 0: mountain_list.select(clampi(selected_mountain, 0, mountain_list.item_count - 1))
 	if air_list.item_count > 0: air_list.select(clampi(selected_air, 0, air_list.item_count - 1))
 	if plot_list.item_count > 0: plot_list.select(clampi(selected_plot, 0, plot_list.item_count - 1))
@@ -159,19 +163,23 @@ func change_plots(add: bool) -> void:
 	if not is_instance_valid(author): return
 	var points := author.map_definition.plots.duplicate()
 	var regions: Array[WRPlotRegion] = author.map_definition.plot_regions.duplicate()
+	var needs: Array[WRPlotNeeds] = author.map_definition.plot_needs.duplicate()
 	while regions.size() < points.size(): regions.append(WRPlotRegion.new())
+	while needs.size() < points.size(): needs.append(null)
 	if add:
 		if points.size() >= 3: return
 		points.append(author.map_definition.island_center)
 		regions.append(WRPlotRegion.new())
+		needs.append(null)
 	else:
 		if points.size() <= 1 or plot_list.selected < 0: return
 		regions.remove_at(plot_list.selected)
+		needs.remove_at(plot_list.selected)
 		points.remove_at(plot_list.selected)
 	var undo := get_undo_redo()
 	undo.create_action("修改地块", UndoRedo.MERGE_DISABLE, author.map_definition)
-	undo.add_do_method(author, "apply_plots", points, regions)
-	undo.add_undo_method(author, "apply_plots", author.map_definition.plots.duplicate(), author.map_definition.plot_regions.duplicate())
+	undo.add_do_method(author, "apply_plots", points, regions, needs)
+	undo.add_undo_method(author, "apply_plots", author.map_definition.plots.duplicate(), author.map_definition.plot_regions.duplicate(), author.map_definition.plot_needs.duplicate())
 	undo.commit_action()
 	last_signature = 0
 
@@ -277,6 +285,25 @@ func editor_smoke() -> void:
 	if ResourceSaver.save(shape_map, "res://.godot/editor-shape-map.tres") != OK: errors.append("Save shape preview")
 	var shape_loaded = ResourceLoader.load("res://.godot/editor-shape-map.tres", "", ResourceLoader.CACHE_MODE_IGNORE_DEEP)
 	if shape_loaded.region(1).shape != "circle" or shape_loaded.region(2).shape != "ellipse": errors.append("Reload shapes")
+	node.map_definition = load("res://configs/maps/needs_lab.tres").duplicate(true)
+	_edit(node)
+	_process(0)
+	plot_list.select(0)
+	change_plots(false)
+	var needs_history := get_undo_redo().get_history_undo_redo(get_undo_redo().get_object_history_id(node.map_definition))
+	if node.map_definition.plots.size() != 1 or node.map_definition.plot_needs[0].id != "seedling": errors.append("Delete preserves needs index")
+	needs_history.undo()
+	if node.map_definition.plot_needs.size() != 2 or node.map_definition.plot_needs[0].id != "ordinary": errors.append("Undo restores needs")
+	needs_history.redo()
+	if node.map_definition.plot_needs[0].id != "seedling": errors.append("Redo needs delete")
+	needs_history.undo()
+	change_plots(true)
+	if node.map_definition.plot_needs.size() != 3 or node.map_definition.plot_needs[2] != null: errors.append("New plot defaults needs")
+	needs_history.undo()
+	if node.map_definition.plot_needs.size() != 2: errors.append("Undo added needs slot")
+	ResourceSaver.save(node.map_definition, "res://.godot/editor-needs-map.tres")
+	var needs_loaded = ResourceLoader.load("res://.godot/editor-needs-map.tres", "", ResourceLoader.CACHE_MODE_IGNORE_DEEP)
+	if needs_loaded.plot_needs[1].target_water != 40 or not needs_loaded.plot_needs[1].resource_path.ends_with("seedling.tres"): errors.append("Needs save keeps preset reference")
 	node.map_definition = load("res://configs/maps/ridges.tres").duplicate(true)
 	camera.queue_free()
 	if not node.map_definition.validation_errors().is_empty(): errors.append("Final map validation")
@@ -285,7 +312,7 @@ func editor_smoke() -> void:
 	if saved != OK or reloaded.mountains.size() != 2 or reloaded.mountains[1].height != node.map_definition.mountains[1].height: errors.append("Save/reload nested resources")
 	var original: WRMapDefinition = load("res://configs/maps/ridges.tres")
 	if original.mountains.size() != 2 or original.mountains[0].position != Vector2(-3, -1): errors.append("Editing leaves source resource unchanged until save")
-	print("EDITOR MAP: 18 checks, ", errors.size(), " failures: ", errors)
+	print("EDITOR MAP: 24 checks, ", errors.size(), " failures: ", errors)
 	node.queue_free()
 	get_tree().quit(0 if errors.is_empty() else 1)
 
@@ -307,7 +334,7 @@ func editor_capture() -> void:
 	camera.projection = Camera3D.PROJECTION_ORTHOGONAL
 	camera.size = 18
 	await RenderingServer.frame_post_draw
-	var result := get_viewport().get_texture().get_image().save_png("res://docs/previews/map-editor.png")
+	var result := get_viewport().get_texture().get_image().save_png("res://.godot/map-editor.png")
 	print("EDITOR CAPTURE ", result)
 	author = null
 	_exit_tree()

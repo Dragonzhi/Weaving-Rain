@@ -82,15 +82,15 @@ func run() -> void:
 			if not command.is_empty(): await stroke(command)
 		if not captured_rain and main.sim.plot_waters[0] >= 60.0:
 			await RenderingServer.frame_post_draw
-			root.get_texture().get_image().save_png("res://docs/previews/star-route-viewport-rain.png")
+			root.get_texture().get_image().save_png("res://.godot/star-route-viewport-rain.png")
 			captured_rain = true
 		if not captured_feedback and Array(main.hud.feedback_left).max() > 0.0:
 			await RenderingServer.frame_post_draw
-			root.get_texture().get_image().save_png("res://docs/previews/star-route-viewport-feedback.png")
+			root.get_texture().get_image().save_png("res://.godot/star-route-viewport-feedback.png")
 			captured_feedback = true
 		await process_frame
 	await RenderingServer.frame_post_draw
-	root.get_texture().get_image().save_png("res://docs/previews/star-route-viewport-result.png")
+	root.get_texture().get_image().save_png("res://.godot/star-route-viewport-result.png")
 	var report := controller.report(main.sim)
 	report["events"] = events
 	report["blocked"] = blocked

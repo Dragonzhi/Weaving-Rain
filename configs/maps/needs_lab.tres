@@ -1,0 +1,37 @@
+[gd_resource type="Resource" script_class="WRMapDefinition" load_steps=10 format=3]
+
+[ext_resource type="Script" path="res://scripts/map_definition.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/map_mountain.gd" id="2"]
+[ext_resource type="Script" path="res://scripts/map_humidity.gd" id="3"]
+[ext_resource type="Resource" path="res://configs/plots/ordinary.tres" id="4"]
+[ext_resource type="Resource" path="res://configs/plots/seedling.tres" id="5"]
+[ext_resource type="Script" path="res://scripts/plot_needs.gd" id="6"]
+
+[sub_resource type="Resource" id="Mountain"]
+script = ExtResource("2")
+position = Vector2(-1.7, -0.6)
+radius = 2.3
+height = 2.5
+
+[sub_resource type="Resource" id="West"]
+script = ExtResource("3")
+position = Vector2(-6.2, 1.4)
+
+[sub_resource type="Resource" id="East"]
+script = ExtResource("3")
+position = Vector2(5.6, 1)
+spread = Vector2(3.2, 3.4)
+concentration = 0.9
+
+[resource]
+script = ExtResource("1")
+id = "needs_lab"
+title = "需水差异小样"
+hint = "普通田需要更多雨 · 幼苗更怕过量，变黄时留意移云与断供"
+river_enabled = false
+star_level = true
+time_limit_seconds = 180.0
+mountains = Array[ExtResource("2")]([SubResource("Mountain")])
+plots = PackedVector2Array(2.8, 1.2, -4.3, 2.6)
+plot_needs = Array[ExtResource("6")]([ExtResource("4"), ExtResource("5")])
+humidity_sources = Array[ExtResource("3")]([SubResource("West"), SubResource("East")])

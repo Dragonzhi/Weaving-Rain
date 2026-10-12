@@ -92,7 +92,7 @@ func run() -> void:
 	check(main.hud.strength_meter_rect.has_area() and root.get_visible_rect().encloses(main.hud.strength_meter_rect) and not main.hud.blocks_wind(main.hud.strength_meter_rect.get_center()), "Endpoint meter fits and does not block wind")
 	if "--capture" in OS.get_cmdline_user_args():
 		await RenderingServer.frame_post_draw
-		root.get_texture().get_image().save_png("res://docs/previews/wind-band-preview.png")
+		root.get_texture().get_image().save_png("res://.godot/wind-band-preview.png")
 	wheel(tip, false)
 	wheel(tip, false)
 	wheel(tip, false)
@@ -102,7 +102,7 @@ func run() -> void:
 	if "--capture" in OS.get_cmdline_user_args():
 		await create_timer(0.8).timeout
 		await RenderingServer.frame_post_draw
-		root.get_texture().get_image().save_png("res://docs/previews/wind-band-active.png")
+		root.get_texture().get_image().save_png("res://.godot/wind-band-active.png")
 	main.sim.remove_wind_source(main.sim.wind_sources[0].id)
 	main.wind_input.cancel()
 	button(screen(Vector2(-5, 0)), true)
@@ -152,7 +152,7 @@ func run() -> void:
 	if "--capture" in OS.get_cmdline_user_args():
 		main.wind_input.message_until = 0
 		await RenderingServer.frame_post_draw
-		root.get_texture().get_image().save_png("res://docs/previews/wind-tools-paused.png")
+		root.get_texture().get_image().save_png("res://.godot/wind-tools-paused.png")
 	main.paused = false
 	await process_frame
 	main.restart(false)

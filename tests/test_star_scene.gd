@@ -54,7 +54,7 @@ func run() -> void:
 	await process_frame
 	await RenderingServer.frame_post_draw
 	check(main.hud.reserve_message == "水汽所剩不多，云中仍有储水" and main.hud.finish_button.disabled, "Cloud storage is explained without falsely offering exhausted settlement")
-	if "--capture" in OS.get_cmdline_user_args(): root.get_texture().get_image().save_png("res://docs/previews/water-reserve-cloud.png")
+	if "--capture" in OS.get_cmdline_user_args(): root.get_texture().get_image().save_png("res://.godot/water-reserve-cloud.png")
 	main.sim.cloud.fill(0)
 	main.sim.refresh_display()
 	main.sim.update_goal(0.0)
@@ -64,13 +64,13 @@ func run() -> void:
 	await RenderingServer.frame_post_draw
 	check(main.hud.reserve_message == "剩余水分不足以浇够新地块" and not main.hud.finish_button.disabled and main.hud.finish_button.text == "结束 · 当前 0 星", "Exhausted reserve offers explicit zero-star ending")
 	check(main.sim.outcome == "playing" and main.wind_input.enabled, "Shortage notice allows continued interaction")
-	if "--capture" in OS.get_cmdline_user_args(): root.get_texture().get_image().save_png("res://docs/previews/water-shortage.png")
+	if "--capture" in OS.get_cmdline_user_args(): root.get_texture().get_image().save_png("res://.godot/water-shortage.png")
 	click(main.hud.finish_button)
 	await process_frame
 	await RenderingServer.frame_post_draw
 	check(main.sim.outcome == "shortage" and main.sim.ended_for_shortage and main.hud.result_retry.visible and not main.hud.next_button.visible, "Actual zero-star shortage ending exposes retry without next level")
 	check(not main.wind_input.enabled and not main.wind_input.dragging, "Manual shortage ending immediately disables further wind")
-	if "--capture" in OS.get_cmdline_user_args(): root.get_texture().get_image().save_png("res://docs/previews/water-shortage-result.png")
+	if "--capture" in OS.get_cmdline_user_args(): root.get_texture().get_image().save_png("res://.godot/water-shortage-result.png")
 	click(main.hud.result_retry)
 	await process_frame
 	await RenderingServer.frame_post_draw
@@ -106,7 +106,7 @@ func run() -> void:
 	check(main.hud.blocks_wind(main.hud.result_rect.get_center()), "Entire result panel blocks wind input")
 	check(not main.wind_input.dragging, "Finish cancels pending input")
 	if "--capture" in OS.get_cmdline_user_args():
-		root.get_texture().get_image().save_png("res://docs/previews/star-result.png")
+		root.get_texture().get_image().save_png("res://.godot/star-result.png")
 	click(main.hud.result_retry)
 	await process_frame
 	await RenderingServer.frame_post_draw
@@ -141,7 +141,7 @@ func run() -> void:
 	await process_frame
 	await RenderingServer.frame_post_draw
 	check(main.hud.finish_button.text == "三星 · 3 秒后自动结算", "Regained stars show a fresh full countdown")
-	if "--capture" in OS.get_cmdline_user_args(): root.get_texture().get_image().save_png("res://docs/previews/three-star-countdown.png")
+	if "--capture" in OS.get_cmdline_user_args(): root.get_texture().get_image().save_png("res://.godot/three-star-countdown.png")
 	click(main.hud.finish_button)
 	await process_frame
 	await RenderingServer.frame_post_draw
@@ -157,7 +157,7 @@ func run() -> void:
 		main.hud.queue_redraw()
 		await process_frame
 		await RenderingServer.frame_post_draw
-		root.get_texture().get_image().save_png("res://docs/previews/star-fields.png")
+		root.get_texture().get_image().save_png("res://.godot/star-fields.png")
 	main.sim.humidity.fill(0)
 	main.sim.elapsed_seconds = main.sim.time_limit_seconds - 1.0 / 60.0
 	main._process(1.0 / 60.0)
@@ -165,7 +165,7 @@ func run() -> void:
 	await RenderingServer.frame_post_draw
 	check(main.sim.outcome == "timeout" and main.hud.result_retry.visible and not main.hud.next_button.visible, "Deadline in real main loop shows zero-star retry without next-level access")
 	check(not main.wind_input.enabled and not main.wind_input.dragging and main.result_recorded, "Automatic settlement immediately cancels wind and records its result")
-	if "--capture" in OS.get_cmdline_user_args(): root.get_texture().get_image().save_png("res://docs/previews/star-timeout.png")
+	if "--capture" in OS.get_cmdline_user_args(): root.get_texture().get_image().save_png("res://.godot/star-timeout.png")
 	click(main.hud.result_retry)
 	await process_frame
 	await RenderingServer.frame_post_draw

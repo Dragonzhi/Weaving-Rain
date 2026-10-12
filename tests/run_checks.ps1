@@ -22,6 +22,8 @@ $checks = @(
     @{ Name = 'wind-tools-scene'; Script = 'res://tests/test_wind_tools_scene.gd'; Headless = $false; Args = @('--fresh-guide', '--layout=meadow') },
     @{ Name = 'open-boundary'; Script = 'res://tests/test_open_boundary.gd'; Headless = $true },
     @{ Name = 'map-resources'; Script = 'res://tests/test_map_resources.gd'; Headless = $true },
+    @{ Name = 'plot-needs'; Script = 'res://tests/test_plot_needs.gd'; Headless = $true },
+    @{ Name = 'plot-needs-scene'; Script = 'res://tests/test_plot_needs_scene.gd'; Headless = $false; Args = @('--fresh-guide', '--layout=needs_lab'); Resolution = '1920x1080' },
     @{ Name = 'star-levels'; Script = 'res://tests/test_star_levels.gd'; Headless = $true },
     @{ Name = 'water-reserve'; Script = 'res://tests/test_water_reserve.gd'; Headless = $true },
     @{ Name = 'three-star-finish'; Script = 'res://tests/test_three_star_finish.gd'; Headless = $true },
@@ -48,7 +50,11 @@ $checks = @(
     @{ Name = 'valleys-three-mountain'; Script = 'res://tests/replay_star_levels.gd'; Headless = $true; Args = @('--layout=valleys', '--route=mountain', '--output=res://.godot/star-final-valleys-mountain.json') },
     @{ Name = 'valleys-three-relay'; Script = 'res://tests/replay_star_levels.gd'; Headless = $true; Args = @('--layout=valleys', '--route=relay', '--output=res://.godot/star-final-valleys-relay.json') },
     @{ Name = 'valleys-late-clear'; Script = 'res://tests/replay_star_levels.gd'; Headless = $true; Args = @('--layout=valleys', '--late-clear=5', '--partial', '--output=res://.godot/star-final-valleys-late.json') },
-    @{ Name = 'wind-tools-route'; Script = 'res://tests/replay_wind_tools_viewport.gd'; Headless = $false; Args = @('--fresh-guide', '--layout=meadow'); Resolution = '1920x1080' }
+    @{ Name = 'wind-tools-route'; Script = 'res://tests/replay_wind_tools_viewport.gd'; Headless = $false; Args = @('--fresh-guide', '--layout=meadow'); Resolution = '1920x1080' },
+    @{ Name = 'needs-ordinary-first'; Script = 'res://tests/replay_plot_needs.gd'; Headless = $true },
+    @{ Name = 'needs-seedling-first'; Script = 'res://tests/replay_plot_needs.gd'; Headless = $true; Args = @('--reverse') },
+    @{ Name = 'needs-partial-loss'; Script = 'res://tests/replay_plot_needs.gd'; Headless = $true; Args = @('--reverse', '--late=5') },
+    @{ Name = 'needs-viewport-route'; Script = 'res://tests/replay_plot_needs_viewport.gd'; Headless = $false; Args = @('--fresh-guide', '--layout=needs_lab'); Resolution = '1920x1080' }
 )
 foreach ($check in $checks) {
     $logPath = Join-Path $cacheDirectory ($check.Name + '-check.log')
@@ -64,7 +70,7 @@ foreach ($check in $checks) {
     if ($checkProcess.ExitCode -ne 0 -or $output -match '(?m)^(SCRIPT ERROR|ERROR:)') {
         throw "Check failed: $($check.Name). See $logPath"
     }
-    if ($check.ContainsKey('Editor') -and $output -notmatch 'EDITOR MAP: 18 checks, 0 failures') { throw 'Editor plugin check did not finish.' }
+    if ($check.ContainsKey('Editor') -and $output -notmatch 'EDITOR MAP: 24 checks, 0 failures') { throw 'Editor plugin check did not finish.' }
 }
 & (Join-Path $PSScriptRoot 'review_star_routes.ps1')
-Write-Output 'All rules, map-editor, tuning, feedback, viewport, and seventeen playthrough checks passed.'
+Write-Output 'All rules, map-editor, tuning, feedback, viewport, and twenty-one playthrough checks passed.'

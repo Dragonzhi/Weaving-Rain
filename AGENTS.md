@@ -33,6 +33,10 @@
 
 ## 代码与数据入口
 
+2026-10-12 用户更新评价方向为固定 0–3 星，适用于可变田数的测试局：保住零块零星；全部保住三星；未全保住且只保住一块一星；其余二星。全保住优先，因此单田保住为三星。最低一星完成及每田适量／持续安全的定义沿用。该规则已确认但尚未接入当前代码，实施时须区分实际保住数量与评价星数，并整理满星倒数及旧最高纪录的处理；不要把旧回放星数写成新规则已验证。当前地图都是测试关卡，历史“第一关／第二关”不表示正式关卡序已经确定。见策划 §33.2。
+
+不同需水小样新增 scripts/plot_needs.gd、configs/plots/*.tres 与 needs_lab 地图。map_definition.plot_needs 按地块关联，空项沿用 WeatherSettings 全局阈值。模拟 required_water／flood_limit／plot_progress／plot_warning 是共同读取入口；资源快照不保存本局水量，面积归一化与实际水分记账保留。需求文件在 R／切图深度重读验证，F6 不改本局阈值；坏字段保留上一有效配置。地图增删及撤销需同步位置、形状、需求数组。蓝到黄表示过量余量，红色直接读永久损坏，长满不授星；植物插值随暂停冻结。
+
 2026-10-11 本轮按“首关宽松、次关有挑战”调整两张星级地图并补齐三星路线。模拟 `plot_status(target)` 共用缺水、危险、确认安全、安全与损坏状态；HUD 在固定步更新短暂地块反馈，暂停冻结，新模拟清空。结算逐地块列水量与未得星原因。测试控制器 `tests/star_route.gd` 只返回路径，不改模拟字段；`tests/replay_star_levels.gd` 从正常配置和湿空气开局，支持顺序、山坡／接力以及首块刻意晚移云。三星路线不调用普通提前结算；`--partial` 仅用于损失后的正常主动收尾验证。山坡路线仍启用正常冷风。`tests/review_star_routes.ps1` 复核时间余量及同一 C 地块的输送收益，`-ExportReview` 输出审阅 JSON。自动路线与真实视口事件通过都不代表玩家难度认可。
 
 | 位置 | 职责 |
@@ -117,7 +121,7 @@ D:\SteamLibrary\steamapps\common\Godot Engine\godot.windows.opt.tools.64.exe
 .\tests\run_checks.ps1 -GodotPath 'C:\path\to\godot.exe'
 ```
 
-脚本依次运行初版规则、冷风规则、引导状态、固定布局、路径重采样、续吹与风源规则／视口、开放边界、资源迁移、实际编辑器撤销及即时调参、星级规则与结果视口、地块反馈、实际渲染视口事件、渲染字段、云表面及十七条完整回放，随后核对五份星级路线记录，等待各进程结束并检查退出码与日志。日志写入 `.godot/`。不要把 GUI 程序刚启动时的返回值当作验证结果；退出码为零也要检查日志，headless 检查不能代替 GPU shader 验证。测试输入使用视口本地坐标，匹配画布缩放后的拾取与按钮位置。
+脚本依次运行初版规则、冷风规则、引导状态、固定布局、路径重采样、续吹与风源规则／视口、开放边界、资源迁移、独立地块需求、实际编辑器撤销及即时调参、星级规则与结果视口、地块反馈、实际渲染视口事件、渲染字段、云表面及二十一条完整回放，随后核对五份星级路线记录，等待各进程结束并检查退出码与日志。日志写入 `.godot/`。不要把 GUI 程序刚启动时的返回值当作验证结果；退出码为零也要检查日志，headless 检查不能代替 GPU shader 验证。测试输入使用视口本地坐标，匹配画布缩放后的拾取与按钮位置。
 
 `tests/replay_relay.gd -- --mountain` 保留禁用冷风的原始山坡回归；`--mountain-with-cold` 使用正常冷风规则，但不主动拨向冷风前沿。新增局面两条路线均启用正常冷风规则，山坡路线也可能受到自然出流及抬升影响；不可把它写成完全没有冷风参与。回放只提交局部风刷路径，按布局调整提前移云时机，不改适量阈值、不注水或清除天气。
 
@@ -137,12 +141,16 @@ D:\SteamLibrary\steamapps\common\Godot Engine\godot.windows.opt.tools.64.exe
 
 风工具阶段的拖动压力项保留两个风源并开启箭头，使用 `tests/review_runtime.ps1 -Label wind-final -Layouts meadow,valleys -WindTools`，额外核对至少两个风源、箭头开启且最多 32 个。配置 source_limit 小于 2 时压力工具报告无法建立双源样本并退出，不无限重试，不擅自修改配置。`test_wind_tools_scene.gd -- --capture` 保存预览与暂停夹具；`replay_wind_tools_viewport.gd` 以正常湿空气和真实事件放置、撤除风源并自动三星结算，`--no-source` 为对照，省操作收益须按记录判断。
 
-紧凑界面阶段使用 `tests/review_runtime.ps1 -Label compact-final -Layouts meadow,valleys -WindTools -WindLines`，同时核对持续风源白线存在且最多 48 条。`test_compact_feedback.gd` 检查信息穿透、实际地块标签按下、菜单、风线生成／暂停／撤除／末段和箭头；`test_hud_layouts.gd` 在三种实际窗口尺寸检查六张地图的标签位置。`test_compact_feedback.gd -- --capture` 的截图与 flow-motion 序列是隔离表现的开发夹具，不是正常通关证明。
+紧凑界面阶段使用 `tests/review_runtime.ps1 -Label compact-final -Layouts meadow,valleys -WindTools -WindLines`，同时核对持续风源白线存在且最多 48 条。`test_compact_feedback.gd` 检查信息穿透、实际地块标签按下、菜单、风线生成／暂停／撤除／末段和箭头；`test_hud_layouts.gd` 在三种实际窗口尺寸检查七张地图的标签位置。`test_compact_feedback.gd -- --capture` 的截图与 flow-motion 序列是隔离表现的开发夹具，不是正常通关证明。
+
+独立需求阶段使用 `test_plot_needs.gd` 验证各块阈值、危险与安全、需求快照、不同面积的实际接雨及缺水换算；`test_plot_needs_scene.gd` 检查真实 HUD、生长／萎蔫、暂停、F6／R 和无效外部预设回退。其 `--capture` 输出蓝、够水、渐变、上限和损坏状态夹具，不是正常通关证明。编辑器检查现为 24 项，含需求索引增删、撤销和外部引用重载。`replay_plot_needs.gd` 支持普通田优先、`--reverse` 幼苗优先及 `--reverse --late=5` 损失后继续；`replay_plot_needs_viewport.gd` 用正常湿空气开局及真实鼠标、滚轮、跨帧关闭按钮与主动收尾。回放不注水、不改阈值，二地块不触发三星倒数。小样短时性能诊断不能替代用户暂缓的两关十二项正式验收。
 
 `tests/test_render_fields.gd` 检查真实雨格显示、水汽微动、GPU 雨线复用及暂停；`tests/test_cloud_surface.gd` 检查 CPU/GPU 重建一致、场边连续性和真实灰蓝色阶轮廓。`tests/capture_cloud_motion.gd` 生成薄云、厚云、雨云各 90 帧的 30 Hz 动态审阅帧到 `.godot/cloud-motion/`，测试状态及动图缓存不接入正常玩法，不把动画存入仓库资源目录。
 
 ## 文件维护
 
-- `.godot/`、测试日志和中间截图是缓存，不加入版本控制。用于审阅的实机截图保存在 `docs/previews/`。
+- `docs/task-board.md` 是当前进度入口；新增确认、完成实现或收到试玩反馈时同步更新条目和日期。区分代码已实现、技术验证、待试玩与尚待讨论，不把历史候选或自动测试通过写成已承诺实现或玩家认可。README 只放入口，详细决定与历史仍写策划。
+
+- `.godot/`、测试日志、测试截图和动态序列是缓存，不加入版本控制。截图脚本默认写入 `.godot/`，不得自动覆盖或扩充 `docs/previews/`；审阅完成后只手动挑选少量当前文档需要的图进入该目录。过时、重复图及对应 `.import` 一并清理，视觉方向参考与当前文档用图保留。验证结论和数字记录继续保留，历史截图文件名不保证文件仍存在。
 - Godot 的 `.gd.uid`、`.gdshader.uid` 与资源 `.import` 元数据随对应源码或资源保留，避免无故重新生成标识。
 - 更新文档时，README 保持项目介绍与试玩入口；开发工作方式维护在本文件；规则确认与讨论历史写入策划文档，避免三处重复维护同一份规格。

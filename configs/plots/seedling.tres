@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="WRPlotNeeds" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/plot_needs.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "seedling"
+display_name = "幼苗"
+target_water = 40.0
+flood_water = 55.0
+appearance = "seedling"

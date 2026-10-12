@@ -90,7 +90,7 @@ func reset_feedback() -> void:
 	feedback_left.fill(0.0)
 	for target in sim.plot_centers.size():
 		feedback_states.append(sim.plot_status(target))
-		feedback_adequate.append(sim.water_for(target) >= sim.settings.target_water)
+		feedback_adequate.append(sim.water_for(target) >= sim.required_water(target))
 		feedback_texts.append("")
 
 func update_feedback(dt: float) -> void:
@@ -101,21 +101,25 @@ func update_feedback(dt: float) -> void:
 		var text := ""
 		if state == "destroyed" and feedback_states[target] != "destroyed": text = "雨量过多 · 土地损坏"
 		elif state == "safe" and feedback_states[target] != "safe": text = "★ 已保住 · 当前安全"
-		elif not feedback_adequate[target] and sim.water_for(target) >= sim.settings.target_water:
+		elif not feedback_adequate[target] and sim.water_for(target) >= sim.required_water(target):
 			text = "雨量已够 · 留意移云收尾"
 		if not text.is_empty() and not sim.sandbox:
 			feedback_texts[target] = text
 			feedback_left[target] = 1.2
-		feedback_adequate[target] = feedback_adequate[target] or sim.water_for(target) >= sim.settings.target_water
+		feedback_adequate[target] = feedback_adequate[target] or sim.water_for(target) >= sim.required_water(target)
 		feedback_states[target] = state
 
 func status_text(target: int, final: bool = false) -> String:
 	match sim.plot_status(target):
 		"destroyed": return "过量损坏 · 不计星" if final else "损坏 · 仍可照顾其他地块"
-		"dry": return "缺水 · 还差 %.1f" % (sim.settings.target_water - sim.water_for(target)) if final else "缺水"
+		"dry": return "缺水 · 还差 %.1f" % (sim.required_water(target) - sim.water_for(target)) if final else "缺水"
 		"danger": return "水量已够 · 危险天气未解除" if final else "适量 · 附近仍有危险"
 		"confirming": return "水量已够 · 安全确认 %.1f / %.1f 秒" % [sim.plot_safe_times[target], sim.settings.safe_seconds] if final else "适量 · 正在确认安全"
 		_: return "★ 已保住 · 当前安全"
+
+func water_color(target: int) -> Color:
+	if sim.plot_destroyed[target]: return Color("c76e60")
+	return Color("7aaebc").lerp(Color("ddc775"), sim.plot_warning(target))
 
 func setup(model: RefCounted, weather_view: Node3D, input: Node) -> void:
 	sim = model
@@ -576,13 +580,13 @@ func _draw() -> void:
 	elif sim.total_rain_rate > 0.01:
 		status = "冷风正在形成 · 把湿空气迎向它的前沿" if sim.relay_mode else "已经开始下雨 · 留意落点与地块水量"
 		for target in sim.plot_centers.size():
-			if sim.water_for(target) > sim.settings.target_water * 0.7 and sim.water_for(target) < sim.settings.target_water:
+			if sim.water_for(target) > sim.required_water(target) * 0.7 and sim.water_for(target) < sim.required_water(target):
 				status = "%s 快够水了 · 提前移云，储水还会继续落下" % String.chr(65 + target)
-	if sim.relay_mode and sim.plot_water >= sim.settings.target_water and sim.second_water < sim.settings.target_water:
+	if sim.relay_mode and sim.plot_water >= sim.required_water(0) and sim.second_water < sim.required_water(1):
 		status = "A 水量已够 · 提早移云，借残留冷风照顾 B"
-	elif sim.relay_mode and sim.second_water >= sim.settings.target_water and sim.plot_water < sim.settings.target_water:
+	elif sim.relay_mode and sim.second_water >= sim.required_water(1) and sim.plot_water < sim.required_water(0):
 		status = "B 水量已够 · 提早移云，借残留冷风照顾 A"
-	elif sim.plot_water >= sim.settings.target_water:
+	elif sim.plot_water >= sim.required_water(0):
 		status = "水量已够 · 移开危险雨云，或切断补给后等储水耗尽"
 	if sim.sandbox:
 		status = "交互小样 · 试拨云边或迎向冷风前沿；R 回正式开局"
@@ -677,6 +681,8 @@ func _draw_star_result(w: float, h: float) -> void:
 	result_details.clear()
 	for target in sim.plot_centers.size():
 		var text := "%s  %.1f  ·  %s" % [String.chr(65 + target), sim.water_for(target), status_text(target, true)]
+		if not sim.plot_name(target).is_empty():
+			text = "%s %s  %.1f/%.0f  ·  %s" % [String.chr(65 + target), sim.plot_name(target).left(4), sim.water_for(target), sim.required_water(target), status_text(target, true)]
 		result_details.append(text)
 		_text(left + Vector2(0, 80 + target * 30), text, 16)
 	_text(left + Vector2(0, 92 + sim.plot_centers.size() * 30), "本局 %d 星 · 最佳 %d 星 · 重试不会降低纪录" % [sim.result_stars, int(best_stars.get(sim.layout_id, 0))], 14, MUTED)
@@ -709,23 +715,25 @@ func _draw_plot_labels() -> void:
 		var state := sim.plot_status(target)
 		var short := {"dry": "缺水", "danger": "留意移云", "confirming": "确认安全", "safe": "★ 已保住", "destroyed": "损坏"}
 		var amount: float = sim.water_for(target)
-		var accent := Color("7aaebc") if amount < sim.settings.target_water else GOLD
-		if state == "destroyed": accent = Color("c76e60")
-		_text(rect.position + Vector2(8, 16), String.chr(65 + target), 13)
-		_text(rect.position + Vector2(27, 16), short.get(state, ""), 12, accent)
-		var bar := Rect2(rect.position + Vector2(8, 25), Vector2(140, 7))
+		var accent := water_color(target)
+		var typed: bool = not sim.plot_name(target).is_empty()
+		if typed:
+			_text(rect.position + Vector2(8, 14), "%s %s · %.1f/%.0f" % [String.chr(65 + target), sim.plot_name(target).left(4), amount, sim.required_water(target)], 11)
+			_text(rect.position + Vector2(8, 38), short.get(state, ""), 10, Color("c76e60") if state == "destroyed" else MUTED)
+		else:
+			_text(rect.position + Vector2(8, 16), String.chr(65 + target), 13)
+			_text(rect.position + Vector2(27, 16), short.get(state, ""), 12, accent)
+		var bar := Rect2(rect.position + Vector2(8, 21 if typed else 25), Vector2(140, 6 if typed else 7))
 		_rounded(bar, Color("cdd8d3"), 3)
-		var adequate: float = sim.settings.target_water / sim.settings.flood_water
-		draw_rect(Rect2(bar.position + Vector2(140 * adequate, 0), Vector2(140 * (1 - adequate), 7)), Color("d5cc9f"))
-		var fill: float = clampf(amount / sim.settings.flood_water, 0, 1)
-		if fill > 0: draw_rect(Rect2(bar.position, Vector2(140 * fill, 7)), accent)
-		draw_line(bar.position + Vector2(140 * adequate, -2), bar.position + Vector2(140 * adequate, 9), INK, 1)
+		var fill: float = sim.plot_progress(target)
+		if fill > 0: draw_rect(Rect2(bar.position, Vector2(140 * fill, bar.size.y)), accent)
+		draw_line(bar.position + Vector2(140, -2), bar.position + Vector2(140, bar.size.y + 2), INK, 1)
 		if rect.has_point(get_local_mouse_position()): hovered = target
 	if hovered >= 0:
 		var rect := plot_label_rects[hovered]
 		var at := Vector2(clampf(rect.position.x - 42, 12, size.x - 288), rect.position.y - 62)
 		_rounded(Rect2(at, Vector2(276, 56)), PANEL, 7)
-		_text(at + Vector2(9, 19), "%.1f · 适量 %.0f–%.0f" % [sim.water_for(hovered), sim.settings.target_water, sim.settings.flood_water], 12)
+		_text(at + Vector2(9, 19), "%s %.1f · 适量 %.0f–%.0f" % [sim.plot_name(hovered), sim.water_for(hovered), sim.required_water(hovered), sim.flood_limit(hovered)], 12)
 		_text(at + Vector2(9, 42), status_text(hovered, true), 12)
 
 func refresh_layouts() -> void:

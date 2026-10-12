@@ -1,0 +1,686 @@
+{
+  "preview_retention": { "date": "2026-10-12", "note": "Historical screenshot names record past captures; reviewed test images and clips were cleared. Tests now write to .godot/. Only selected current documentation images remain in docs/previews/." },
+  "date": "2026-10-12",
+  "implementation": "playable_needs_sample",
+  "map": "configs/maps/needs_lab.tres",
+  "configuration": [
+    {
+      "path": "configs/plots/ordinary.tres",
+      "required": 100,
+      "upper_limit": 150
+    },
+    {
+      "path": "configs/plots/seedling.tres",
+      "required": 40,
+      "upper_limit": 55
+    }
+  ],
+  "rules": {
+    "above_limit_damages": true,
+    "equal_limit_alive": true,
+    "area_normalization_unchanged": true,
+    "timer_seconds": 180,
+    "automatic_three_star_countdown": false,
+    "full_result": "manual_safe_two_star_finish",
+    "official_maps_rebalanced": false
+  },
+  "validation": {
+    "final_complete_suite_passed": true,
+    "complete_suite_checks": 580,
+    "final_distinct_checks": 581,
+    "checks": [
+      {
+        "name": "WEATHER TESTS",
+        "checks": 32
+      },
+      {
+        "name": "COLD WEATHER TESTS",
+        "checks": 22
+      },
+      {
+        "name": "ONBOARDING TESTS",
+        "checks": 19
+      },
+      {
+        "name": "LAYOUT TESTS",
+        "checks": 33
+      },
+      {
+        "name": "WIND PATH",
+        "checks": 6
+      },
+      {
+        "name": "COMPACT FEEDBACK",
+        "checks": 25
+      },
+      {
+        "name": "HUD LAYOUTS",
+        "checks": 21
+      },
+      {
+        "name": "WIND TOOLS",
+        "checks": 44
+      },
+      {
+        "name": "WIND TOOLS SCENE",
+        "checks": 36
+      },
+      {
+        "name": "OPEN BOUNDARY",
+        "checks": 35
+      },
+      {
+        "name": "MAP RESOURCES",
+        "checks": 18
+      },
+      {
+        "name": "PLOT NEEDS",
+        "checks": 24
+      },
+      {
+        "name": "PLOT NEEDS SCENE",
+        "checks": 15
+      },
+      {
+        "name": "STAR LEVELS",
+        "checks": 54
+      },
+      {
+        "name": "WATER RESERVE",
+        "checks": 22
+      },
+      {
+        "name": "THREE STAR FINISH",
+        "checks": 22
+      },
+      {
+        "name": "EDITOR MAP",
+        "checks": 24
+      },
+      {
+        "name": "TUNING",
+        "checks": 11
+      },
+      {
+        "name": "SCENE TESTS",
+        "checks": 37
+      },
+      {
+        "name": "STAR SCENE",
+        "checks": 43
+      },
+      {
+        "name": "PLOT FEEDBACK",
+        "checks": 18
+      },
+      {
+        "name": "RENDER FIELD TESTS",
+        "checks": 11
+      },
+      {
+        "name": "CLOUD SURFACE",
+        "checks": 8
+      }
+    ],
+    "playthroughs": 21,
+    "final_related_recheck": [
+      "needs-scene-final: 16 checks",
+      "needs-onboarding-final: 19 checks"
+    ],
+    "log": ".godot/needs-full-final.log",
+    "final_scene_log": ".godot/needs-scene-final.log",
+    "final_import_log": ".godot/needs-final-import.log",
+    "old_route_hashes": [
+      {
+        "name": "meadow-abc",
+        "byte_identical": true,
+        "sha256": "B420DB930450533D24820AE70526AB87BB191B7EF4DDE10139515EDB1A0362FD"
+      },
+      {
+        "name": "meadow-cab",
+        "byte_identical": true,
+        "sha256": "C44454E241AE3C8CC6CFECC4FB2476E87718106091505BD03116DA0A1673B139"
+      },
+      {
+        "name": "valleys-mountain",
+        "byte_identical": true,
+        "sha256": "AD27FDBD6AB8C3A979E06E9D29B2F2C257FB0EE3F0CFBBE20573C3E5F7AFBF8B"
+      },
+      {
+        "name": "valleys-relay",
+        "byte_identical": true,
+        "sha256": "CAB5885E5524F8869B5B634465B1EA79AA3DD4F66357ECEC48A866B9520CAE61"
+      },
+      {
+        "name": "valleys-late",
+        "byte_identical": true,
+        "sha256": "43A41D42C29EADCBBAC85245497AFC896F36078A87558998F71ACD19A7D687C1"
+      }
+    ]
+  },
+  "normal_start_routes": [
+    {
+      "cold_lift": 39.8770129534362,
+      "destroyed": [
+        false,
+        false
+      ],
+      "elapsed": 32.5833333333328,
+      "front_strokes": 0,
+      "late": 0.0,
+      "layout": "needs_lab",
+      "limit": 180.0,
+      "order": [
+        0,
+        1
+      ],
+      "outcome": "success",
+      "per_target": [
+        {
+          "distance": 41.3999998569489,
+          "front": 0,
+          "strokes": 27,
+          "transport": 18
+        },
+        {
+          "distance": 41.1000008583069,
+          "front": 0,
+          "strokes": 39,
+          "transport": 17
+        },
+        {
+          "distance": 0.0,
+          "front": 0,
+          "strokes": 0,
+          "transport": 0
+        }
+      ],
+      "route": "mountain",
+      "stars": 2,
+      "strokes": 66,
+      "transport_distance": 82.5000007152557,
+      "transport_strokes": 35,
+      "water": [
+        109.883238069984,
+        41.0270441976002
+      ],
+      "water_error": -0.000465659056203549
+    },
+    {
+      "cold_lift": 88.6190434424536,
+      "destroyed": [
+        false,
+        false
+      ],
+      "elapsed": 76.049999999997,
+      "front_strokes": 0,
+      "late": 0.0,
+      "layout": "needs_lab",
+      "limit": 180.0,
+      "order": [
+        1,
+        0
+      ],
+      "outcome": "success",
+      "per_target": [
+        {
+          "distance": 47.0999982357025,
+          "front": 0,
+          "strokes": 139,
+          "transport": 19
+        },
+        {
+          "distance": 17.4000000953674,
+          "front": 0,
+          "strokes": 14,
+          "transport": 7
+        },
+        {
+          "distance": 0.0,
+          "front": 0,
+          "strokes": 0,
+          "transport": 0
+        }
+      ],
+      "route": "mountain",
+      "stars": 2,
+      "strokes": 153,
+      "transport_distance": 64.4999983310699,
+      "transport_strokes": 26,
+      "water": [
+        105.994067780856,
+        49.1843650430442
+      ],
+      "water_error": -0.00391568933912367
+    },
+    {
+      "cold_lift": 51.6044257465125,
+      "destroyed": [
+        false,
+        true
+      ],
+      "elapsed": 29.4499999999996,
+      "front_strokes": 0,
+      "late": 5.0,
+      "layout": "needs_lab",
+      "limit": 180.0,
+      "order": [
+        1,
+        0
+      ],
+      "outcome": "success",
+      "per_target": [
+        {
+          "distance": 23.099999666214,
+          "front": 0,
+          "strokes": 45,
+          "transport": 11
+        },
+        {
+          "distance": 17.4000000953674,
+          "front": 0,
+          "strokes": 13,
+          "transport": 7
+        },
+        {
+          "distance": 0.0,
+          "front": 0,
+          "strokes": 0,
+          "transport": 0
+        }
+      ],
+      "route": "mountain",
+      "stars": 1,
+      "strokes": 58,
+      "transport_distance": 40.4999997615814,
+      "transport_strokes": 18,
+      "water": [
+        103.918684988104,
+        111.489873617504
+      ],
+      "water_error": -0.00032352853975226
+    }
+  ],
+  "normal_start_viewport_final": {
+    "band": {
+      "end": [
+        -3.65793037414551,
+        0.294363021850586
+      ],
+      "lifetime": 30.0,
+      "start": [
+        -6.38675355911255,
+        1.54078722000122
+      ],
+      "strength": 0.0
+    },
+    "blocked": 0,
+    "cold_lift": 45.9438723300143,
+    "destroyed": [
+      false,
+      false
+    ],
+    "elapsed": 41.3333333333323,
+    "events": 2547,
+    "front_strokes": 0,
+    "input_pick_error": 0.0,
+    "layout": "needs_lab",
+    "limit": 180.0,
+    "order": [
+      0,
+      1
+    ],
+    "outcome": "success",
+    "per_target": [
+      {
+        "distance": 42.6000003814697,
+        "front": 0,
+        "strokes": 25,
+        "transport": 18
+      },
+      {
+        "distance": 55.2000021934509,
+        "front": 0,
+        "strokes": 57,
+        "transport": 23
+      },
+      {
+        "distance": 0.0,
+        "front": 0,
+        "strokes": 0,
+        "transport": 0
+      }
+    ],
+    "placed": true,
+    "removed": true,
+    "route": "mountain",
+    "stars": 2,
+    "strokes": 82,
+    "transport_distance": 97.8000025749207,
+    "transport_strokes": 41,
+    "water": [
+      105.715801797525,
+      45.7553926759098
+    ],
+    "water_error": -0.000530989174990282
+  },
+  "normal_start_viewport_previous": {
+    "band": {
+      "end": [
+        -3.65793037414551,
+        0.294363021850586
+      ],
+      "lifetime": 30.0,
+      "start": [
+        -6.38675355911255,
+        1.54078722000122
+      ],
+      "strength": 0.0
+    },
+    "blocked": 0,
+    "cold_lift": 48.1438313016664,
+    "destroyed": [
+      false,
+      false
+    ],
+    "elapsed": 29.8166666666663,
+    "events": 2065,
+    "front_strokes": 0,
+    "input_pick_error": 0.0,
+    "layout": "needs_lab",
+    "limit": 180.0,
+    "order": [
+      0,
+      1
+    ],
+    "outcome": "success",
+    "per_target": [
+      {
+        "distance": 42.6000006198883,
+        "front": 0,
+        "strokes": 25,
+        "transport": 18
+      },
+      {
+        "distance": 28.5000009536743,
+        "front": 0,
+        "strokes": 34,
+        "transport": 12
+      },
+      {
+        "distance": 0.0,
+        "front": 0,
+        "strokes": 0,
+        "transport": 0
+      }
+    ],
+    "placed": true,
+    "removed": true,
+    "route": "mountain",
+    "stars": 2,
+    "strokes": 59,
+    "transport_distance": 71.1000015735626,
+    "transport_strokes": 30,
+    "water": [
+      106.400355567261,
+      43.4363967918009
+    ],
+    "water_error": -0.000454646385037449
+  },
+  "operation_savings_claimed": false,
+  "player_difficulty_approved": false,
+  "player_sample_feedback": { "date": "2026-10-12", "completed": true, "reported_issues": false, "quote": "小样已经测试完成了，没有什么问题" },
+  "diagnostics": {
+    "status": "one_short_sample_exceeds_p95",
+    "formal_acceptance": "awaiting_idle_acceptance",
+    "rendered_resolution": [
+      1920,
+      1080
+    ],
+    "warmup_seconds": 2,
+    "sample_seconds": 10,
+    "csv_frame_counts_checked": true,
+    "simulation_speed_checked": true,
+    "p95_threshold": 16.7,
+    "p99_threshold": 20.0,
+    "failed_samples": [
+      {
+        "arrows_enabled": true,
+        "drag": true,
+        "final_backlog_ms": 2.08333333333346,
+        "frames": 769,
+        "gpu_ms": 3.25155405508371,
+        "input_ms": 0.109624187256177,
+        "kind": "rain",
+        "layout": "needs_lab",
+        "max_backlog_ms": 47.0500000000006,
+        "min_sources": 2,
+        "p50": 14.767,
+        "p95": 16.837,
+        "p99": 19.0,
+        "peak_arrows": 32,
+        "peak_source_lines": 36,
+        "pick_ms": 0.00295968855620981,
+        "sample_seconds": 10.0,
+        "sim_ms": 6.56250507964889,
+        "simulation_seconds": 10.0166666666667,
+        "slow_33ms": 0,
+        "steps_per_frame": 0.778933680104031,
+        "view_ms": 3.34492593871912
+      }
+    ],
+    "samples": [
+      {
+        "arrows_enabled": true,
+        "drag": false,
+        "final_backlog_ms": 0.310696969697089,
+        "frames": 1408,
+        "gpu_ms": 1.7002176804976,
+        "input_ms": 0.217536221590909,
+        "kind": "cloud",
+        "layout": "needs_lab",
+        "max_backlog_ms": 16.602090909091,
+        "min_sources": 0,
+        "p50": 4.469,
+        "p95": 11.712,
+        "p99": 12.608,
+        "peak_arrows": 0,
+        "peak_source_lines": 0,
+        "pick_ms": 0.208409851247614,
+        "sample_seconds": 10.0,
+        "sim_ms": 2.27493355490945,
+        "simulation_seconds": 10.0166666666667,
+        "slow_33ms": 0,
+        "steps_per_frame": 0.425426136363636,
+        "view_ms": 2.36472840742631
+      },
+      {
+        "arrows_enabled": true,
+        "drag": true,
+        "final_backlog_ms": 14.0963131313134,
+        "frames": 881,
+        "gpu_ms": 2.68962466080803,
+        "input_ms": 0.108642451759364,
+        "kind": "cloud",
+        "layout": "needs_lab",
+        "max_backlog_ms": 16.6666666666666,
+        "min_sources": 2,
+        "p50": 13.5,
+        "p95": 15.96,
+        "p99": 18.937,
+        "peak_arrows": 32,
+        "peak_source_lines": 36,
+        "pick_ms": 0.00290919513897241,
+        "sample_seconds": 10.0,
+        "sim_ms": 5.24453912014047,
+        "simulation_seconds": 9.98333333333333,
+        "slow_33ms": 0,
+        "steps_per_frame": 0.679909194097616,
+        "view_ms": 3.08877352174376
+      },
+      {
+        "arrows_enabled": true,
+        "drag": false,
+        "final_backlog_ms": 4.85986868686891,
+        "frames": 1204,
+        "gpu_ms": 2.06720437084718,
+        "input_ms": 0.216560631229236,
+        "kind": "rain",
+        "layout": "needs_lab",
+        "max_backlog_ms": 16.6645959595962,
+        "min_sources": 0,
+        "p50": 5.705,
+        "p95": 13.097,
+        "p99": 13.994,
+        "peak_arrows": 0,
+        "peak_source_lines": 0,
+        "pick_ms": 0.211210840168189,
+        "sample_seconds": 10.0,
+        "sim_ms": 3.17963092588507,
+        "simulation_seconds": 10.0,
+        "slow_33ms": 0,
+        "steps_per_frame": 0.497508305647841,
+        "view_ms": 2.59852716693054
+      },
+      {
+        "arrows_enabled": true,
+        "drag": true,
+        "final_backlog_ms": 2.08333333333346,
+        "frames": 769,
+        "gpu_ms": 3.25155405508371,
+        "input_ms": 0.109624187256177,
+        "kind": "rain",
+        "layout": "needs_lab",
+        "max_backlog_ms": 47.0500000000006,
+        "min_sources": 2,
+        "p50": 14.767,
+        "p95": 16.837,
+        "p99": 19.0,
+        "peak_arrows": 32,
+        "peak_source_lines": 36,
+        "pick_ms": 0.00295968855620981,
+        "sample_seconds": 10.0,
+        "sim_ms": 6.56250507964889,
+        "simulation_seconds": 10.0166666666667,
+        "slow_33ms": 0,
+        "steps_per_frame": 0.778933680104031,
+        "view_ms": 3.34492593871912
+      },
+      {
+        "arrows_enabled": true,
+        "drag": false,
+        "final_backlog_ms": 2.94533333333359,
+        "frames": 1219,
+        "gpu_ms": 2.02027969422939,
+        "input_ms": 0.214968006562756,
+        "kind": "cold",
+        "layout": "needs_lab",
+        "max_backlog_ms": 16.6500000000003,
+        "min_sources": 0,
+        "p50": 5.136,
+        "p95": 12.952,
+        "p99": 13.553,
+        "peak_arrows": 0,
+        "peak_source_lines": 0,
+        "pick_ms": 0.211157431848916,
+        "sample_seconds": 10.0,
+        "sim_ms": 3.13254312416684,
+        "simulation_seconds": 10.0166666666667,
+        "slow_33ms": 0,
+        "steps_per_frame": 0.493027071369975,
+        "view_ms": 2.55821442075984
+      },
+      {
+        "arrows_enabled": true,
+        "drag": true,
+        "final_backlog_ms": 1.46066666666681,
+        "frames": 813,
+        "gpu_ms": 3.20800150628459,
+        "input_ms": 0.107216482164821,
+        "kind": "cold",
+        "layout": "needs_lab",
+        "max_backlog_ms": 16.6390000000001,
+        "min_sources": 2,
+        "p50": 14.48,
+        "p95": 16.039,
+        "p99": 17.165,
+        "peak_arrows": 32,
+        "peak_source_lines": 36,
+        "pick_ms": 0.00294219289172033,
+        "sample_seconds": 10.0,
+        "sim_ms": 6.07136473708487,
+        "simulation_seconds": 10.0,
+        "slow_33ms": 0,
+        "steps_per_frame": 0.736777367773678,
+        "view_ms": 3.21928212446187
+      }
+    ],
+    "log": ".godot/needs-runtime-diagnostic.log",
+    "review_log": ".godot/needs-runtime-review.log",
+    "note": "Six short samples on the new map do not replace the deferred two-level twelve-sample 60-second acceptance. Background load was not isolated."
+  },
+  "screenshots": [
+    {
+      "path": "docs/previews/needs-water-blue.png",
+      "retained": false,
+      "evidence": "isolated_visual_fixture_not_a_playthrough",
+      "sha256": "FBBC352467E3741453937330298120164F3DC5D040281AFA86CD7FC234185210"
+    },
+    {
+      "path": "docs/previews/needs-water-adequate.png",
+      "retained": false,
+      "evidence": "isolated_visual_fixture_not_a_playthrough",
+      "sha256": "17C2B9FA3E4CE30EC2DB12138881161C2CDC8937E023323A212C16D557A474DD"
+    },
+    {
+      "path": "docs/previews/needs-water-yellow.png",
+      "retained": false,
+      "evidence": "isolated_visual_fixture_not_a_playthrough",
+      "sha256": "3003EF5F002A5672ACE8D75BB666F7B0244B46D28A10CC165E18BCD75A212295"
+    },
+    {
+      "path": "docs/previews/needs-water-limit.png",
+      "retained": false,
+      "evidence": "isolated_visual_fixture_not_a_playthrough",
+      "sha256": "65D75D2887D0340F2B0EDD725EAED38152148E6FAA5FCAE66608C1D5F06184F4"
+    },
+    {
+      "path": "docs/previews/needs-water-red.png",
+      "retained": false,
+      "evidence": "isolated_visual_fixture_not_a_playthrough",
+      "sha256": "C27F16120B1AF8C9D4099B8823D26A3615A800DE1BF9964D71BB0935BF40CEBF"
+    },
+    {
+      "path": "docs/previews/needs-route-rain.png",
+      "retained": true,
+      "evidence": "normal_start_actual_viewport_events",
+      "sha256": "549290BD71829754F1A2642C0A02FF6D27CFB98BFA9B532E55B454E239BDE228"
+    },
+    {
+      "path": "docs/previews/needs-route-result.png",
+      "retained": true,
+      "evidence": "normal_start_actual_viewport_events",
+      "sha256": "3CE726C34B2764BB4F8FCC2363D8093AA649526D2D8573C773F980BF7168372F"
+    }
+  ],
+  "retained_failures": [
+    {
+      "type": "old_actual_viewport_route_reached_deadline_with_two_stars",
+      "log": ".godot/needs-full-initial.log",
+      "result": ".godot/needs-old-viewport-initial.json",
+      "followup": "Standalone retry and final suite reached three stars without changing its strategy or gameplay thresholds; cause unconfirmed."
+    },
+    {
+      "type": "native_godot_signal_8_in_loss_replay",
+      "log": ".godot/needs-late-initial-crash.log",
+      "followup": "Standalone retry and final suite passed; native root cause unconfirmed. Historical similar exception noted in design section 21."
+    }
+  ],
+  "deferred": [
+    "formal_empty_raindrop_ui",
+    "wind_themed_rating",
+    "rotating_wind",
+    "formal_crop_art",
+    "idle_performance_acceptance"
+  ]
+}

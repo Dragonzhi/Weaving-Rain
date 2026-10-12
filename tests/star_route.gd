@@ -39,7 +39,7 @@ func push(at: Vector2, direction: Vector2, length: float, speed: float, kind: St
 func next_command(sim: RefCounted, time: float) -> Dictionary:
 	var target := -1
 	for n in order:
-		if not sim.plot_destroyed[n] and sim.water_for(n) < sim.settings.target_water:
+		if not sim.plot_destroyed[n] and sim.water_for(n) < sim.required_water(n):
 			target = n
 			break
 	# Clear weather after water is adequate, including all three safety regions.
@@ -53,12 +53,21 @@ func next_command(sim: RefCounted, time: float) -> Dictionary:
 			incoming[n] += (sim.rain[i] * sim.settings.rain_rate + sim.settings.rain_base_rate) * sim.plot_water_scales[n]
 	for n in order:
 		if sim.plot_destroyed[n]: continue
-		if sim.water_for(n) < 100.0 and (sim.water_for(n) < 65.0 or sim.water_for(n) + incoming[n] * 2.8 < 112.0): continue
+		var need: float = sim.required_water(n)
+		var early_clear: float = need + (sim.flood_limit(n) - need) * 0.24
+		var floor_water := need * 0.65
+		var lookahead := 2.8
+		if sim.plot_needs[n] != null and sim.flood_limit(n) - need < need * 0.5:
+			floor_water = need * 0.2
+			lookahead = 4.5
+		if sim.water_for(n) < need and (sim.water_for(n) < floor_water or sim.water_for(n) + incoming[n] * lookahead < early_clear): continue
 		if n == order[0] and late_clear_seconds > 0.0:
 			if late_clear_started < 0.0: late_clear_started = time
 			if time - late_clear_started < late_clear_seconds: continue
 		for i in sim.safety_indices[n]:
 			var score: float = sim.rain[i] + sim.display_cloud[i] * 0.1
+			if sim.plot_needs[n] != null:
+				score *= 1.0 + incoming[n] * lookahead / maxf(1.0, sim.flood_limit(n) - sim.water_for(n))
 			if score > danger_score:
 				danger_score = score
 				danger = sim.positions[i]
@@ -67,7 +76,10 @@ func next_command(sim: RefCounted, time: float) -> Dictionary:
 		var direction := Vector2(0, -1 if sim.plot_centers[danger_target].y < 0 else 1)
 		var kind := "clear"
 		for next_target in order:
-			if next_target != danger_target and not sim.plot_destroyed[next_target] and sim.water_for(next_target) < 100.0:
+			# A narrow-tolerance plot needs the rain cleared before turning it
+			# back toward another field; a direct reversal can keep rain overhead.
+			if sim.plot_needs[danger_target] != null and sim.flood_limit(danger_target) - sim.required_water(danger_target) < sim.required_water(danger_target) * 0.5: break
+			if next_target != danger_target and not sim.plot_destroyed[next_target] and sim.water_for(next_target) < sim.required_water(next_target):
 				direction = sim.plot_centers[next_target] - danger
 				kind = "transfer"
 				break

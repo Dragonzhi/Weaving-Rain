@@ -100,7 +100,7 @@ func run() -> void:
 	await RenderingServer.frame_post_draw
 	check(hud.wind_toolbar_rect.size.y <= 69, "Toolbar allocates only controls and existing sources")
 	if "--capture" in OS.get_cmdline_user_args():
-		root.get_texture().get_image().save_png("res://docs/previews/compact-wind-ui.png")
+		root.get_texture().get_image().save_png("res://.godot/compact-wind-ui.png")
 		DirAccess.make_dir_recursive_absolute("res://.godot/flow-motion")
 		for frame in 36:
 			view.update_weather(1.0 / 24.0, true)

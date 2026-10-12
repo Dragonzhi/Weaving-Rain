@@ -22,7 +22,7 @@ func update(sim: RefCounted, delta: float) -> void:
 			phase = maxi(phase, 1)
 		if saw_rain or sim.plot_water > 0.01:
 			phase = maxi(phase, 2)
-		if sim.plot_water >= sim.settings.target_water:
+		if sim.plot_water >= sim.required_water(0):
 			phase = maxi(phase, 3)
 		if sim.outcome == "success":
 			phase = 4
@@ -50,7 +50,7 @@ func instruction(sim: RefCounted) -> String:
 	if phase > 0 and sim.peak_density < 0.15 and sim.total_rain_rate < 0.01:
 		return "云已散薄：再把浅色湿空气推向山坡，补给云水。"
 	if phase == 2:
-		if sim.plot_water >= sim.settings.target_water * 0.7:
+		if sim.plot_water >= sim.required_water(0) * 0.7:
 			return "快够水了：提前把雨云移开，储水还会继续落下。"
 		return "把雨云慢慢送到 A 上方，观察地块旁的水量。"
 	if phase == 1:

@@ -26,6 +26,10 @@ var rng := RandomNumberGenerator.new()
 var elapsed := 0.0
 var plot_material: StandardMaterial3D
 var plot_materials: Array[StandardMaterial3D] = []
+var plant_groups: Array[Node3D] = []
+var plant_materials: Array[StandardMaterial3D] = []
+var plant_growth := PackedFloat32Array()
+var plant_wilt := PackedFloat32Array()
 var air_image: Image
 var air_texture: ImageTexture
 var lines := ArrayMesh.new()
@@ -229,23 +233,36 @@ func _create_plot(target: int) -> void:
 	var material := _material(Color("bf936b"))
 	plot_materials.append(material)
 	_mesh_instance(plot_mesh, material, Vector3(center.x, 0.255, center.y))
+	var group := Node3D.new()
+	group.position = Vector3(center.x, 0.29, center.y)
+	add_child(group)
+	plant_groups.append(group)
+	var plant_material := _material(Color("578563"))
+	plant_materials.append(plant_material)
+	plant_growth.append(0.65 if sim.plot_needs[target] != null else 1.0)
+	plant_wilt.append(0.0)
+	var seedling: bool = sim.plot_needs[target] != null and sim.plot_needs[target].appearance == "seedling"
 	for row in 3:
 		for column in 3:
+			if seedling and (row + column) % 2 != 0: continue
 			var point := Vector3(center.x - 0.75 + column * 0.75, 0.29, center.y - 0.75 + row * 0.75)
 			if not region.contains(Vector2(point.x, point.z) - center, sim.plot_half): continue
 			var stem := CylinderMesh.new()
 			stem.top_radius = 0.024
 			stem.bottom_radius = 0.024
-			stem.height = 0.18
+			stem.height = 0.12 if seedling else 0.18
 			stem.radial_segments = 5
-			_mesh_instance(stem, _material(Color("4e8060")), point + Vector3.UP * 0.09)
+			var stem_node := _mesh_instance(stem, plant_material, point + Vector3.UP * (stem.height * 0.5))
+			stem_node.reparent(group, true)
 			var leaf := SphereMesh.new()
-			leaf.radius = 0.10
-			leaf.height = 0.10
+			leaf.radius = 0.07 if seedling else 0.10
+			leaf.height = 0.07 if seedling else 0.10
 			leaf.radial_segments = 8
 			leaf.rings = 3
-			var plant := _mesh_instance(leaf, _material(Color("578563")), point + Vector3(0.06, 0.17, 0))
+			var plant := _mesh_instance(leaf, plant_material, point + Vector3(0.06, 0.11 if seedling else 0.17, 0))
 			plant.scale = Vector3(1.0, 1.0, 0.5)
+			plant.reparent(group, true)
+	group.scale.y = plant_growth[target]
 
 func _create_river() -> void:
 	var st := SurfaceTool.new()
@@ -766,10 +783,18 @@ func update_weather(dt: float, moving: bool) -> void:
 		rain_revision = sim.revision
 	rain_material.set_shader_parameter("visual_time", elapsed)
 	for target in plot_materials.size():
-		var water: float = clampf(sim.water_for(target) / sim.settings.target_water, 0.0, 1.0)
+		var water: float = sim.plot_progress(target)
 		plot_materials[target].albedo_color = Color("bf936e").lerp(Color("8eaa78"), water)
 		if sim.plot_destroyed[target]:
 			plot_materials[target].albedo_color = Color("718e95")
+		if moving:
+			var growth := 0.65 + 0.35 * water if sim.plot_needs[target] != null else 1.0
+			var blend := 1.0 - exp(-dt * 6.0)
+			plant_growth[target] = lerpf(plant_growth[target], growth, blend)
+			plant_wilt[target] = lerpf(plant_wilt[target], 1.0 if sim.plot_destroyed[target] else 0.0, blend)
+		plant_groups[target].scale.y = plant_growth[target]
+		plant_groups[target].rotation.z = plant_wilt[target] * -0.35
+		plant_materials[target].albedo_color = Color("578563").lerp(Color("946856"), plant_wilt[target])
 
 func _update_rain() -> void:
 	var total := 0

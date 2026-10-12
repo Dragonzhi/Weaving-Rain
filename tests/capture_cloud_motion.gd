@@ -37,7 +37,7 @@ func run() -> void:
 			var image := root.get_texture().get_image()
 			image.save_png(directory + "/%04d.png" % (phase * 90 + frame))
 			if frame == 30:
-				image.save_png("res://docs/previews/cloud-revision-%d.png" % phase)
+				image.save_png("res://.godot/cloud-revision-%d.png" % phase)
 	print("CLOUD MOTION: 270 frames at 30 Hz in ", directory)
 	main.queue_free()
 	await process_frame

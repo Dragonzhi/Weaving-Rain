@@ -79,7 +79,7 @@ func run() -> void:
 	check("安全确认" in main.hud.result_details[1] and "危险天气" not in main.hud.result_details[1], "Incomplete safety is distinguished from remaining danger")
 	check("过量损坏" in main.hud.result_details[2], "Result explains irreversible loss")
 	check(main.hud.blocks_wind(main.hud.result_rect.get_center()), "Expanded result panel still blocks wind")
-	if "--capture" in OS.get_cmdline_user_args(): root.get_texture().get_image().save_png("res://docs/previews/star-result-reasons.png")
+	if "--capture" in OS.get_cmdline_user_args(): root.get_texture().get_image().save_png("res://.godot/star-result-reasons.png")
 	main.restart(false)
 	sim = main.sim
 	sim.humidity.fill(0)

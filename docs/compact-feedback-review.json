@@ -1,4 +1,5 @@
 {
+  "preview_retention": { "date": "2026-10-12", "note": "Historical screenshot names record past captures; reviewed test images and clips were cleared. Tests now write to .godot/. Only selected current documentation images remain in docs/previews/." },
   "stage": "流动表现、持续风线与紧凑地块界面",
   "date": "2026-10-11",
   "engine": "Godot 4.7.2 stable",

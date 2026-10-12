@@ -32,7 +32,7 @@ func run() -> void:
 		await RenderingServer.frame_post_draw
 		var picture := root.get_texture().get_image()
 		picture.save_png("res://.godot/open-edge-motion/%04d.png" % frame)
-		if frame in [0, 74, 149]: picture.save_png("res://docs/previews/open-edge-%d.png" % frame)
+		if frame in [0, 74, 149]: picture.save_png("res://.godot/open-edge-%d.png" % frame)
 	print("OPEN EDGE CAPTURE frames=150 escaped=", main.sim.escaped_water, " water_error=", main.sim.water_total() - main.sim.initial_water)
 	main.queue_free()
 	await process_frame

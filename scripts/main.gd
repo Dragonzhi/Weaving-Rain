@@ -60,6 +60,12 @@ func _ready() -> void:
 		var loaded_map := ConfigLoader.map(custom_map_path, weather_settings.plot_half)
 		if loaded_map.errors.is_empty(): custom_map = loaded_map.resource
 		else: _tuning_feedback("；".join(loaded_map.errors))
+	elif play_mode == "free":
+		var loaded_map := ConfigLoader.map("res://configs/maps/" + free_layout + ".tres", weather_settings.plot_half)
+		if loaded_map.errors.is_empty(): custom_map = loaded_map.resource
+		else:
+			_tuning_feedback("使用标准布局：" + "；".join(loaded_map.errors))
+			free_layout = "standard"
 	sim = _new_simulation()
 	guide.reset(play_mode == "lesson")
 	weather_view = WeatherView.new()
@@ -133,7 +139,7 @@ func _new_simulation() -> RefCounted:
 	return Simulation.new(weather_settings, play_mode == "free", play_mode == "lesson", free_layout, custom_map)
 
 func select_layout(id: String) -> void:
-	if custom_map != null and custom_map.id == id:
+	if custom_map != null and custom_map.id == id and not id in Layouts.get_ids():
 		switch_mode("free")
 		return
 	var definition := Layouts.get_definition(id)

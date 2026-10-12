@@ -15,6 +15,8 @@ extends Resource
 @export var plots := PackedVector2Array([Vector2(2.8, 1.2), Vector2(3.6, -1.9)])
 ## 按地块顺序指定形状，未指定的沿用全局尺寸的矩形。
 @export var plot_regions: Array[WRPlotRegion] = []
+## 按地块顺序关联需求；空项继承全局天气配置。修改需求文件后重试／切图生效。
+@export var plot_needs: Array[WRPlotNeeds] = []
 ## 星级关卡：一块适量且安全的土地一颗星，至少一星可主动收尾；旧练习局保持全部达标规则。
 @export var star_level := false
 ## 星级关卡的游玩时限，单位为秒。越短越需要提前安排输雨与安全收尾；越长越容易继续争星。
@@ -29,7 +31,7 @@ func to_layout() -> Dictionary:
 	return {"id": id, "title": title, "hint": hint, "shape": shape, "island_center": island_center,
 		"island_axes": island_axes, "coast_variation": coast_variation, "river_enabled": river_enabled,
 		"mountain": first.position, "mountain_radius": first.radius, "mountains": mountains,
-		"plots": plots, "plot_regions": plot_regions, "star_level": star_level, "time_limit_seconds": time_limit_seconds,
+		"plots": plots, "plot_regions": plot_regions, "plot_needs": plot_needs, "star_level": star_level, "time_limit_seconds": time_limit_seconds,
 		"west_air": west, "east_air": east, "humidity_sources": humidity_sources}
 
 func region(index: int) -> WRPlotRegion:
@@ -48,6 +50,11 @@ func validation_errors(plot_half: float = 1.25) -> PackedStringArray:
 	if not shape in ["standard", "long", "split"]: errors.append("shape：未知岛形")
 	if plots.is_empty() or plots.size() > 3: errors.append("plots：首版须有 1–3 处目标")
 	if plot_regions.size() > plots.size(): errors.append("plot_regions：形状数量不能多于目标")
+	if plot_needs.size() > plots.size(): errors.append("plot_needs：需求数量不能多于目标")
+	for n in plot_needs.size():
+		if plot_needs[n] == null: continue
+		for error in plot_needs[n].validation_errors():
+			errors.append("plot_needs[%d] %s：%s" % [n, plot_needs[n].resource_path, error])
 	for n in plots.size():
 		if not plots[n].is_finite(): errors.append("plots[%d]：位置须为有限坐标" % n)
 	for n in plot_regions.size():

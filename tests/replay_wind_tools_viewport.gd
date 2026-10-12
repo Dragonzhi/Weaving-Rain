@@ -50,15 +50,15 @@ func run() -> void:
 				strokes += 1
 		if created and not captured and main.sim.wind_sources.size() > 0 and main.sim.elapsed_seconds - source_started > 0.7:
 			await RenderingServer.frame_post_draw
-			root.get_texture().get_image().save_png("res://docs/previews/wind-source-play.png")
+			root.get_texture().get_image().save_png("res://.godot/wind-source-play.png")
 			captured = true
 		if use_source and main.sim.total_rain_rate > 0.01 and main.sim.total_cold_lift > 0.0 and not captured_front:
 			await RenderingServer.frame_post_draw
-			root.get_texture().get_image().save_png("res://docs/previews/wind-flow-rain.png")
+			root.get_texture().get_image().save_png("res://.godot/wind-flow-rain.png")
 			captured_front = true
 		await process_frame
 	await RenderingServer.frame_post_draw
-	if use_source: root.get_texture().get_image().save_png("res://docs/previews/wind-tools-result.png")
+	if use_source: root.get_texture().get_image().save_png("res://.godot/wind-tools-result.png")
 	var report := controller.report(main.sim)
 	report["events"] = events
 	report["created"] = created
