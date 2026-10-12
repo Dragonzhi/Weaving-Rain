@@ -69,7 +69,7 @@ func _init() -> void:
 	sim = Sim.new(null, true, false, "meadow", definition)
 	prepare(sim)
 	sim.step(4.0)
-	check(sim.earned_stars() == 2 and sim.outcome == "playing" and sim.three_star_remaining() < 0.0, "Two-field custom level retains manual completion")
+	check(sim.earned_stars() == 3 and sim.outcome == "success" and sim.result_saved_count == 2, "Two-field custom level automatically finishes all saved fields")
 	var config := preload("res://scripts/weather_settings.gd").new()
 	config.three_star_finish_seconds = 0.5
 	sim = Sim.new(config, true, false, "meadow")

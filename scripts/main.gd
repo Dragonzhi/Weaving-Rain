@@ -39,6 +39,7 @@ var frame_input_ms := 0.0
 func _ready() -> void:
 	var args := OS.get_cmdline_user_args()
 	if persist_progress and not "--fresh-guide" in args: progress.read(progress_path)
+	if not progress.migration_message.is_empty(): _tuning_feedback(progress.migration_message)
 	if weather_settings == null: weather_settings = WRWeatherSettings.new()
 	if not weather_settings.resource_path.is_empty(): settings_path = weather_settings.resource_path
 	development = OS.has_feature("editor") or "--dev" in args
@@ -284,6 +285,7 @@ func _unhandled_key_input(event: InputEvent) -> void:
 		KEY_SPACE:
 			paused = not paused
 			wind_input.cancel()
+			wind_input.enabled = not paused and sim.outcome == "playing"
 
 func _capture(path: String) -> void:
 	# Development-only render capture; never changes the normal starting state.
@@ -315,7 +317,7 @@ func reload_tuning() -> bool:
 		sim.wind[i] = sim.wind[i].limit_length(candidate.max_wind)
 	sim._update_cold_flow()
 	pending_settings = candidate
-	_tuning_feedback("已应用：拨风、续吹、风带力度／宽度与云响应；风带寿命／数量及天气规则重试生效")
+	_tuning_feedback("已应用：拨风、风带、漩涡力度与云响应；范围限制下一笔生效，寿命／数量及天气规则重试生效")
 	return true
 
 func _apply_pending_restart() -> void:

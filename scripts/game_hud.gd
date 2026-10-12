@@ -67,6 +67,7 @@ var status_until := 0.0
 var wind_toolbar_rect := Rect2()
 var brush_button: Button
 var source_button: Button
+var vortex_button: Button
 var arrows_button: Button
 var source_remove: Array[Button] = []
 var source_remove_ids := PackedInt32Array([-1, -1, -1, -1])
@@ -100,7 +101,7 @@ func update_feedback(dt: float) -> void:
 		var state := sim.plot_status(target)
 		var text := ""
 		if state == "destroyed" and feedback_states[target] != "destroyed": text = "雨量过多 · 土地损坏"
-		elif state == "safe" and feedback_states[target] != "safe": text = "★ 已保住 · 当前安全"
+		elif state == "safe" and feedback_states[target] != "safe": text = "已保住 · 当前安全"
 		elif not feedback_adequate[target] and sim.water_for(target) >= sim.required_water(target):
 			text = "雨量已够 · 留意移云收尾"
 		if not text.is_empty() and not sim.sandbox:
@@ -115,7 +116,7 @@ func status_text(target: int, final: bool = false) -> String:
 		"dry": return "缺水 · 还差 %.1f" % (sim.required_water(target) - sim.water_for(target)) if final else "缺水"
 		"danger": return "水量已够 · 危险天气未解除" if final else "适量 · 附近仍有危险"
 		"confirming": return "水量已够 · 安全确认 %.1f / %.1f 秒" % [sim.plot_safe_times[target], sim.settings.safe_seconds] if final else "适量 · 正在确认安全"
-		_: return "★ 已保住 · 当前安全"
+		_: return "已保住 · 当前安全"
 
 func water_color(target: int) -> Color:
 	if sim.plot_destroyed[target]: return Color("c76e60")
@@ -178,7 +179,7 @@ func setup(model: RefCounted, weather_view: Node3D, input: Node) -> void:
 	result_retry.pressed.connect(func(): menu_open = false; restart_requested.emit())
 	add_child(result_retry)
 	levels_button = Button.new()
-	levels_button.text = "星级关卡"
+	levels_button.text = "星级测试"
 	levels_button.pressed.connect(func(): menu_open = false; levels_requested.emit())
 	add_child(levels_button)
 	timer_label = Label.new()
@@ -195,6 +196,11 @@ func setup(model: RefCounted, weather_view: Node3D, input: Node) -> void:
 	source_button.toggle_mode = true
 	source_button.pressed.connect(func(): wind_input.select_tool("source"))
 	add_child(source_button)
+	vortex_button = Button.new()
+	vortex_button.text = "漩涡"
+	vortex_button.toggle_mode = true
+	vortex_button.pressed.connect(func(): wind_input.select_tool("vortex"))
+	add_child(vortex_button)
 	arrows_button = Button.new()
 	arrows_button.text = "流向提示：开"
 	arrows_button.pressed.connect(func(): view.arrows_enabled = not view.arrows_enabled)
@@ -232,7 +238,7 @@ func setup(model: RefCounted, weather_view: Node3D, input: Node) -> void:
 
 func buttons() -> Array:
 	return [menu_button, retry, sandbox_button, cold_button, free_button, lesson_button, dismiss_hint, layout_selector,
-		finish_button, next_button, result_retry, levels_button, brush_button, source_button, arrows_button] + source_remove
+		finish_button, next_button, result_retry, levels_button, brush_button, source_button, vortex_button, arrows_button] + source_remove
 
 func _text(at: Vector2, text: String, font_size: int = 16, color := INK) -> void:
 	draw_string(font, at, text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, color)
@@ -346,7 +352,7 @@ func _draw_world_feedback() -> void:
 		for i in plot.size():
 			draw_line(plot[i], plot[(i + 1) % plot.size()], outline_color, 2.0 + flash * 2.0, true)
 		var label := _project(Vector3(center.x, 0.35, center.y))
-		var star := " ★" if sim.star_level and sim.plot_safe_times[target] >= sim.settings.safe_seconds and not sim.plot_destroyed[target] else ""
+		var star := " ✓" if sim.star_level and sim.plot_safe_times[target] >= sim.settings.safe_seconds and not sim.plot_destroyed[target] else ""
 		_text(label + Vector2(-8, 5), String.chr(65 + target) + star, 18, INK)
 		if flash > 0.0:
 			var text: String = feedback_texts[target]
@@ -383,6 +389,7 @@ func _draw_wind_tools() -> void:
 	var active := sim.outcome == "playing"
 	brush_button.visible = active
 	source_button.visible = active
+	vortex_button.visible = active
 	arrows_button.visible = active
 	# Keep a live button visible across redraws; hiding cancels a held click.
 	for index in source_remove.size(): source_remove[index].visible = active and index < sim.wind_sources.size()
@@ -393,33 +400,40 @@ func _draw_wind_tools() -> void:
 		last_tool = wind_input.tool
 		tool_hint_until = view.elapsed + 4.0
 	var rows := ceili(sim.wind_sources.size() / 2.0)
-	var width := 350.0
+	var width := 390.0
 	wind_toolbar_rect = Rect2(Vector2((size.x - width) * 0.5, size.y - 58 - rows * 27), Vector2(width, 42 + rows * 27))
 	_rounded(wind_toolbar_rect, PANEL, 9)
 	var at := wind_toolbar_rect.position
 	brush_button.position = at + Vector2(7, 5)
-	brush_button.size = Vector2(76, 30)
-	source_button.position = at + Vector2(87, 5)
-	source_button.size = Vector2(94, 30)
-	arrows_button.position = at + Vector2(185, 5)
-	arrows_button.size = Vector2(158, 30)
+	brush_button.size = Vector2(70, 30)
+	source_button.position = at + Vector2(81, 5)
+	source_button.size = Vector2(90, 30)
+	vortex_button.position = at + Vector2(175, 5)
+	vortex_button.size = Vector2(80, 30)
+	arrows_button.position = at + Vector2(259, 5)
+	arrows_button.size = Vector2(124, 30)
 	brush_button.set_pressed_no_signal(wind_input.tool == "brush")
 	source_button.set_pressed_no_signal(wind_input.tool == "source")
+	vortex_button.set_pressed_no_signal(wind_input.tool == "vortex")
 	brush_button.disabled = paused
 	source_button.disabled = paused
+	vortex_button.disabled = paused
 	arrows_button.text = "流向：" + ("开" if view.arrows_enabled else "关")
 	for index in sim.wind_sources.size():
 		var source: Dictionary = sim.wind_sources[index]
 		source_remove_ids[index] = source.id
-		var p := at + Vector2(12 + (index % 2) * 170, 42 + floori(index / 2.0) * 27)
-		_text(p + Vector2(0, 16), "风带 %d · %.1fs" % [source.id, source.remaining], 12)
+		var p := at + Vector2(12 + (index % 2) * 190, 42 + floori(index / 2.0) * 27)
+		var text := "风带 %d · %.1fs" % [source.id, source.remaining]
+		if source.get("kind", "band") == "vortex": text = "漩涡 %d · %s · %.1fs" % [source.id, ["弱", "中", "强"][source.tier], source.remaining]
+		_text(p + Vector2(0, 16), text, 12)
 		var remove := source_remove[index]
 		remove.disabled = paused
-		remove.position = p + Vector2(126, 0)
+		remove.position = p + Vector2(146, 0)
 		remove.size = Vector2(24, 22)
 	var message_active: bool = Time.get_ticks_msec() < wind_input.message_until
 	if view.elapsed < tool_hint_until or message_active:
 		var text := "拖出方向，停住按住续吹；再拖动可调整" if wind_input.tool == "brush" else "拖出风带 · 滚轮调力度 · 松手吹 %.0f 秒" % sim.settings.source_lifetime
+		if wind_input.tool == "vortex": text = "拖出范围 · 左顺右逆 · 滚轮三档 · 松手聚集"
 		if message_active: text = wind_input.message
 		var hint := Rect2(at + Vector2(-15, -61), Vector2(380, 54))
 		_rounded(hint, PANEL, 7)
@@ -429,14 +443,63 @@ func _draw_wind_tools() -> void:
 		for index in 4:
 			_text(hint.position + Vector2(10 + index * 94, 42), "➜ " + legend[index], 12, colors[index].lerp(INK, 0.42))
 	for source in sim.wind_sources:
-		_draw_source_marker(source.position, source.end, source.direction, minf(1.0, source.remaining / source.fade), source.remaining / source.lifetime, false)
 		var point: Vector2 = source.position
+		if source.get("kind", "band") == "vortex":
+			var hovered: bool = wind_input.hover_valid and Vector2(wind_input.brush_point.x, wind_input.brush_point.z).distance_to(point) <= source.radius
+			_draw_vortex_marker(point, source.radius, source.spin, source.remaining / source.lifetime, minf(1.0, source.remaining / source.fade), false, hovered)
+		else: _draw_source_marker(source.position, source.end, source.direction, minf(1.0, source.remaining / source.fade), source.remaining / source.lifetime, false)
 		var label := _project(Vector3(point.x, sim.terrain.height(point) + 0.35, point.y))
-		_text(label + Vector2(14, -9), "风带 %d" % source.id, 12, GOLD)
+		_text(label + Vector2(14, -9), ("漩涡 %d" if source.get("kind", "band") == "vortex" else "风带 %d") % source.id, 12, GOLD)
 	if wind_input.tool == "source" and wind_input.dragging:
 		var end := Vector2(wind_input.brush_point.x, wind_input.brush_point.z)
 		_draw_source_marker(wind_input.gesture_start, end, (end - wind_input.gesture_start).normalized(), 0.8, 1.0, true)
 		_draw_wind_meter(_project(wind_input.brush_point))
+	if wind_input.tool == "vortex" and wind_input.dragging:
+		var gesture: Dictionary = wind_input.vortex_preview()
+		_draw_vortex_marker(gesture.center, gesture.radius, gesture.spin, 1.0, 0.8, true, true)
+		var tip := _project(wind_input.brush_point)
+		_draw_wind_meter(tip, gesture.tier, "滚轮")
+		var text: String = gesture.reason
+		var label := strength_meter_rect.position + Vector2(-88, -13)
+		label.x = clampf(label.x, 8, size.x - 150)
+		label.y = maxf(17, label.y)
+		_text(label, text, 12, INK)
+
+func _draw_vortex_marker(point: Vector2, radius: float, spin: int, fraction: float, alpha: float, preview: bool, show_range: bool) -> void:
+	var h: float = wind_input.reference_height if preview else sim.terrain.height(point) + 0.35
+	var center := _project(Vector3(point.x, h, point.y))
+	var color := GOLD
+	color.a = alpha
+	draw_circle(center, 3.0, color)
+	draw_arc(center, 11.0, -PI * 0.5, -PI * 0.5 + TAU * fraction, 32, color, 1.5, true)
+	if radius < 0.25: return # Avoid degenerate antialiased polylines at initial press.
+	var p := point + Vector2(radius * 0.2, 0)
+	var direction := _project(Vector3(p.x, h, p.y + spin * radius * 0.12)) - _project(Vector3(p.x, h, p.y))
+	var d := direction.normalized()
+	var tip := center + d * 9
+	draw_line(center, tip, color, 1.5, true)
+	draw_polyline(PackedVector2Array([tip - d.rotated(0.6) * 4, tip, tip - d.rotated(-0.6) * 4]), color, 1.5, true)
+	if not show_range: return
+	var ring := PackedVector2Array()
+	for n in 65:
+		var angle := TAU * n / 64.0
+		var q := point + Vector2(cos(angle), sin(angle)) * radius
+		var height: float = h if preview else sim.terrain.height(q) + 0.15
+		ring.append(_project(Vector3(q.x, height, q.y)))
+	color.a *= 0.35
+	draw_polyline(ring, color, 1.2, true)
+	if preview and radius >= 0.25:
+		# Preview intent; after release, white ribbons read actual simulated velocity.
+		for segment in 3:
+			var curve := PackedVector2Array()
+			for n in 7:
+				var angle: float = view.elapsed * spin + segment * TAU / 3.0 + n * 0.1 * spin
+				var q := point + Vector2(cos(angle), sin(angle)) * radius * 0.72
+				curve.append(_project(Vector3(q.x, h, q.y)))
+			var white := Color(0.93, 1.0, 0.95, 0.65)
+			draw_polyline(curve, white, 1.6, true)
+			var curve_direction := (curve[-1] - curve[-2]).normalized()
+			draw_polyline(PackedVector2Array([curve[-1] - curve_direction.rotated(0.6) * 5, curve[-1], curve[-1] - curve_direction.rotated(-0.6) * 5]), white, 1.6, true)
 
 func _draw_source_marker(point: Vector2, end: Vector2, direction: Vector2, alpha: float, fraction: float, preview: bool) -> void:
 	var h: float = wind_input.reference_height if preview else sim.terrain.height(point) + 0.35
@@ -465,7 +528,7 @@ func _draw_source_marker(point: Vector2, end: Vector2, direction: Vector2, alpha
 	edge.a *= 0.45 if preview else 0.20
 	draw_polyline(ring, edge, 1.2, true)
 
-func _draw_wind_meter(tip: Vector2) -> void:
+func _draw_wind_meter(tip: Vector2, tier: int = -1, caption: String = "滚轮") -> void:
 	var at := tip + Vector2(18, -45)
 	if at.x + 55 > size.x - 8: at.x = tip.x - 73
 	at.x = clampf(at.x, 8, maxf(8, size.x - 63))
@@ -475,12 +538,12 @@ func _draw_wind_meter(tip: Vector2) -> void:
 	var colors := [Color("d58178"), Color("80ab83"), Color("7dabc6")]
 	var labels := ["强", "中", "弱"]
 	for row in 3:
-		var selected: bool = wind_input.source_tier == 2 - row
+		var selected: bool = (wind_input.source_tier if tier < 0 else tier) == 2 - row
 		var segment := Rect2(at + Vector2(8, 7 + row * 24), Vector2(14, 20))
 		_rounded(segment, colors[row] if selected else colors[row].lerp(PANEL, 0.72), 3)
 		if selected: draw_rect(segment.grow(1), INK, false, 1.0)
 		_text(at + Vector2(29, 23 + row * 24), labels[row], 12, INK if selected else MUTED)
-	_text(at + Vector2(8, 82), "滚轮", 9, MUTED)
+	_text(at + Vector2(8, 82), caption, 9, MUTED)
 
 func _ground_region(target: int, padding: float = 0.0) -> PackedVector2Array:
 	# Land and target geometry are immutable for one simulation. Retain exact
@@ -554,7 +617,7 @@ func _draw() -> void:
 	_draw_reserve()
 	finish_button.visible = sim.star_level and not sim.sandbox and sim.outcome == "playing" and (sim.can_finish() or sim.can_end_shortage())
 	finish_button.disabled = not sim.can_finish() and not sim.can_end_shortage()
-	finish_button.text = "结束 · 当前 %d 星" % sim.earned_stars() if sim.can_end_shortage() else "收尾 · %d / %d 星" % [sim.earned_stars(), sim.plot_centers.size()]
+	finish_button.text = "结束 · 当前 %d 星" % sim.earned_stars() if sim.can_end_shortage() else "收尾 · %d / 3 星" % sim.earned_stars()
 	finish_button.tooltip_text = "只计当前已适量且安全的地块。" if sim.can_end_shortage() else "未损坏地块附近安全后可结算。"
 	if sim.three_star_remaining() >= 0.0:
 		finish_button.text = "三星 · %d 秒后自动结算" % ceili(sim.three_star_remaining())
@@ -582,9 +645,9 @@ func _draw() -> void:
 		for target in sim.plot_centers.size():
 			if sim.water_for(target) > sim.required_water(target) * 0.7 and sim.water_for(target) < sim.required_water(target):
 				status = "%s 快够水了 · 提前移云，储水还会继续落下" % String.chr(65 + target)
-	if sim.relay_mode and sim.plot_water >= sim.required_water(0) and sim.second_water < sim.required_water(1):
+	if sim.plot_centers.size() > 1 and sim.plot_water >= sim.required_water(0) and sim.second_water < sim.required_water(1):
 		status = "A 水量已够 · 提早移云，借残留冷风照顾 B"
-	elif sim.relay_mode and sim.second_water >= sim.required_water(1) and sim.plot_water < sim.required_water(0):
+	elif sim.plot_centers.size() > 1 and sim.second_water >= sim.required_water(1) and sim.plot_water < sim.required_water(0):
 		status = "B 水量已够 · 提早移云，借残留冷风照顾 A"
 	elif sim.plot_water >= sim.required_water(0):
 		status = "水量已够 · 移开危险雨云，或切断补给后等储水耗尽"
@@ -600,7 +663,7 @@ func _draw() -> void:
 	if paused:
 		status = "已暂停 · 空格继续"
 	if sim.star_level and sim.outcome != "playing":
-		status = "本局已结算 · 可重试或进入下一关" if sim.result_stars > 0 else "本局已结算 · 查看原因后重试"
+		status = "本局已结算 · 可重试或进入下一测试局" if sim.result_stars > 0 else "本局已结算 · 查看原因后重试"
 	if not tuning_message.is_empty(): status = tuning_message.left(48) + ("…" if tuning_message.length() > 48 else "")
 	if status != last_status:
 		last_status = status
@@ -671,13 +734,13 @@ func _draw_star_result(w: float, h: float) -> void:
 	result_rect = Rect2(w * 0.5 - 320, h * 0.5 - height * 0.5, 640, height)
 	_rounded(result_rect, PANEL)
 	var left := result_rect.position + Vector2(24, 34)
-	var headline := "这场雨，保住了 %d 块土地。" % sim.result_stars if sim.outcome == "success" else "土地都被浇坏了，再试一次。"
+	var headline := "这场雨，保住了 %d/%d 块土地。" % [sim.result_saved_count, sim.plot_centers.size()] if sim.outcome == "success" else "土地都被浇坏了，再试一次。"
 	if sim.timed_out:
-		headline = "时间到 · 保住了 %d 块土地。" % sim.result_stars if sim.result_stars > 0 else "时间到 · 本次未获得星星。"
+		headline = "时间到 · 保住了 %d/%d 块土地。" % [sim.result_saved_count, sim.plot_centers.size()] if sim.result_stars > 0 else "时间到 · 本次未获得星星。"
 	elif sim.ended_for_shortage:
-		headline = "本局结束 · 保住了 %d 块土地。" % sim.result_stars if sim.result_stars > 0 else "本局结束 · 本次未获得星星。"
+		headline = "本局结束 · 保住了 %d/%d 块土地。" % [sim.result_saved_count, sim.plot_centers.size()] if sim.result_stars > 0 else "本局结束 · 本次未获得星星。"
 	_text(left, headline, 23)
-	_text(left + Vector2(0, 44), "★".repeat(sim.result_stars) + "☆".repeat(sim.plot_centers.size() - sim.result_stars), 30, GOLD)
+	_text(left + Vector2(0, 44), "★".repeat(sim.result_stars) + "☆".repeat(3 - sim.result_stars), 30, GOLD)
 	result_details.clear()
 	for target in sim.plot_centers.size():
 		var text := "%s  %.1f  ·  %s" % [String.chr(65 + target), sim.water_for(target), status_text(target, true)]
@@ -689,7 +752,7 @@ func _draw_star_result(w: float, h: float) -> void:
 	result_retry.position = result_rect.position + Vector2(24, height - 56)
 	result_retry.size = Vector2(160, 36)
 	var index := Layouts.LEVELS.find(sim.layout_id)
-	next_button.text = "下一关" if index >= 0 and index + 1 < Layouts.LEVELS.size() else "返回第一关"
+	next_button.text = "下一测试局" if index >= 0 and index + 1 < Layouts.LEVELS.size() else "返回三处田园"
 	next_button.position = result_rect.position + Vector2(406, height - 56)
 	next_button.size = Vector2(210, 36)
 
@@ -713,7 +776,7 @@ func _draw_plot_labels() -> void:
 		plot_label_rects.append(rect)
 		_rounded(rect, PANEL, 7)
 		var state := sim.plot_status(target)
-		var short := {"dry": "缺水", "danger": "留意移云", "confirming": "确认安全", "safe": "★ 已保住", "destroyed": "损坏"}
+		var short := {"dry": "缺水", "danger": "留意移云", "confirming": "确认安全", "safe": "已保住", "destroyed": "损坏"}
 		var amount: float = sim.water_for(target)
 		var accent := water_color(target)
 		var typed: bool = not sim.plot_name(target).is_empty()

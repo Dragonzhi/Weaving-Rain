@@ -4,6 +4,7 @@ const Sim = preload("res://scripts/weather_simulation.gd")
 var main: Node3D
 var previous := Vector2.ZERO
 var input_ms := 0.0
+var wind_combination := "band"
 
 func _init() -> void:
 	call_deferred("run")
@@ -50,7 +51,8 @@ func stress_sources() -> bool:
 		var side := -1.0 if main.sim.wind_sources.is_empty() else 1.0
 		var start := Vector2(side * 8, side * 2)
 		var end := Vector2(-side * 7, -side * 2)
-		var placed: Dictionary = main.sim.add_wind_source(start, end - start, 1.0, end)
+		var vortex := wind_combination == "vortex" or (wind_combination == "mixed" and side > 0)
+		var placed: Dictionary = main.sim.add_vortex(start, 3.0, 1 if side > 0 else -1, 2) if vortex else main.sim.add_wind_source(start, end - start, 1.0, end)
 		if not placed.ok:
 			push_error("Two-source stress requires source_limit >= 2: " + placed.reason)
 			quit(1)
@@ -68,6 +70,11 @@ func run() -> void:
 		if arg.begins_with("--warmup="): warmup = float(arg.trim_prefix("--warmup="))
 		if arg.begins_with("--label="): label = arg.trim_prefix("--label=")
 		if arg.begins_with("--kind="): kinds = [arg.trim_prefix("--kind=")]
+		if arg.begins_with("--wind-combination="): wind_combination = arg.trim_prefix("--wind-combination=")
+	if wind_combination not in ["band", "vortex", "mixed"]:
+		push_error("Unknown wind combination: " + wind_combination)
+		quit(1)
+		return
 	main = load("res://scenes/main.tscn").instantiate()
 	root.add_child(main)
 	await process_frame
@@ -132,6 +139,9 @@ func run() -> void:
 			var count := frames.size()
 			var report := {"layout": main.sim.layout_id, "kind": kind, "drag": drag, "frames": count, "p50": percentile(frames, 0.5), "p95": percentile(frames, 0.95), "p99": percentile(frames, 0.99), "slow_33ms": slow, "sim_ms": sums.x / count, "view_ms": sums.y / count, "pick_ms": sums.z / count, "input_ms": input_sum / count, "gpu_ms": sums.w / count, "steps_per_frame": float(steps) / count, "sample_seconds": duration, "simulation_seconds": sample_steps * Sim.FIXED_STEP, "max_backlog_ms": max_backlog_ms, "final_backlog_ms": main.accumulator * 1000.0}
 			report["min_sources"] = min_sources
+			report["wind_combination"] = wind_combination
+			report["source_kinds"] = main.sim.wind_sources.map(func(s): return s.kind) if drag else []
+			report["rendered_size"] = Array([root.get_texture().get_image().get_width(), root.get_texture().get_image().get_height()])
 			report["peak_arrows"] = peak_arrows
 			report["peak_source_lines"] = peak_source_lines
 			report["arrows_enabled"] = main.weather_view.arrows_enabled

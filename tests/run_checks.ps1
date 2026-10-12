@@ -1,5 +1,6 @@
 param(
-    [string]$GodotPath = 'D:\SteamLibrary\steamapps\common\Godot Engine\godot.windows.opt.tools.64.exe'
+    [string]$GodotPath = 'D:\SteamLibrary\steamapps\common\Godot Engine\godot.windows.opt.tools.64.exe',
+    [string]$StartAt = ''
 )
 $ErrorActionPreference = 'Stop'
 $projectRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
@@ -27,13 +28,18 @@ $checks = @(
     @{ Name = 'star-levels'; Script = 'res://tests/test_star_levels.gd'; Headless = $true },
     @{ Name = 'water-reserve'; Script = 'res://tests/test_water_reserve.gd'; Headless = $true },
     @{ Name = 'three-star-finish'; Script = 'res://tests/test_three_star_finish.gd'; Headless = $true },
+    @{ Name = 'rating'; Script = 'res://tests/test_rating.gd'; Headless = $true },
+    @{ Name = 'vortex-wind'; Script = 'res://tests/test_vortex_wind.gd'; Headless = $true },
+    @{ Name = 'vortex-scene'; Script = 'res://tests/test_vortex_scene.gd'; Headless = $false; Args = @('--fresh-guide', '--layout=needs_lab'); Resolution = '1920x1080' },
+    @{ Name = 'vortex-gather'; Script = 'res://tests/measure_vortex_gather.gd'; Headless = $true },
     @{ Name = 'editor-map'; Editor = $true; Headless = $true; Args = @('--editor-map-check') },
     @{ Name = 'tuning'; Script = 'res://tests/test_tuning.gd'; Headless = $false; Args = @('--fresh-guide') },
     @{ Name = 'scene'; Script = 'res://tests/test_scene.gd'; Headless = $false; Args = @('--fresh-guide') },
     @{ Name = 'star-scene'; Script = 'res://tests/test_star_scene.gd'; Headless = $false; Args = @('--fresh-guide', '--free-play') },
     @{ Name = 'plot-feedback'; Script = 'res://tests/test_plot_feedback.gd'; Headless = $false; Args = @('--fresh-guide', '--free-play') },
-    @{ Name = 'render-fields'; Script = 'res://tests/test_render_fields.gd'; Headless = $false; Args = @('--free-play') },
-    @{ Name = 'cloud-surface'; Script = 'res://tests/test_cloud_surface.gd'; Headless = $false },
+    @{ Name = 'render-fields'; Script = 'res://tests/test_render_fields.gd'; Headless = $false; Args = @('--fresh-guide', '--free-play') },
+    @{ Name = 'moisture-surface'; Script = 'res://tests/test_moisture_surface.gd'; Headless = $false },
+    @{ Name = 'cloud-surface'; Script = 'res://tests/test_cloud_surface.gd'; Headless = $false; Args = @('--fresh-guide') },
     @{ Name = 'replay'; Script = 'res://tests/replay_weather.gd'; Headless = $true },
     @{ Name = 'lesson-replay'; Script = 'res://tests/replay_weather.gd'; Headless = $true; Args = @('--lesson', '--snapshot=res://.godot/lesson-snapshot.json') },
     @{ Name = 'dual-mountain'; Script = 'res://tests/replay_relay.gd'; Headless = $true; Args = @('--mountain') },
@@ -54,9 +60,15 @@ $checks = @(
     @{ Name = 'needs-ordinary-first'; Script = 'res://tests/replay_plot_needs.gd'; Headless = $true },
     @{ Name = 'needs-seedling-first'; Script = 'res://tests/replay_plot_needs.gd'; Headless = $true; Args = @('--reverse') },
     @{ Name = 'needs-partial-loss'; Script = 'res://tests/replay_plot_needs.gd'; Headless = $true; Args = @('--reverse', '--late=5') },
-    @{ Name = 'needs-viewport-route'; Script = 'res://tests/replay_plot_needs_viewport.gd'; Headless = $false; Args = @('--fresh-guide', '--layout=needs_lab'); Resolution = '1920x1080' }
+    @{ Name = 'needs-viewport-route'; Script = 'res://tests/replay_plot_needs_viewport.gd'; Headless = $false; Args = @('--fresh-guide', '--layout=needs_lab'); Resolution = '1920x1080' },
+    @{ Name = 'vortex-viewport-route'; Script = 'res://tests/replay_vortex_viewport.gd'; Headless = $false; Args = @('--fresh-guide', '--layout=needs_lab'); Resolution = '1920x1080' },
+    @{ Name = 'vortex-control-route'; Script = 'res://tests/replay_vortex_viewport.gd'; Headless = $false; Args = @('--fresh-guide', '--layout=needs_lab', '--no-vortex'); Resolution = '1920x1080' }
 )
+if ($StartAt -ne '' -and $checks.Name -notcontains $StartAt) { throw "Unknown check name: $StartAt" }
+$started = $StartAt -eq ''
 foreach ($check in $checks) {
+    if (-not $started -and $check.Name -ne $StartAt) { continue }
+    $started = $true
     $logPath = Join-Path $cacheDirectory ($check.Name + '-check.log')
     $arguments = @('--path', ('"' + $projectRoot + '"'), '--log-file', ('"' + $logPath + '"'))
     if ($check.ContainsKey('Script')) { $arguments += @('--script', $check.Script) }
@@ -73,4 +85,8 @@ foreach ($check in $checks) {
     if ($check.ContainsKey('Editor') -and $output -notmatch 'EDITOR MAP: 24 checks, 0 failures') { throw 'Editor plugin check did not finish.' }
 }
 & (Join-Path $PSScriptRoot 'review_star_routes.ps1')
-Write-Output 'All rules, map-editor, tuning, feedback, viewport, and twenty-one playthrough checks passed.'
+if ($StartAt -eq '') {
+    Write-Output 'All rules, map-editor, tuning, feedback, viewport, and twenty-three playthrough checks passed.'
+} else {
+    Write-Output "Checks from '$StartAt' and route review passed; earlier checks were not rerun."
+}

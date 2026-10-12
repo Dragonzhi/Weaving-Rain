@@ -1,0 +1,1233 @@
+{
+  "date": "2026-10-12",
+  "implementation": "drag_radius_left_right_wheel_vortex",
+  "changes_committed": true,
+  "input": {
+    "center": "press position",
+    "radius": "horizontal drag distance",
+    "left": "clockwise",
+    "right": "counterclockwise",
+    "power": "preview wheel, three fixed tiers",
+    "default_tier": "middle",
+    "owner_button_only": true,
+    "click_without_drag_no_source": true,
+    "second_button_ignored": true,
+    "fixed_after_release": true,
+    "duration_seconds": 30,
+    "fade_seconds": 2,
+    "shared_limit": 2,
+    "circles_and_speed_recognizer_removed": true,
+    "radius_limits": [
+      0.75,
+      5
+    ],
+    "pause_immediate_gate": true
+  },
+  "moisture": {
+    "cause": "bilinear support exposes a square after concentration into few cells",
+    "method": "positive normalized compact radial kernel, radius 3 cells",
+    "shader": "shaders/low_air.gdshader",
+    "authoritative_grid_unchanged": true,
+    "physics_parameters_unchanged": true,
+    "cold_reconstruction_unchanged": true,
+    "controlled_gpu_test": {
+      "frame_size": [
+        512,
+        512
+      ],
+      "four_cells": 100,
+      "alpha_threshold": 0.03,
+      "new_min_radius_px": 152,
+      "new_max_radius_px": 158,
+      "old_min_radius_px": 75,
+      "old_max_radius_px": 103,
+      "note": "developer top-view fixture, not gameplay evidence"
+    }
+  },
+  "validation": {
+    "coverage_passed": true,
+    "distinct_checks": 697,
+    "playthroughs": 23,
+    "single_full_invocation_passed": false,
+    "resumed_from": "vortex-scene",
+    "fixture_repairs": [
+      "use current camera after restart",
+      "use existing picking geometry tolerance"
+    ],
+    "additional_pause_gate_checked": true,
+    "input_viewport_sizes": [
+      "1920x1080",
+      "1280x720"
+    ],
+    "checks": [
+      {
+        "name": "weather",
+        "count": 32,
+        "script_errors": false
+      },
+      {
+        "name": "cold-weather",
+        "count": 22,
+        "script_errors": false
+      },
+      {
+        "name": "onboarding",
+        "count": 19,
+        "script_errors": false
+      },
+      {
+        "name": "layouts",
+        "count": 33,
+        "script_errors": false
+      },
+      {
+        "name": "wind-path",
+        "count": 6,
+        "script_errors": false
+      },
+      {
+        "name": "compact-feedback",
+        "count": 25,
+        "script_errors": false
+      },
+      {
+        "name": "hud-layouts",
+        "count": 21,
+        "script_errors": false
+      },
+      {
+        "name": "wind-tools",
+        "count": 44,
+        "script_errors": false
+      },
+      {
+        "name": "wind-tools-scene",
+        "count": 36,
+        "script_errors": false
+      },
+      {
+        "name": "open-boundary",
+        "count": 35,
+        "script_errors": false
+      },
+      {
+        "name": "map-resources",
+        "count": 18,
+        "script_errors": false
+      },
+      {
+        "name": "plot-needs",
+        "count": 24,
+        "script_errors": false
+      },
+      {
+        "name": "plot-needs-scene",
+        "count": 16,
+        "script_errors": false
+      },
+      {
+        "name": "star-levels",
+        "count": 54,
+        "script_errors": false
+      },
+      {
+        "name": "water-reserve",
+        "count": 22,
+        "script_errors": false
+      },
+      {
+        "name": "three-star-finish",
+        "count": 22,
+        "script_errors": false
+      },
+      {
+        "name": "rating",
+        "count": 39,
+        "script_errors": false
+      },
+      {
+        "name": "vortex-wind",
+        "count": 10,
+        "script_errors": false
+      },
+      {
+        "name": "vortex-scene",
+        "count": 64,
+        "script_errors": false
+      },
+      {
+        "name": "vortex-gather",
+        "count": 0,
+        "script_errors": false
+      },
+      {
+        "name": "editor-map",
+        "count": 24,
+        "script_errors": false
+      },
+      {
+        "name": "tuning",
+        "count": 11,
+        "script_errors": false
+      },
+      {
+        "name": "scene",
+        "count": 37,
+        "script_errors": false
+      },
+      {
+        "name": "star-scene",
+        "count": 43,
+        "script_errors": false
+      },
+      {
+        "name": "plot-feedback",
+        "count": 18,
+        "script_errors": false
+      },
+      {
+        "name": "render-fields",
+        "count": 11,
+        "script_errors": false
+      },
+      {
+        "name": "moisture-surface",
+        "count": 3,
+        "script_errors": false
+      },
+      {
+        "name": "cloud-surface",
+        "count": 8,
+        "script_errors": false
+      },
+      {
+        "name": "replay",
+        "count": 0,
+        "script_errors": false
+      },
+      {
+        "name": "lesson-replay",
+        "count": 0,
+        "script_errors": false
+      },
+      {
+        "name": "dual-mountain",
+        "count": 0,
+        "script_errors": false
+      },
+      {
+        "name": "dual-relay",
+        "count": 0,
+        "script_errors": false
+      },
+      {
+        "name": "far-mountain",
+        "count": 0,
+        "script_errors": false
+      },
+      {
+        "name": "far-relay",
+        "count": 0,
+        "script_errors": false
+      },
+      {
+        "name": "close-mountain",
+        "count": 0,
+        "script_errors": false
+      },
+      {
+        "name": "close-reverse",
+        "count": 0,
+        "script_errors": false
+      },
+      {
+        "name": "ridges-mountain",
+        "count": 0,
+        "script_errors": false
+      },
+      {
+        "name": "meadow-level",
+        "count": 0,
+        "script_errors": false
+      },
+      {
+        "name": "valleys-level",
+        "count": 0,
+        "script_errors": false
+      },
+      {
+        "name": "meadow-three-abc",
+        "count": 0,
+        "script_errors": false
+      },
+      {
+        "name": "meadow-three-cab",
+        "count": 0,
+        "script_errors": false
+      },
+      {
+        "name": "valleys-three-mountain",
+        "count": 0,
+        "script_errors": false
+      },
+      {
+        "name": "valleys-three-relay",
+        "count": 0,
+        "script_errors": false
+      },
+      {
+        "name": "valleys-late-clear",
+        "count": 0,
+        "script_errors": false
+      },
+      {
+        "name": "wind-tools-route",
+        "count": 0,
+        "script_errors": false
+      },
+      {
+        "name": "needs-ordinary-first",
+        "count": 0,
+        "script_errors": false
+      },
+      {
+        "name": "needs-seedling-first",
+        "count": 0,
+        "script_errors": false
+      },
+      {
+        "name": "needs-partial-loss",
+        "count": 0,
+        "script_errors": false
+      },
+      {
+        "name": "needs-viewport-route",
+        "count": 0,
+        "script_errors": false
+      },
+      {
+        "name": "vortex-viewport-route",
+        "count": 0,
+        "script_errors": false
+      },
+      {
+        "name": "vortex-control-route",
+        "count": 0,
+        "script_errors": false
+      }
+    ]
+  },
+  "routes": [
+    {
+      "case": "vortex",
+      "data": {
+        "band_closed": true,
+        "band_placed": true,
+        "blocked": 0,
+        "cold_lift": 24.4398882792182,
+        "destroyed": [
+          false,
+          false
+        ],
+        "elapsed": 35.9499999999992,
+        "events": 1816,
+        "front_strokes": 0,
+        "gesture_count": 78,
+        "input_pick_error": 0.0,
+        "layout": "needs_lab",
+        "limit": 180.0,
+        "order": [
+          0,
+          1
+        ],
+        "outcome": "success",
+        "per_target": [
+          {
+            "distance": 46.5000004768372,
+            "front": 0,
+            "strokes": 26,
+            "transport": 20
+          },
+          {
+            "distance": 37.800000667572,
+            "front": 0,
+            "strokes": 51,
+            "transport": 16
+          },
+          {
+            "distance": 0.0,
+            "front": 0,
+            "strokes": 0,
+            "transport": 0
+          }
+        ],
+        "placement_path_length": 2.2,
+        "route": "mountain",
+        "saved_count": 2,
+        "stars": 3,
+        "strokes": 77,
+        "total_path_length": 175.799999189377,
+        "transport_distance": 84.3000011444092,
+        "transport_strokes": 36,
+        "vortex": {
+          "active_seconds": 2.08333333333321,
+          "after": {
+            "core_mass": 28.9321966171265,
+            "mass": 591.465952447298,
+            "rms_radius": 8.60064923771244
+          },
+          "before": {
+            "core_mass": 9.44615077972412,
+            "mass": 591.46650569404,
+            "rms_radius": 8.60834954430263
+          },
+          "center": [
+            -6.20003843307495,
+            1.39994120597839
+          ],
+          "hold_seconds": 2.0,
+          "lifetime": 30.0,
+          "radius": 2.20004034042358,
+          "spin": 1,
+          "tier": 0
+        },
+        "vortex_closed": true,
+        "water": [
+          109.190174028385,
+          47.3304967711298
+        ],
+        "water_error": -0.000431395812256596
+      }
+    },
+    {
+      "case": "control",
+      "data": {
+        "band_closed": true,
+        "band_placed": true,
+        "blocked": 0,
+        "cold_lift": 59.7625101618642,
+        "destroyed": [
+          false,
+          false
+        ],
+        "elapsed": 43.3833333333322,
+        "events": 2782,
+        "front_strokes": 0,
+        "gesture_count": 112,
+        "input_pick_error": 0.0,
+        "layout": "needs_lab",
+        "limit": 180.0,
+        "order": [
+          0,
+          1
+        ],
+        "outcome": "success",
+        "per_target": [
+          {
+            "distance": 44.7000007629395,
+            "front": 0,
+            "strokes": 26,
+            "transport": 19
+          },
+          {
+            "distance": 60.3000023365021,
+            "front": 0,
+            "strokes": 86,
+            "transport": 25
+          },
+          {
+            "distance": 0.0,
+            "front": 0,
+            "strokes": 0,
+            "transport": 0
+          }
+        ],
+        "placement_path_length": 0.0,
+        "route": "mountain",
+        "saved_count": 2,
+        "stars": 3,
+        "strokes": 112,
+        "total_path_length": 256.999999880791,
+        "transport_distance": 105.000003099442,
+        "transport_strokes": 44,
+        "vortex": {},
+        "vortex_closed": false,
+        "water": [
+          106.003882881604,
+          41.2730010392034
+        ],
+        "water_error": -0.000515359143037131
+      }
+    }
+  ],
+  "route_note": "正常湿空气开局、实际拖动与滚轮放弱档、关闭、造云输送、真实满星倒数；对照一次，不据此宣称普遍省操作或更快。旧两圈版本统计另保留在vortex-rating-review.json。",
+  "runtime": {
+    "resolution": [
+      1920,
+      1080
+    ],
+    "layout": "needs_lab",
+    "warmup_seconds": 2,
+    "sample_seconds": 10,
+    "samples": 18,
+    "failed_gates": 11,
+    "all_gates_passed": false,
+    "max_p95_ms": 22.953,
+    "max_p99_ms": 27.446,
+    "min_simulation_seconds": 8.93333333333333,
+    "max_final_backlog_ms": 1074.93524242424,
+    "long_frames_33ms": 1.0,
+    "records": [
+      {
+        "arrows_enabled": true,
+        "drag": false,
+        "final_backlog_ms": 5.13430303030311,
+        "frames": 1024,
+        "gpu_ms": 2.00771355628967,
+        "input_ms": 0.1492197265625,
+        "kind": "cloud",
+        "layout": "needs_lab",
+        "max_backlog_ms": 16.6666666666667,
+        "min_sources": 0,
+        "p50": 11.669,
+        "p95": 15.092,
+        "p99": 16.336,
+        "peak_arrows": 0,
+        "peak_source_lines": 0,
+        "pick_ms": 0.150870203971863,
+        "rendered_size": [
+          1920,
+          1080
+        ],
+        "sample_seconds": 10.0,
+        "sim_ms": 3.70097875595093,
+        "simulation_seconds": 10.0166666666667,
+        "slow_33ms": 0,
+        "source_kinds": [],
+        "steps_per_frame": 0.5869140625,
+        "view_ms": 2.9704384803772,
+        "wind_combination": "band",
+        "gate_passed": true,
+        "csv_frames": 1024
+      },
+      {
+        "arrows_enabled": true,
+        "drag": true,
+        "final_backlog_ms": 1074.93524242424,
+        "frames": 534,
+        "gpu_ms": 3.80196812090356,
+        "input_ms": 0.15747191011236,
+        "kind": "cloud",
+        "layout": "needs_lab",
+        "max_backlog_ms": 1116.93246464646,
+        "min_sources": 2,
+        "p50": 18.389,
+        "p95": 22.953,
+        "p99": 27.446,
+        "peak_arrows": 32,
+        "peak_source_lines": 36,
+        "pick_ms": 0.00447939040509056,
+        "rendered_size": [
+          1920,
+          1080
+        ],
+        "sample_seconds": 10.0,
+        "sim_ms": 9.68141934398408,
+        "simulation_seconds": 8.93333333333333,
+        "slow_33ms": 1,
+        "source_kinds": [
+          "band",
+          "band"
+        ],
+        "steps_per_frame": 1.0,
+        "view_ms": 4.41664975055595,
+        "wind_combination": "band",
+        "gate_passed": false,
+        "csv_frames": 534
+      },
+      {
+        "arrows_enabled": true,
+        "drag": false,
+        "final_backlog_ms": 2.18253968253963,
+        "frames": 935,
+        "gpu_ms": 2.24498584767714,
+        "input_ms": 0.0794481283422459,
+        "kind": "rain",
+        "layout": "needs_lab",
+        "max_backlog_ms": 16.6666666666666,
+        "min_sources": 0,
+        "p50": 13.161,
+        "p95": 15.545,
+        "p99": 16.47,
+        "peak_arrows": 0,
+        "peak_source_lines": 0,
+        "pick_ms": 0.0920160466974432,
+        "rendered_size": [
+          1920,
+          1080
+        ],
+        "sample_seconds": 10.0,
+        "sim_ms": 4.65546561664438,
+        "simulation_seconds": 10.0166666666667,
+        "slow_33ms": 0,
+        "source_kinds": [],
+        "steps_per_frame": 0.642780748663102,
+        "view_ms": 3.16359980782086,
+        "wind_combination": "band",
+        "gate_passed": true,
+        "csv_frames": 935
+      },
+      {
+        "arrows_enabled": true,
+        "drag": true,
+        "final_backlog_ms": 521.275714285715,
+        "frames": 576,
+        "gpu_ms": 3.93032031589084,
+        "input_ms": 0.143595486111111,
+        "kind": "rain",
+        "layout": "needs_lab",
+        "max_backlog_ms": 521.275714285715,
+        "min_sources": 2,
+        "p50": 17.132,
+        "p95": 19.34,
+        "p99": 20.001,
+        "peak_arrows": 32,
+        "peak_source_lines": 36,
+        "pick_ms": 0.00405207731657558,
+        "rendered_size": [
+          1920,
+          1080
+        ],
+        "sample_seconds": 10.0,
+        "sim_ms": 9.24326833089193,
+        "simulation_seconds": 9.63333333333333,
+        "slow_33ms": 0,
+        "source_kinds": [
+          "band",
+          "band"
+        ],
+        "steps_per_frame": 1.0,
+        "view_ms": 4.04692713419596,
+        "wind_combination": "band",
+        "gate_passed": false,
+        "csv_frames": 576
+      },
+      {
+        "arrows_enabled": true,
+        "drag": false,
+        "final_backlog_ms": 16.240000000001,
+        "frames": 1013,
+        "gpu_ms": 2.05437611827493,
+        "input_ms": 0.074319842053307,
+        "kind": "cold",
+        "layout": "needs_lab",
+        "max_backlog_ms": 16.651000000001,
+        "min_sources": 0,
+        "p50": 12.561,
+        "p95": 15.008,
+        "p99": 15.98,
+        "peak_arrows": 0,
+        "peak_source_lines": 0,
+        "pick_ms": 0.0858272239933598,
+        "rendered_size": [
+          1920,
+          1080
+        ],
+        "sample_seconds": 10.0,
+        "sim_ms": 4.14708496575765,
+        "simulation_seconds": 9.98333333333333,
+        "slow_33ms": 0,
+        "source_kinds": [],
+        "steps_per_frame": 0.590325765054294,
+        "view_ms": 2.95379186782762,
+        "wind_combination": "band",
+        "gate_passed": true,
+        "csv_frames": 1013
+      },
+      {
+        "arrows_enabled": true,
+        "drag": true,
+        "final_backlog_ms": 606.702333333329,
+        "frames": 570,
+        "gpu_ms": 3.8607725979989,
+        "input_ms": 0.144512280701754,
+        "kind": "cold",
+        "layout": "needs_lab",
+        "max_backlog_ms": 618.374333333331,
+        "min_sources": 2,
+        "p50": 17.468,
+        "p95": 19.557,
+        "p99": 20.8,
+        "peak_arrows": 32,
+        "peak_source_lines": 36,
+        "pick_ms": 0.00408946589419716,
+        "rendered_size": [
+          1920,
+          1080
+        ],
+        "sample_seconds": 10.0,
+        "sim_ms": 9.39647923519737,
+        "simulation_seconds": 9.53333333333333,
+        "slow_33ms": 0,
+        "source_kinds": [
+          "band",
+          "band"
+        ],
+        "steps_per_frame": 1.0,
+        "view_ms": 4.08079555578399,
+        "wind_combination": "band",
+        "gate_passed": false,
+        "csv_frames": 570
+      },
+      {
+        "arrows_enabled": true,
+        "drag": false,
+        "final_backlog_ms": 13.7489090909092,
+        "frames": 1081,
+        "gpu_ms": 1.9448093128469,
+        "input_ms": 0.166815911193339,
+        "kind": "cloud",
+        "layout": "needs_lab",
+        "max_backlog_ms": 16.6386666666668,
+        "min_sources": 0,
+        "p50": 11.464,
+        "p95": 14.024,
+        "p99": 14.994,
+        "peak_arrows": 0,
+        "peak_source_lines": 0,
+        "pick_ms": 0.157671664623504,
+        "rendered_size": [
+          1920,
+          1080
+        ],
+        "sample_seconds": 10.0,
+        "sim_ms": 3.33494919345513,
+        "simulation_seconds": 10.0,
+        "slow_33ms": 0,
+        "source_kinds": [],
+        "steps_per_frame": 0.554116558741906,
+        "view_ms": 2.82236364260523,
+        "wind_combination": "vortex",
+        "gate_passed": true,
+        "csv_frames": 1081
+      },
+      {
+        "arrows_enabled": true,
+        "drag": true,
+        "final_backlog_ms": 0.178000000000303,
+        "frames": 720,
+        "gpu_ms": 2.81908942328559,
+        "input_ms": 0.137855555555556,
+        "kind": "cloud",
+        "layout": "needs_lab",
+        "max_backlog_ms": 35.4440000000004,
+        "min_sources": 2,
+        "p50": 15.105,
+        "p95": 17.655,
+        "p99": 18.542,
+        "peak_arrows": 32,
+        "peak_source_lines": 35,
+        "pick_ms": 0.0035347193479538,
+        "rendered_size": [
+          1920,
+          1080
+        ],
+        "sample_seconds": 10.0,
+        "sim_ms": 6.92987738715278,
+        "simulation_seconds": 10.0,
+        "slow_33ms": 0,
+        "source_kinds": [
+          "vortex",
+          "vortex"
+        ],
+        "steps_per_frame": 0.833333333333333,
+        "view_ms": 3.50993313259549,
+        "wind_combination": "vortex",
+        "gate_passed": false,
+        "csv_frames": 720
+      },
+      {
+        "arrows_enabled": true,
+        "drag": false,
+        "final_backlog_ms": 3.54539393939428,
+        "frames": 821,
+        "gpu_ms": 2.80667601200898,
+        "input_ms": 0.276450669914738,
+        "kind": "rain",
+        "layout": "needs_lab",
+        "max_backlog_ms": 16.659666666667,
+        "min_sources": 0,
+        "p50": 13.848,
+        "p95": 16.873,
+        "p99": 18.036,
+        "peak_arrows": 0,
+        "peak_source_lines": 0,
+        "pick_ms": 0.284052301701907,
+        "rendered_size": [
+          1920,
+          1080
+        ],
+        "sample_seconds": 10.0,
+        "sim_ms": 5.36615265301462,
+        "simulation_seconds": 10.0166666666667,
+        "slow_33ms": 0,
+        "source_kinds": [],
+        "steps_per_frame": 0.730816077953715,
+        "view_ms": 3.28590413510582,
+        "wind_combination": "vortex",
+        "gate_passed": false,
+        "csv_frames": 821
+      },
+      {
+        "arrows_enabled": true,
+        "drag": true,
+        "final_backlog_ms": 435.82590909091,
+        "frames": 578,
+        "gpu_ms": 3.80579246864187,
+        "input_ms": 0.144126297577855,
+        "kind": "rain",
+        "layout": "needs_lab",
+        "max_backlog_ms": 435.82590909091,
+        "min_sources": 2,
+        "p50": 17.205,
+        "p95": 20.076,
+        "p99": 21.281,
+        "peak_arrows": 32,
+        "peak_source_lines": 35,
+        "pick_ms": 0.00422144513641674,
+        "rendered_size": [
+          1920,
+          1080
+        ],
+        "sample_seconds": 10.0,
+        "sim_ms": 9.32396531682526,
+        "simulation_seconds": 9.56666666666667,
+        "slow_33ms": 0,
+        "source_kinds": [
+          "vortex",
+          "vortex"
+        ],
+        "steps_per_frame": 0.98961937716263,
+        "view_ms": 4.03023373296929,
+        "wind_combination": "vortex",
+        "gate_passed": false,
+        "csv_frames": 578
+      },
+      {
+        "arrows_enabled": true,
+        "drag": false,
+        "final_backlog_ms": 15.3576137566132,
+        "frames": 787,
+        "gpu_ms": 2.71684123600302,
+        "input_ms": 0.236777636594664,
+        "kind": "cold",
+        "layout": "needs_lab",
+        "max_backlog_ms": 16.6493333333335,
+        "min_sources": 0,
+        "p50": 14.376,
+        "p95": 16.712,
+        "p99": 18.613,
+        "peak_arrows": 0,
+        "peak_source_lines": 0,
+        "pick_ms": 0.260135810590305,
+        "rendered_size": [
+          1920,
+          1080
+        ],
+        "sample_seconds": 10.0,
+        "sim_ms": 5.63930781944886,
+        "simulation_seconds": 10.0,
+        "slow_33ms": 0,
+        "source_kinds": [],
+        "steps_per_frame": 0.761118170266836,
+        "view_ms": 3.34544409396839,
+        "wind_combination": "vortex",
+        "gate_passed": false,
+        "csv_frames": 787
+      },
+      {
+        "arrows_enabled": true,
+        "drag": true,
+        "final_backlog_ms": 203.706386243387,
+        "frames": 628,
+        "gpu_ms": 3.6180031162918,
+        "input_ms": 0.138781847133758,
+        "kind": "cold",
+        "layout": "needs_lab",
+        "max_backlog_ms": 203.706386243387,
+        "min_sources": 2,
+        "p50": 16.382,
+        "p95": 18.553,
+        "p99": 19.247,
+        "peak_arrows": 32,
+        "peak_source_lines": 35,
+        "pick_ms": 0.00388693543756084,
+        "rendered_size": [
+          1920,
+          1080
+        ],
+        "sample_seconds": 10.0,
+        "sim_ms": 8.45529738505175,
+        "simulation_seconds": 9.8,
+        "slow_33ms": 0,
+        "source_kinds": [
+          "vortex",
+          "vortex"
+        ],
+        "steps_per_frame": 0.93312101910828,
+        "view_ms": 3.78580197862759,
+        "wind_combination": "vortex",
+        "gate_passed": false,
+        "csv_frames": 628
+      },
+      {
+        "arrows_enabled": true,
+        "drag": false,
+        "final_backlog_ms": 8.524060606061,
+        "frames": 1309,
+        "gpu_ms": 1.86143312971495,
+        "input_ms": 0.144411764705882,
+        "kind": "cloud",
+        "layout": "needs_lab",
+        "max_backlog_ms": 16.6623333333336,
+        "min_sources": 0,
+        "p50": 5.652,
+        "p95": 12.43,
+        "p99": 13.432,
+        "peak_arrows": 0,
+        "peak_source_lines": 0,
+        "pick_ms": 0.139041221624481,
+        "rendered_size": [
+          1920,
+          1080
+        ],
+        "sample_seconds": 10.0,
+        "sim_ms": 2.30945076006255,
+        "simulation_seconds": 10.0,
+        "slow_33ms": 0,
+        "source_kinds": [],
+        "steps_per_frame": 0.457601222307105,
+        "view_ms": 2.36691743458747,
+        "wind_combination": "mixed",
+        "gate_passed": true,
+        "csv_frames": 1309
+      },
+      {
+        "arrows_enabled": true,
+        "drag": true,
+        "final_backlog_ms": 39.7386060606066,
+        "frames": 695,
+        "gpu_ms": 2.96713480777878,
+        "input_ms": 0.140811510791367,
+        "kind": "cloud",
+        "layout": "needs_lab",
+        "max_backlog_ms": 93.3569393939396,
+        "min_sources": 2,
+        "p50": 15.474,
+        "p95": 18.04,
+        "p99": 19.505,
+        "peak_arrows": 32,
+        "peak_source_lines": 35,
+        "pick_ms": 0.0036359660059428,
+        "rendered_size": [
+          1920,
+          1080
+        ],
+        "sample_seconds": 10.0,
+        "sim_ms": 7.05584813399281,
+        "simulation_seconds": 9.96666666666667,
+        "slow_33ms": 0,
+        "source_kinds": [
+          "band",
+          "vortex"
+        ],
+        "steps_per_frame": 0.857553956834532,
+        "view_ms": 3.54901149392986,
+        "wind_combination": "mixed",
+        "gate_passed": false,
+        "csv_frames": 695
+      },
+      {
+        "arrows_enabled": true,
+        "drag": false,
+        "final_backlog_ms": 13.237575757576,
+        "frames": 954,
+        "gpu_ms": 2.32653987732573,
+        "input_ms": 0.148690775681342,
+        "kind": "rain",
+        "layout": "needs_lab",
+        "max_backlog_ms": 16.6593333333336,
+        "min_sources": 0,
+        "p50": 13.155,
+        "p95": 14.873,
+        "p99": 15.768,
+        "peak_arrows": 0,
+        "peak_source_lines": 0,
+        "pick_ms": 0.14686797200009,
+        "rendered_size": [
+          1920,
+          1080
+        ],
+        "sample_seconds": 10.0,
+        "sim_ms": 4.4194069788391,
+        "simulation_seconds": 10.0,
+        "slow_33ms": 0,
+        "source_kinds": [],
+        "steps_per_frame": 0.628930817610063,
+        "view_ms": 3.05240578321541,
+        "wind_combination": "mixed",
+        "gate_passed": true,
+        "csv_frames": 954
+      },
+      {
+        "arrows_enabled": true,
+        "drag": true,
+        "final_backlog_ms": 11.5946666666679,
+        "frames": 611,
+        "gpu_ms": 3.74206203329583,
+        "input_ms": 0.135729950900164,
+        "kind": "rain",
+        "layout": "needs_lab",
+        "max_backlog_ms": 76.4163333333342,
+        "min_sources": 2,
+        "p50": 16.358,
+        "p95": 18.285,
+        "p99": 19.192,
+        "peak_arrows": 32,
+        "peak_source_lines": 35,
+        "pick_ms": 0.00375777180573359,
+        "rendered_size": [
+          1920,
+          1080
+        ],
+        "sample_seconds": 10.0,
+        "sim_ms": 8.87132230718085,
+        "simulation_seconds": 10.05,
+        "slow_33ms": 0,
+        "source_kinds": [
+          "band",
+          "vortex"
+        ],
+        "steps_per_frame": 0.983633387888707,
+        "view_ms": 3.92310049803089,
+        "wind_combination": "mixed",
+        "gate_passed": false,
+        "csv_frames": 611
+      },
+      {
+        "arrows_enabled": true,
+        "drag": false,
+        "final_backlog_ms": 6.93515151515075,
+        "frames": 997,
+        "gpu_ms": 2.13414780474235,
+        "input_ms": 0.141389167502507,
+        "kind": "cold",
+        "layout": "needs_lab",
+        "max_backlog_ms": 16.6610000000002,
+        "min_sources": 0,
+        "p50": 12.827,
+        "p95": 14.444,
+        "p99": 15.149,
+        "peak_arrows": 0,
+        "peak_source_lines": 0,
+        "pick_ms": 0.140512510431686,
+        "rendered_size": [
+          1920,
+          1080
+        ],
+        "sample_seconds": 10.0,
+        "sim_ms": 4.15076773288616,
+        "simulation_seconds": 10.0,
+        "slow_33ms": 0,
+        "source_kinds": [],
+        "steps_per_frame": 0.600802407221665,
+        "view_ms": 2.94112097033287,
+        "wind_combination": "mixed",
+        "gate_passed": true,
+        "csv_frames": 997
+      },
+      {
+        "arrows_enabled": true,
+        "drag": true,
+        "final_backlog_ms": 5.09090909090944,
+        "frames": 622,
+        "gpu_ms": 3.60196796184184,
+        "input_ms": 0.135260450160772,
+        "kind": "cold",
+        "layout": "needs_lab",
+        "max_backlog_ms": 61.3204646464649,
+        "min_sources": 2,
+        "p50": 16.362,
+        "p95": 18.088,
+        "p99": 19.184,
+        "peak_arrows": 32,
+        "peak_source_lines": 35,
+        "pick_ms": 0.00371221484095337,
+        "rendered_size": [
+          1920,
+          1080
+        ],
+        "sample_seconds": 10.0,
+        "sim_ms": 8.62691858420418,
+        "simulation_seconds": 10.0,
+        "slow_33ms": 0,
+        "source_kinds": [
+          "band",
+          "vortex"
+        ],
+        "steps_per_frame": 0.961414790996785,
+        "view_ms": 3.87403756782556,
+        "wind_combination": "mixed",
+        "gate_passed": false,
+        "csv_frames": 622
+      }
+    ],
+    "bilinear_control": [
+      {
+        "arrows_enabled": true,
+        "drag": false,
+        "final_backlog_ms": 16.3126969696974,
+        "frames": 1443,
+        "gpu_ms": 1.57463021916147,
+        "input_ms": 0.184745668745669,
+        "kind": "cold",
+        "layout": "needs_lab",
+        "max_backlog_ms": 16.6614285714287,
+        "min_sources": 0,
+        "p50": 4.397,
+        "p95": 12.137,
+        "p99": 13.016,
+        "peak_arrows": 0,
+        "peak_source_lines": 0,
+        "pick_ms": 0.187195522125942,
+        "rendered_size": [
+          1920,
+          1080
+        ],
+        "sample_seconds": 10.0,
+        "sim_ms": 2.39648961987829,
+        "simulation_seconds": 10.0,
+        "slow_33ms": 0,
+        "source_kinds": [],
+        "steps_per_frame": 0.415800415800416,
+        "view_ms": 2.23911366294179,
+        "wind_combination": "band"
+      },
+      {
+        "arrows_enabled": true,
+        "drag": true,
+        "final_backlog_ms": 15.4067489177494,
+        "frames": 1075,
+        "gpu_ms": 1.90955986555233,
+        "input_ms": 0.0878865116279066,
+        "kind": "cold",
+        "layout": "needs_lab",
+        "max_backlog_ms": 16.6539393939398,
+        "min_sources": 2,
+        "p50": 12.43,
+        "p95": 14.218,
+        "p99": 14.971,
+        "peak_arrows": 32,
+        "peak_source_lines": 36,
+        "pick_ms": 0.00224093525908714,
+        "rendered_size": [
+          1920,
+          1080
+        ],
+        "sample_seconds": 10.0,
+        "sim_ms": 4.13344613008721,
+        "simulation_seconds": 10.0,
+        "slow_33ms": 0,
+        "source_kinds": [
+          "band",
+          "band"
+        ],
+        "steps_per_frame": 0.557209302325581,
+        "view_ms": 2.66001862281977,
+        "wind_combination": "band"
+      }
+    ],
+    "radial_repeat": [
+      {
+        "arrows_enabled": true,
+        "drag": false,
+        "final_backlog_ms": 12.5402727272729,
+        "frames": 1545,
+        "gpu_ms": 1.81302541590817,
+        "input_ms": 0.16163495145631,
+        "kind": "cold",
+        "layout": "needs_lab",
+        "max_backlog_ms": 16.6572380952385,
+        "min_sources": 0,
+        "p50": 4.153,
+        "p95": 11.531,
+        "p99": 12.333,
+        "peak_arrows": 0,
+        "peak_source_lines": 0,
+        "pick_ms": 0.165315804589528,
+        "rendered_size": [
+          1920,
+          1080
+        ],
+        "sample_seconds": 10.0,
+        "sim_ms": 2.15627243881473,
+        "simulation_seconds": 9.98333333333333,
+        "slow_33ms": 0,
+        "source_kinds": [],
+        "steps_per_frame": 0.387702265372168,
+        "view_ms": 2.12380853054207,
+        "wind_combination": "band"
+      },
+      {
+        "arrows_enabled": true,
+        "drag": true,
+        "final_backlog_ms": 2.50993939393973,
+        "frames": 936,
+        "gpu_ms": 2.23089912610176,
+        "input_ms": 0.107857905982906,
+        "kind": "cold",
+        "layout": "needs_lab",
+        "max_backlog_ms": 16.6666666666667,
+        "min_sources": 2,
+        "p50": 13.221,
+        "p95": 15.665,
+        "p99": 16.487,
+        "peak_arrows": 32,
+        "peak_source_lines": 36,
+        "pick_ms": 0.00267521234659048,
+        "rendered_size": [
+          1920,
+          1080
+        ],
+        "sample_seconds": 10.0,
+        "sim_ms": 4.86157852564103,
+        "simulation_seconds": 10.0166666666667,
+        "slow_33ms": 0,
+        "source_kinds": [
+          "band",
+          "band"
+        ],
+        "steps_per_frame": 0.639957264957265,
+        "view_ms": 2.91365246895032,
+        "wind_combination": "band"
+      }
+    ],
+    "conclusion": "首轮短样有超标及积累；紧接旧显示的同项新显示复测恢复门槛，模拟CPU耗时也显著变化。不能将超标单独归因显示重建，亦不能用复测覆盖首轮失败。正式空闲验收待完成。"
+  },
+  "deferred": [
+    "两张测试图12项，每项预热5秒＋采样60秒的正式空闲验收",
+    "用户确认拖动手感与圆润程度",
+    "风主题评价与空心雨滴美术"
+  ],
+  "previews": {
+    "retained_png_count": 5,
+    "normal_gameplay": [
+      "docs/previews/wind-source-play.png",
+      "docs/previews/needs-route-rain.png",
+      "docs/previews/needs-route-result.png"
+    ],
+    "other_captures": "仅.godot缓存",
+    "preview_capture": ".godot/vortex-preview.png",
+    "radial_fixture": ".godot/moisture-round.png"
+  }
+}

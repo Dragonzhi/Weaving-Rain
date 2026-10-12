@@ -115,6 +115,21 @@ extends Resource
 ## 冷风抬升所需的最低冷空气强度；当前效率从此值至强度 0.8 平滑增加，建议保持低于 0.8。
 ## 调大使弱冷区更早失去造云能力；调小让较弱残留也能参与。仍需有效梯度与迎面气流，非达到强度就自动造云。
 @export var cold_minimum: float = 0.10
+@export_group("漩涡")
+## 弱／中／强的向内基础加速度，世界单位/秒²；预览时滚轮选档，生成后固定。
+## 调大对应档更快聚集，也更易集中降雨；调小收拢更缓。0–10 严格升序，F6 应用。
+@export var vortex_inward_acceleration := Vector3(0.7, 1.4, 2.8)
+## 切向旋转加速度，世界单位/秒²，0–10，F6 应用；独立于收拢档位。
+## 调大绕转更明显，调小更接近向内汇聚；0 仅取消切向施力，手势方向仍保存。
+@export var vortex_rotation_acceleration := 1.4
+## 拖动可设置的最小／最大世界半径，0.5–8；起点为中心，起终点距离决定范围。
+## 调大最大值可聚集更远天气；F6 后下一笔应用，当前预览与已有范围不变，超限不会自动缩小。
+@export var vortex_radius_limits := Vector2(0.75, 5.0)
+## 核心区占半径比例，0.1–0.5；实际至少一个网格间距。核心内加速度向中心平滑降零。
+## 调大聚成更宽的一团，调小更集中、雨量峰值可能更大；F6 应用并重建风源权重。
+@export var vortex_core_fraction := 0.20
+## 外缘柔化区比例，0.05–0.5；越大越早减弱边缘推力，越小有效收拢覆盖更靠近轮廓。F6 应用。
+@export var vortex_edge_fraction := 0.20
 @export_group("目标")
 ## 地块适量水量下限，须小于 flood_water；达到后仍需清除附近危险天气并维持安全。
 ## 调大需要更多降雨，且在过量上限不变时缩小容错区间；调小更早够水，也需要更早开始移开雨云。
@@ -126,7 +141,7 @@ extends Resource
 ## 已够水且安全范围内无危险天气时，确认完成所需连续时间，秒，须大于 0。
 ## 调大要求更稳定的收尾；调小更快确认。危险天气重新出现会清零计时，此项不是整局倒计时。
 @export var safe_seconds: float = 2.0
-## 正式三地块星级关卡达到三星后，自动结算前的展示时间，单位秒；重试生效。
+## 任意田数的计星测试局全部保住后，自动结算前的展示时间，单位秒；重试生效。
 ## 调大给玩家更多观察和立即结算的时间，调小更快结束；期间天气继续运行，失星取消并从头倒数。
 @export_range(0.1, 30.0, 0.1) var three_star_finish_seconds: float = 3.0
 ## 正方形受雨地块的半边长，世界单位，须大于 0；边长为此值的两倍，重试后重建覆盖判定。
@@ -144,7 +159,8 @@ extends Resource
 @export var edge_decay := 1.8
 
 const LIVE_FIELDS := ["hold_gain", "source_powers", "brush_radius", "max_wind", "wind_decay", "wind_spread", "rain_response",
-	"stroke_min_power", "stroke_max_power", "stroke_speed_full", "stroke_gain", "cloud_drag", "rainy_cloud_response"]
+	"stroke_min_power", "stroke_max_power", "stroke_speed_full", "stroke_gain", "cloud_drag", "rainy_cloud_response",
+	"vortex_inward_acceleration", "vortex_rotation_acceleration", "vortex_radius_limits", "vortex_core_fraction", "vortex_edge_fraction"]
 
 func validation_errors() -> PackedStringArray:
 	var errors := PackedStringArray()
@@ -169,6 +185,13 @@ func validation_errors() -> PackedStringArray:
 	if safe_half < plot_half: errors.append("safe_half：须不小于 plot_half")
 	if flood_water <= target_water: errors.append("flood_water：须大于 target_water")
 	if not open_boundary: errors.append("open_boundary：正式配置须开启；旧封闭回归请直接构造开发模拟")
+	if not vortex_inward_acceleration.is_finite() or vortex_inward_acceleration.x < 0 or vortex_inward_acceleration.z > 10 or vortex_inward_acceleration.x >= vortex_inward_acceleration.y or vortex_inward_acceleration.y >= vortex_inward_acceleration.z:
+		errors.append("vortex_inward_acceleration：三档须为有限、严格递增的0–10加速度")
+	if vortex_rotation_acceleration > 10: errors.append("vortex_rotation_acceleration：须在0–10")
+	if not vortex_radius_limits.is_finite() or vortex_radius_limits.x < 0.5 or vortex_radius_limits.y > 8 or vortex_radius_limits.x > vortex_radius_limits.y:
+		errors.append("vortex_radius_limits：须为0.5–8的递增半径")
+	for rule in [["vortex_core_fraction", 0.1, 0.5], ["vortex_edge_fraction", 0.05, 0.5]]:
+		if get(rule[0]) < rule[1] or get(rule[0]) > rule[2]: errors.append("%s：须在%.2f–%.2f" % rule)
 	return errors
 
 func apply_live(source: WRWeatherSettings) -> void:

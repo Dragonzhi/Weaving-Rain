@@ -21,7 +21,7 @@ func run() -> void:
 			if trace: print("TRACE ", tick / 60.0, " ", sim.plot_waters, " ", command.get("kind", ""), " ", command.get("target", -1))
 			if not command.is_empty(): sim.stroke(command.from, command.to, command.speed)
 		sim.step(Sim.FIXED_STEP)
-		if sim.can_finish() and (sim.earned_stars() == 2 or (late > 0 and sim.plot_destroyed.any(func(v): return v))): sim.finish()
+		if sim.can_finish() and late > 0 and sim.plot_destroyed.any(func(v): return v): sim.finish()
 		if tick % 1200 == 0: print("NEEDS t=", tick / 60.0, " water=", sim.plot_waters, " destroyed=", sim.plot_destroyed)
 		if sim.outcome != "playing": break
 	var report := controller.report(sim)
@@ -31,5 +31,5 @@ func run() -> void:
 	file.store_string(JSON.stringify(report, "\t"))
 	report.erase("actions")
 	print("NEEDS ROUTE ", JSON.stringify(report))
-	var pass_result: bool = sim.result_stars == 1 and sim.plot_destroyed.any(func(v): return v) if late > 0 else sim.result_stars == 2
+	var pass_result: bool = sim.result_stars == 1 and sim.plot_destroyed.any(func(v): return v) if late > 0 else sim.result_stars == 3
 	quit(0 if pass_result and sim.outcome == "success" and not sim.timed_out and absf(report.water_error) < 0.01 else 1)

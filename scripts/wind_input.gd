@@ -16,6 +16,9 @@ var path_points := PackedVector2Array()
 var path_times := PackedFloat64Array()
 var tool := "brush"
 var source_tier := 1
+var gesture_button: MouseButton = MOUSE_BUTTON_LEFT
+var vortex_spin := 1
+var vortex_radius_limits := Vector2(0.75, 5.0)
 var gesture_start := Vector2.ZERO
 var gesture_time := 0.0
 var gesture_distance := 0.0
@@ -47,6 +50,7 @@ func cancel() -> void:
 	path_times.resize(0)
 
 func append_point(point: Vector2, seconds: float) -> void:
+	if tool == "vortex": return
 	path_points.append(point)
 	path_times.append(seconds)
 
@@ -101,6 +105,12 @@ func select_tool(value: String) -> void:
 	cancel()
 	tool = value
 
+func vortex_preview() -> Dictionary:
+	var radius := gesture_start.distance_to(Vector2(brush_point.x, brush_point.z))
+	var valid := radius >= vortex_radius_limits.x and radius <= vortex_radius_limits.y
+	return {"center": gesture_start, "radius": radius, "spin": vortex_spin, "tier": source_tier, "ok": valid,
+		"reason": ("顺时针" if vortex_spin > 0 else "逆时针") + " · 半径 %.2f" % radius if valid else "半径须在 %.2f–%.1f" % [vortex_radius_limits.x, vortex_radius_limits.y]}
+
 func update_held(now_seconds: float = -1.0) -> void:
 	var now := Time.get_ticks_usec() / 1000000.0 if now_seconds < 0.0 else now_seconds
 	if enabled and dragging and tool == "brush" and gesture_direction != Vector2.ZERO and now - last_motion_seconds >= 0.12:
@@ -118,6 +128,21 @@ func release_at(screen: Vector2) -> void:
 			if not result.ok:
 				message = result.reason
 				message_until = Time.get_ticks_msec() + 2500
+	elif tool == "vortex" and valid and enabled:
+		var released: Variant = _on_plane(screen, reference_height)
+		if released != null: brush_point = released
+		var gesture := vortex_preview()
+		var result := {"ok": false, "reason": gesture.reason}
+		if gesture.radius < 0.25:
+			cancel()
+			return
+		if gesture.ok and released != null and Sim.contains(Vector2(released.x, released.z)):
+			result = sim.add_vortex(gesture.center, gesture.radius, gesture.spin, gesture.tier)
+		elif gesture.ok:
+			result.reason = "请在天气区域内松手"
+		if not result.ok:
+			message = result.reason
+			message_until = Time.get_ticks_msec() + 2500
 	elif tool == "brush": flush()
 	cancel()
 
@@ -184,12 +209,16 @@ func update_hover() -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.pressed and event.button_index in [MOUSE_BUTTON_WHEEL_UP, MOUSE_BUTTON_WHEEL_DOWN]:
-		if enabled and dragging and tool == "source" and sim.outcome == "playing" and (hud == null or not hud.blocks_wind(event.position)):
+		if enabled and dragging and tool in ["source", "vortex"] and sim.outcome == "playing" and (hud == null or not hud.blocks_wind(event.position)):
 			source_tier = clampi(source_tier + (1 if event.button_index == MOUSE_BUTTON_WHEEL_UP else -1), 0, 2)
 			get_viewport().set_input_as_handled()
-	elif event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
+	elif event is InputEventMouseButton and event.button_index in [MOUSE_BUTTON_LEFT, MOUSE_BUTTON_RIGHT]:
+		if event.button_index == MOUSE_BUTTON_RIGHT and tool != "vortex": return
 		if not event.pressed:
-			release_at(event.position)
+			if event.button_index == gesture_button: release_at(event.position)
+			return
+		if dragging:
+			get_viewport().set_input_as_handled()
 			return
 		if not enabled or sim.outcome != "playing":
 			return
@@ -202,6 +231,9 @@ func _unhandled_input(event: InputEvent) -> void:
 		last_point = Vector2(brush_point.x, brush_point.z)
 		last_time = Time.get_ticks_usec()
 		gesture_start = last_point
+		gesture_button = event.button_index
+		vortex_spin = 1 if gesture_button == MOUSE_BUTTON_LEFT else -1
+		vortex_radius_limits = sim.settings.vortex_radius_limits
 		source_tier = 1
 		gesture_time = last_time / 1000000.0
 		last_motion_seconds = gesture_time
@@ -221,6 +253,11 @@ func _unhandled_input(event: InputEvent) -> void:
 			return
 		brush_point = hit
 		var point := Vector2(brush_point.x, brush_point.z)
+		if tool == "vortex" and not Sim.contains(point):
+			cancel()
+			message = "范围端点须在天气区域内"
+			message_until = Time.get_ticks_msec() + 2500
+			return
 		var now := Time.get_ticks_usec()
 		var distance := point.distance_to(last_point)
 		gesture_distance += distance
@@ -237,5 +274,5 @@ func _input(event: InputEvent) -> void:
 		flush()
 		cancel()
 	# Release is observed even if the cursor finishes over a UI button.
-	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and not event.pressed:
+	if event is InputEventMouseButton and event.button_index == gesture_button and not event.pressed:
 		release_at(event.position)

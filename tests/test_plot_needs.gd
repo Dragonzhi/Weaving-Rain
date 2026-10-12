@@ -35,7 +35,7 @@ func _init() -> void:
 	sim.update_goal(0.5)
 	check(sim.plot_status(1) == "confirming", "Removing threat starts a fresh safety interval")
 	sim.update_goal(2.0)
-	check(sim.earned_stars() == 1 and sim.three_star_remaining() < 0, "Two-plot sample uses normal safe stars without three-star countdown")
+	check(sim.earned_stars() == 1 and sim.three_star_remaining() < 0, "Two-plot sample uses normal safe stars without a perfect countdown until both fields are saved")
 	sim.plot_waters[1] = 55
 	sim.update_goal(0.1)
 	check(not sim.plot_destroyed[1] and sim.plot_warning(1) == 1.0, "At limit stays yellow and alive")

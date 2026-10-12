@@ -1,0 +1,1579 @@
+{
+  "date": "2026-10-12",
+  "baseline_commit": "2cb6873",
+  "implementation": "playable_vortex_and_rating_v2",
+  "new_changes_committed": true,
+  "rating": {
+    "version": 2,
+    "zero_saved": 0,
+    "all_saved": 3,
+    "one_saved_not_all": 1,
+    "other_saved": 2,
+    "automatic_full_save_finish": "all positive field counts",
+    "editable_field_count": "1–3",
+    "pure_rating_test_counts": "1–6",
+    "old_records_backed_up": true,
+    "unknown_custom_records_preserved": true
+  },
+  "validation": {
+    "complete_check_coverage_passed": true,
+    "distinct_checks": 691,
+    "playthroughs": 23,
+    "single_full_invocation_passed": false,
+    "initial_stop": "needs-viewport-route",
+    "failed_route_retries_retained": true,
+    "resumed_from": "needs-viewport-route",
+    "remaining_checks_passed": true,
+    "additional_repeat_pairs": 1,
+    "actual_circle_scene_sizes": [
+      "1920x1080",
+      "1280x720"
+    ],
+    "checks": [
+      {
+        "name": "weather",
+        "checks": 32,
+        "script_errors": false
+      },
+      {
+        "name": "cold-weather",
+        "checks": 22,
+        "script_errors": false
+      },
+      {
+        "name": "onboarding",
+        "checks": 19,
+        "script_errors": false
+      },
+      {
+        "name": "layouts",
+        "checks": 33,
+        "script_errors": false
+      },
+      {
+        "name": "wind-path",
+        "checks": 6,
+        "script_errors": false
+      },
+      {
+        "name": "compact-feedback",
+        "checks": 25,
+        "script_errors": false
+      },
+      {
+        "name": "hud-layouts",
+        "checks": 21,
+        "script_errors": false
+      },
+      {
+        "name": "wind-tools",
+        "checks": 44,
+        "script_errors": false
+      },
+      {
+        "name": "wind-tools-scene",
+        "checks": 36,
+        "script_errors": false
+      },
+      {
+        "name": "open-boundary",
+        "checks": 35,
+        "script_errors": false
+      },
+      {
+        "name": "map-resources",
+        "checks": 18,
+        "script_errors": false
+      },
+      {
+        "name": "plot-needs",
+        "checks": 24,
+        "script_errors": false
+      },
+      {
+        "name": "plot-needs-scene",
+        "checks": 16,
+        "script_errors": false
+      },
+      {
+        "name": "star-levels",
+        "checks": 54,
+        "script_errors": false
+      },
+      {
+        "name": "water-reserve",
+        "checks": 22,
+        "script_errors": false
+      },
+      {
+        "name": "three-star-finish",
+        "checks": 22,
+        "script_errors": false
+      },
+      {
+        "name": "rating",
+        "checks": 39,
+        "script_errors": false
+      },
+      {
+        "name": "vortex-gesture",
+        "checks": 33,
+        "script_errors": false
+      },
+      {
+        "name": "vortex-wind",
+        "checks": 10,
+        "script_errors": false
+      },
+      {
+        "name": "vortex-scene",
+        "checks": 28,
+        "script_errors": false
+      },
+      {
+        "name": "vortex-gather",
+        "checks": 0,
+        "script_errors": false
+      },
+      {
+        "name": "editor-map",
+        "checks": 24,
+        "script_errors": false
+      },
+      {
+        "name": "tuning",
+        "checks": 11,
+        "script_errors": false
+      },
+      {
+        "name": "scene",
+        "checks": 37,
+        "script_errors": false
+      },
+      {
+        "name": "star-scene",
+        "checks": 43,
+        "script_errors": false
+      },
+      {
+        "name": "plot-feedback",
+        "checks": 18,
+        "script_errors": false
+      },
+      {
+        "name": "render-fields",
+        "checks": 11,
+        "script_errors": false
+      },
+      {
+        "name": "cloud-surface",
+        "checks": 8,
+        "script_errors": false
+      },
+      {
+        "name": "replay",
+        "checks": 0,
+        "script_errors": false
+      },
+      {
+        "name": "lesson-replay",
+        "checks": 0,
+        "script_errors": false
+      },
+      {
+        "name": "dual-mountain",
+        "checks": 0,
+        "script_errors": false
+      },
+      {
+        "name": "dual-relay",
+        "checks": 0,
+        "script_errors": false
+      },
+      {
+        "name": "far-mountain",
+        "checks": 0,
+        "script_errors": false
+      },
+      {
+        "name": "far-relay",
+        "checks": 0,
+        "script_errors": false
+      },
+      {
+        "name": "close-mountain",
+        "checks": 0,
+        "script_errors": false
+      },
+      {
+        "name": "close-reverse",
+        "checks": 0,
+        "script_errors": false
+      },
+      {
+        "name": "ridges-mountain",
+        "checks": 0,
+        "script_errors": false
+      },
+      {
+        "name": "meadow-level",
+        "checks": 0,
+        "script_errors": false
+      },
+      {
+        "name": "valleys-level",
+        "checks": 0,
+        "script_errors": false
+      },
+      {
+        "name": "meadow-three-abc",
+        "checks": 0,
+        "script_errors": false
+      },
+      {
+        "name": "meadow-three-cab",
+        "checks": 0,
+        "script_errors": false
+      },
+      {
+        "name": "valleys-three-mountain",
+        "checks": 0,
+        "script_errors": false
+      },
+      {
+        "name": "valleys-three-relay",
+        "checks": 0,
+        "script_errors": false
+      },
+      {
+        "name": "valleys-late-clear",
+        "checks": 0,
+        "script_errors": false
+      },
+      {
+        "name": "wind-tools-route",
+        "checks": 0,
+        "script_errors": false
+      },
+      {
+        "name": "needs-ordinary-first",
+        "checks": 0,
+        "script_errors": false
+      },
+      {
+        "name": "needs-seedling-first",
+        "checks": 0,
+        "script_errors": false
+      },
+      {
+        "name": "needs-partial-loss",
+        "checks": 0,
+        "script_errors": false
+      },
+      {
+        "name": "needs-viewport-route",
+        "checks": 0,
+        "script_errors": false
+      },
+      {
+        "name": "vortex-viewport-route",
+        "checks": 0,
+        "script_errors": false
+      },
+      {
+        "name": "vortex-control-route",
+        "checks": 0,
+        "script_errors": false
+      }
+    ]
+  },
+  "routes": [
+    {
+      "case": "vortex",
+      "data": {
+        "band_closed": true,
+        "band_placed": true,
+        "blocked": 0,
+        "circle_path_length": 29.0283161191697,
+        "cold_lift": 39.0282671459786,
+        "destroyed": [
+          false,
+          false
+        ],
+        "elapsed": 43.8166666666655,
+        "events": 4296,
+        "front_strokes": 0,
+        "gesture_count": 76,
+        "input_pick_error": 0.0,
+        "layout": "needs_lab",
+        "limit": 180.0,
+        "order": [
+          0,
+          1
+        ],
+        "outcome": "success",
+        "per_target": [
+          {
+            "distance": 46.5,
+            "front": 0,
+            "strokes": 27,
+            "transport": 20
+          },
+          {
+            "distance": 29.1000001430511,
+            "front": 0,
+            "strokes": 48,
+            "transport": 12
+          },
+          {
+            "distance": 0.0,
+            "front": 0,
+            "strokes": 0,
+            "transport": 0
+          }
+        ],
+        "route": "mountain",
+        "saved_count": 2,
+        "stars": 3,
+        "strokes": 75,
+        "total_path_length": 198.028313734984,
+        "transport_distance": 75.6000001430511,
+        "transport_strokes": 32,
+        "vortex": {
+          "active_seconds": 2.0,
+          "after": {
+            "core_mass": 28.7199935913086,
+            "mass": 591.465003211228,
+            "rms_radius": 8.60070619275902
+          },
+          "before": {
+            "core_mass": 9.44615077972412,
+            "mass": 591.465173393976,
+            "rms_radius": 8.60832924561268
+          },
+          "center": [
+            -6.20000123977661,
+            1.39999985694885
+          ],
+          "lifetime": 30.0,
+          "radius": 2.19998301484368,
+          "spin": 1,
+          "tier": 0
+        },
+        "vortex_closed": true,
+        "water": [
+          103.735658043311,
+          46.1257487611897
+        ],
+        "water_error": -0.000451941952178458
+      }
+    },
+    {
+      "case": "control",
+      "data": {
+        "band_closed": true,
+        "band_placed": true,
+        "blocked": 0,
+        "circle_path_length": 0.0,
+        "cold_lift": 65.7183531836366,
+        "destroyed": [
+          false,
+          false
+        ],
+        "elapsed": 47.5999999999986,
+        "events": 4231,
+        "front_strokes": 0,
+        "gesture_count": 114,
+        "input_pick_error": 0.0,
+        "layout": "needs_lab",
+        "limit": 180.0,
+        "order": [
+          0,
+          1
+        ],
+        "outcome": "success",
+        "per_target": [
+          {
+            "distance": 44.7000007629395,
+            "front": 0,
+            "strokes": 26,
+            "transport": 19
+          },
+          {
+            "distance": 68.7000017166138,
+            "front": 0,
+            "strokes": 88,
+            "transport": 29
+          },
+          {
+            "distance": 0.0,
+            "front": 0,
+            "strokes": 0,
+            "transport": 0
+          }
+        ],
+        "route": "mountain",
+        "saved_count": 2,
+        "stars": 3,
+        "strokes": 114,
+        "total_path_length": 254.999999284744,
+        "transport_distance": 113.400002479553,
+        "transport_strokes": 48,
+        "vortex": {},
+        "vortex_closed": false,
+        "water": [
+          106.120904475238,
+          40.0234626120503
+        ],
+        "water_error": -0.000862505101963507
+      }
+    },
+    {
+      "case": "vortex-repeat",
+      "data": {
+        "band_closed": true,
+        "band_placed": true,
+        "blocked": 0,
+        "circle_path_length": 29.0283161191697,
+        "cold_lift": 38.0867131938266,
+        "destroyed": [
+          false,
+          false
+        ],
+        "elapsed": 43.8166666666655,
+        "events": 4131,
+        "front_strokes": 0,
+        "gesture_count": 76,
+        "input_pick_error": 0.0,
+        "layout": "needs_lab",
+        "limit": 180.0,
+        "order": [
+          0,
+          1
+        ],
+        "outcome": "success",
+        "per_target": [
+          {
+            "distance": 44.3999998569489,
+            "front": 0,
+            "strokes": 27,
+            "transport": 19
+          },
+          {
+            "distance": 29.1000006198883,
+            "front": 0,
+            "strokes": 48,
+            "transport": 12
+          },
+          {
+            "distance": 0.0,
+            "front": 0,
+            "strokes": 0,
+            "transport": 0
+          }
+        ],
+        "route": "mountain",
+        "saved_count": 2,
+        "stars": 3,
+        "strokes": 75,
+        "total_path_length": 197.628313997244,
+        "transport_distance": 73.5000004768372,
+        "transport_strokes": 31,
+        "vortex": {
+          "active_seconds": 2.04999999999988,
+          "after": {
+            "core_mass": 28.5081152915955,
+            "mass": 591.465019373143,
+            "rms_radius": 8.60077643546467
+          },
+          "before": {
+            "core_mass": 9.44093942642212,
+            "mass": 591.465174168836,
+            "rms_radius": 8.6083317888827
+          },
+          "center": [
+            -6.20000171661377,
+            1.39999961853027
+          ],
+          "hold_seconds": 2.0,
+          "lifetime": 30.0,
+          "radius": 2.19998547597365,
+          "spin": 1,
+          "tier": 0
+        },
+        "vortex_closed": true,
+        "water": [
+          106.35786982892,
+          45.9940618804951
+        ],
+        "water_error": -0.000506666401975053
+      }
+    },
+    {
+      "case": "control-repeat",
+      "data": {
+        "band_closed": true,
+        "band_placed": true,
+        "blocked": 0,
+        "circle_path_length": 0.0,
+        "cold_lift": 43.9788962934027,
+        "destroyed": [
+          false,
+          false
+        ],
+        "elapsed": 33.8333333333327,
+        "events": 2095,
+        "front_strokes": 0,
+        "gesture_count": 83,
+        "input_pick_error": 0.0,
+        "layout": "needs_lab",
+        "limit": 180.0,
+        "order": [
+          0,
+          1
+        ],
+        "outcome": "success",
+        "per_target": [
+          {
+            "distance": 48.8999996185303,
+            "front": 0,
+            "strokes": 29,
+            "transport": 21
+          },
+          {
+            "distance": 29.7000002861023,
+            "front": 0,
+            "strokes": 54,
+            "transport": 12
+          },
+          {
+            "distance": 0.0,
+            "front": 0,
+            "strokes": 0,
+            "transport": 0
+          }
+        ],
+        "route": "mountain",
+        "saved_count": 2,
+        "stars": 3,
+        "strokes": 83,
+        "total_path_length": 186.699997067451,
+        "transport_distance": 78.5999999046326,
+        "transport_strokes": 33,
+        "vortex": {},
+        "vortex_closed": false,
+        "water": [
+          104.399194329633,
+          40.4365119910783
+        ],
+        "water_error": -0.000506892779526424
+      }
+    }
+  ],
+  "comparison_note": "两组中漩涡均减少输送笔数及天气手势总笔数，但对照耗时与路径长度波动较大，不能宣称稳定更快；界面工具／关闭点击未计入笔数，漩涡额外三次界面点击。圈绘制路径已加入 total_path_length。第一组 active_seconds 是名义等待时间，重复组按实际源剩余寿命记录。",
+  "failed_routes": [
+    {
+      "log": ".godot/vortex-route-initial.log",
+      "data": {
+        "band_closed": true,
+        "band_placed": true,
+        "blocked": 0,
+        "circle_path_length": 29.0283161191697,
+        "cold_lift": 30.3871643456769,
+        "destroyed": [
+          false,
+          true
+        ],
+        "elapsed": 180.0,
+        "events": 4039,
+        "front_strokes": 0,
+        "gesture_count": 72,
+        "input_pick_error": 0.0,
+        "layout": "needs_lab",
+        "limit": 180.0,
+        "order": [
+          0,
+          1
+        ],
+        "outcome": "success",
+        "per_target": [
+          {
+            "distance": 44.6999998092651,
+            "front": 0,
+            "strokes": 25,
+            "transport": 19
+          },
+          {
+            "distance": 47.4000000953674,
+            "front": 0,
+            "strokes": 46,
+            "transport": 20
+          },
+          {
+            "distance": 0.0,
+            "front": 0,
+            "strokes": 0,
+            "transport": 0
+          }
+        ],
+        "route": "mountain",
+        "saved_count": 1,
+        "stars": 1,
+        "strokes": 71,
+        "transport_distance": 92.0999999046326,
+        "transport_strokes": 39,
+        "vortex": {
+          "active_seconds": 4.0,
+          "after": {
+            "core_mass": 48.5381040573121,
+            "mass": 591.464853375152,
+            "rms_radius": 8.59414134724689
+          },
+          "before": {
+            "core_mass": 9.44093942642212,
+            "mass": 591.465172998107,
+            "rms_radius": 8.6083317721462
+          },
+          "lifetime": 30.0,
+          "radius": 2.19998222047632,
+          "tier": 0
+        },
+        "vortex_closed": true,
+        "water": [
+          103.966983201984,
+          76.7750068247516
+        ],
+        "water_error": -0.00676995654464463
+      }
+    },
+    {
+      "log": ".godot/needs-viewport-first-failed.log",
+      "data": {
+        "band": {
+          "end": [
+            -3.65793037414551,
+            0.294363021850586
+          ],
+          "lifetime": 30.0,
+          "start": [
+            -6.38675355911255,
+            1.54078722000122
+          ],
+          "strength": 0.0
+        },
+        "blocked": 0,
+        "cold_lift": 46.9417969959834,
+        "destroyed": [
+          false,
+          true
+        ],
+        "elapsed": 180.0,
+        "events": 2841,
+        "front_strokes": 0,
+        "input_pick_error": 0.0,
+        "layout": "needs_lab",
+        "limit": 180.0,
+        "order": [
+          0,
+          1
+        ],
+        "outcome": "success",
+        "per_target": [
+          {
+            "distance": 42.6000006198883,
+            "front": 0,
+            "strokes": 25,
+            "transport": 18
+          },
+          {
+            "distance": 48.0000016689301,
+            "front": 0,
+            "strokes": 47,
+            "transport": 20
+          },
+          {
+            "distance": 0.0,
+            "front": 0,
+            "strokes": 0,
+            "transport": 0
+          }
+        ],
+        "placed": true,
+        "removed": true,
+        "route": "mountain",
+        "stars": 1,
+        "strokes": 72,
+        "transport_distance": 90.6000022888184,
+        "transport_strokes": 38,
+        "water": [
+          106.319978955636,
+          63.9820305722294
+        ],
+        "water_error": -0.00865599668145478
+      }
+    },
+    {
+      "log": ".godot/needs-viewport-second-failed.log",
+      "data": {
+        "band": {
+          "end": [
+            -3.65793037414551,
+            0.294363021850586
+          ],
+          "lifetime": 30.0,
+          "start": [
+            -6.38675355911255,
+            1.54078722000122
+          ],
+          "strength": 0.0
+        },
+        "blocked": 0,
+        "cold_lift": 46.626854136497,
+        "destroyed": [
+          false,
+          true
+        ],
+        "elapsed": 180.0,
+        "events": 2873,
+        "front_strokes": 0,
+        "input_pick_error": 0.0,
+        "layout": "needs_lab",
+        "limit": 180.0,
+        "order": [
+          0,
+          1
+        ],
+        "outcome": "success",
+        "per_target": [
+          {
+            "distance": 42.6000006198883,
+            "front": 0,
+            "strokes": 25,
+            "transport": 18
+          },
+          {
+            "distance": 48.0000016689301,
+            "front": 0,
+            "strokes": 47,
+            "transport": 20
+          },
+          {
+            "distance": 0.0,
+            "front": 0,
+            "strokes": 0,
+            "transport": 0
+          }
+        ],
+        "placed": true,
+        "removed": true,
+        "route": "mountain",
+        "stars": 1,
+        "strokes": 72,
+        "transport_distance": 90.6000022888184,
+        "transport_strokes": 38,
+        "water": [
+          106.170198235689,
+          64.6296259255358
+        ],
+        "water_error": -0.00826698559558281
+      }
+    }
+  ],
+  "route_adjustments": [
+    "短时收拢2秒，避免4秒样本的幼苗过量",
+    "仅开发控制器增加幼苗预测窗口为7秒",
+    "真实路线在幼苗清雨阶段以0.25秒调度拨风；普通阶段仍0.5秒；游戏规则和阈值未改"
+  ],
+  "gather_fixture": {
+    "normal_gameplay_evidence": false,
+    "description": "平地环形注入字段，中档，半径2.5，核心0.5；3/8/15秒测量",
+    "records": [
+      {
+        "kind": "humidity",
+        "radius": 2.5,
+        "samples": [
+          {
+            "core_fraction": 0.000170848243733141,
+            "mass": 24.9522361996922,
+            "rain_rate": 0.0,
+            "rms_radius": 1.48172841938543,
+            "seconds": 0.0,
+            "water_error": 0.0
+          },
+          {
+            "core_fraction": 0.869919927987564,
+            "mass": 24.9522280734225,
+            "rain_rate": 0.0,
+            "rms_radius": 0.505626500039102,
+            "seconds": 3.0,
+            "water_error": -8.12626969448615E-06
+          },
+          {
+            "core_fraction": 0.998806907841792,
+            "mass": 24.9521888552136,
+            "rain_rate": 0.0,
+            "rms_radius": 0.359868299846032,
+            "seconds": 8.0,
+            "water_error": -4.73444785704658E-05
+          },
+          {
+            "core_fraction": 0.999855479203862,
+            "mass": 24.9520399647186,
+            "rain_rate": 0.0,
+            "rms_radius": 0.354694537063549,
+            "seconds": 15.0,
+            "water_error": -0.000196234973635967
+          }
+        ],
+        "tier": 1
+      },
+      {
+        "kind": "thin",
+        "radius": 2.5,
+        "samples": [
+          {
+            "core_fraction": 0.000170848251290723,
+            "mass": 9.98089431092404,
+            "rain_rate": 0.0,
+            "rms_radius": 1.4817284195662,
+            "seconds": 0.0,
+            "water_error": 0.0
+          },
+          {
+            "core_fraction": 0.849077552488282,
+            "mass": 9.98089210396625,
+            "rain_rate": 0.0,
+            "rms_radius": 0.519807964586013,
+            "seconds": 3.0,
+            "water_error": -2.20695778985203E-06
+          },
+          {
+            "core_fraction": 0.998715560866339,
+            "mass": 9.98088844340634,
+            "rain_rate": 0.0,
+            "rms_radius": 0.359980884108098,
+            "seconds": 8.0,
+            "water_error": -5.86751769482419E-06
+          },
+          {
+            "core_fraction": 0.999566405687832,
+            "mass": 3.44396836558471,
+            "rain_rate": 0.584354279062646,
+            "rms_radius": 0.357017860398023,
+            "seconds": 15.0,
+            "water_error": -1.21196925242373E-05
+          }
+        ],
+        "tier": 1
+      },
+      {
+        "kind": "thick",
+        "radius": 2.5,
+        "samples": [
+          {
+            "core_fraction": 0.000170848243733141,
+            "mass": 49.9044723993844,
+            "rain_rate": 0.0,
+            "rms_radius": 1.48172841938543,
+            "seconds": 0.0,
+            "water_error": 0.0
+          },
+          {
+            "core_fraction": 0.759433072636792,
+            "mass": 49.9044701074629,
+            "rain_rate": 0.0,
+            "rms_radius": 0.578247355239379,
+            "seconds": 3.0,
+            "water_error": -2.29192152545465E-06
+          },
+          {
+            "core_fraction": 0.996356450664836,
+            "mass": 24.6928692386895,
+            "rain_rate": 3.97907489088866,
+            "rms_radius": 0.367438102777769,
+            "seconds": 8.0,
+            "water_error": -1.81830253822568E-05
+          },
+          {
+            "core_fraction": 0.999044549876668,
+            "mass": 7.92406947578061,
+            "rain_rate": 1.30211203867735,
+            "rms_radius": 0.361077725048317,
+            "seconds": 15.0,
+            "water_error": -1.1517407131123E-05
+          }
+        ],
+        "tier": 1
+      },
+      {
+        "kind": "rain",
+        "radius": 2.5,
+        "samples": [
+          {
+            "core_fraction": 0.000170848243733141,
+            "mass": 49.9044723993844,
+            "rain_rate": 0.0,
+            "rms_radius": 1.48172841938543,
+            "seconds": 0.0,
+            "water_error": 0.0
+          },
+          {
+            "core_fraction": 0.265390583706165,
+            "mass": 25.4710491150618,
+            "rain_rate": 4.49628144899418,
+            "rms_radius": 0.97561084548983,
+            "seconds": 3.0,
+            "water_error": -9.21420674160345E-06
+          },
+          {
+            "core_fraction": 0.96225185690633,
+            "mass": 10.3165094684809,
+            "rain_rate": 1.78339722771244,
+            "rms_radius": 0.385697005575992,
+            "seconds": 8.0,
+            "water_error": -7.09677983152801E-05
+          },
+          {
+            "core_fraction": 1.0,
+            "mass": 3.1164978146553,
+            "rain_rate": 0.532058489301514,
+            "rms_radius": 0.353553384542465,
+            "seconds": 15.0,
+            "water_error": -0.000185139057492734
+          }
+        ],
+        "tier": 1
+      }
+    ]
+  },
+  "short_runtime": {
+    "layout": "needs_lab",
+    "sample_count": 18,
+    "warmup_seconds": 2,
+    "sample_seconds": 10,
+    "all_short_gates_passed": true,
+    "max_p95_ms": 16.039,
+    "max_p99_ms": 16.942,
+    "long_frames_33ms": 0.0,
+    "records": [
+      {
+        "arrows_enabled": true,
+        "drag": false,
+        "final_backlog_ms": 4.43944444444401,
+        "frames": 1437,
+        "gpu_ms": 2.53341532516745,
+        "input_ms": 0.107377870563674,
+        "kind": "cloud",
+        "layout": "needs_lab",
+        "max_backlog_ms": 16.6666666666665,
+        "min_sources": 0,
+        "p50": 6.781,
+        "p95": 10.944,
+        "p99": 11.746,
+        "peak_arrows": 0,
+        "peak_source_lines": 0,
+        "pick_ms": 0.0999686308179204,
+        "rendered_size": [
+          1920,
+          1080
+        ],
+        "sample_seconds": 10.0,
+        "sim_ms": 2.13220087421712,
+        "simulation_seconds": 10.0,
+        "slow_33ms": 0,
+        "source_kinds": [],
+        "steps_per_frame": 0.417536534446764,
+        "view_ms": 2.18957001348295,
+        "wind_combination": "band",
+        "csv_frames": 1437,
+        "short_gate_passed": true
+      },
+      {
+        "arrows_enabled": true,
+        "drag": true,
+        "final_backlog_ms": 6.87168686868774,
+        "frames": 1157,
+        "gpu_ms": 3.0097426247164,
+        "input_ms": 0.0886171132238546,
+        "kind": "cloud",
+        "layout": "needs_lab",
+        "max_backlog_ms": 16.6523535353534,
+        "min_sources": 2,
+        "p50": 11.677,
+        "p95": 13.649,
+        "p99": 14.313,
+        "peak_arrows": 32,
+        "peak_source_lines": 36,
+        "pick_ms": 0.0022143553121397,
+        "rendered_size": [
+          1920,
+          1080
+        ],
+        "sample_seconds": 10.0,
+        "sim_ms": 3.69480733780791,
+        "simulation_seconds": 9.98333333333333,
+        "slow_33ms": 0,
+        "source_kinds": [
+          "band",
+          "band"
+        ],
+        "steps_per_frame": 0.515989628349179,
+        "view_ms": 2.59697573702193,
+        "wind_combination": "band",
+        "csv_frames": 1157,
+        "short_gate_passed": true
+      },
+      {
+        "arrows_enabled": true,
+        "drag": false,
+        "final_backlog_ms": 14.2089090909074,
+        "frames": 1378,
+        "gpu_ms": 2.55410230661511,
+        "input_ms": 0.0920079825834542,
+        "kind": "rain",
+        "layout": "needs_lab",
+        "max_backlog_ms": 16.658575757574,
+        "min_sources": 0,
+        "p50": 5.37,
+        "p95": 12.471,
+        "p99": 14.343,
+        "peak_arrows": 0,
+        "peak_source_lines": 0,
+        "pick_ms": 0.100992022820239,
+        "rendered_size": [
+          1920,
+          1080
+        ],
+        "sample_seconds": 10.0,
+        "sim_ms": 2.66920380391646,
+        "simulation_seconds": 10.0166666666667,
+        "slow_33ms": 0,
+        "source_kinds": [],
+        "steps_per_frame": 0.436139332365747,
+        "view_ms": 2.35588828918723,
+        "wind_combination": "band",
+        "csv_frames": 1378,
+        "short_gate_passed": true
+      },
+      {
+        "arrows_enabled": true,
+        "drag": true,
+        "final_backlog_ms": 1.38507744107778,
+        "frames": 926,
+        "gpu_ms": 3.50848823695667,
+        "input_ms": 0.101381209503239,
+        "kind": "rain",
+        "layout": "needs_lab",
+        "max_backlog_ms": 16.6594761904765,
+        "min_sources": 2,
+        "p50": 13.366,
+        "p95": 15.458,
+        "p99": 16.883,
+        "peak_arrows": 32,
+        "peak_source_lines": 36,
+        "pick_ms": 0.00277538587928591,
+        "rendered_size": [
+          1920,
+          1080
+        ],
+        "sample_seconds": 10.0,
+        "sim_ms": 5.19070335701269,
+        "simulation_seconds": 10.0166666666667,
+        "slow_33ms": 0,
+        "source_kinds": [
+          "band",
+          "band"
+        ],
+        "steps_per_frame": 0.647948164146868,
+        "view_ms": 2.97783066026593,
+        "wind_combination": "band",
+        "csv_frames": 926,
+        "short_gate_passed": true
+      },
+      {
+        "arrows_enabled": true,
+        "drag": false,
+        "final_backlog_ms": 0.205925925922869,
+        "frames": 1429,
+        "gpu_ms": 2.54087894725332,
+        "input_ms": 0.108194541637509,
+        "kind": "cold",
+        "layout": "needs_lab",
+        "max_backlog_ms": 16.5018624338605,
+        "min_sources": 0,
+        "p50": 4.181,
+        "p95": 12.094,
+        "p99": 13.046,
+        "peak_arrows": 0,
+        "peak_source_lines": 0,
+        "pick_ms": 0.10411756233872,
+        "rendered_size": [
+          1920,
+          1080
+        ],
+        "sample_seconds": 10.0,
+        "sim_ms": 2.56772741126881,
+        "simulation_seconds": 10.0166666666667,
+        "slow_33ms": 0,
+        "source_kinds": [],
+        "steps_per_frame": 0.419874037788663,
+        "view_ms": 2.3354205164232,
+        "wind_combination": "band",
+        "csv_frames": 1429,
+        "short_gate_passed": true
+      },
+      {
+        "arrows_enabled": true,
+        "drag": true,
+        "final_backlog_ms": 3.0551111111112,
+        "frames": 926,
+        "gpu_ms": 3.49451553641334,
+        "input_ms": 0.101941684665226,
+        "kind": "cold",
+        "layout": "needs_lab",
+        "max_backlog_ms": 16.6662222222223,
+        "min_sources": 2,
+        "p50": 13.478,
+        "p95": 15.436,
+        "p99": 16.579,
+        "peak_arrows": 32,
+        "peak_source_lines": 36,
+        "pick_ms": 0.00270087234917264,
+        "rendered_size": [
+          1920,
+          1080
+        ],
+        "sample_seconds": 10.0,
+        "sim_ms": 5.18765397205724,
+        "simulation_seconds": 10.0,
+        "slow_33ms": 0,
+        "source_kinds": [
+          "band",
+          "band"
+        ],
+        "steps_per_frame": 0.646868250539957,
+        "view_ms": 2.97686042538472,
+        "wind_combination": "band",
+        "csv_frames": 926,
+        "short_gate_passed": true
+      },
+      {
+        "arrows_enabled": true,
+        "drag": false,
+        "final_backlog_ms": 0.216333333332604,
+        "frames": 1431,
+        "gpu_ms": 2.55906701771052,
+        "input_ms": 0.113199161425576,
+        "kind": "cloud",
+        "layout": "needs_lab",
+        "max_backlog_ms": 16.6532222222221,
+        "min_sources": 0,
+        "p50": 6.146,
+        "p95": 11.344,
+        "p99": 12.604,
+        "peak_arrows": 0,
+        "peak_source_lines": 0,
+        "pick_ms": 0.104733043913238,
+        "rendered_size": [
+          1920,
+          1080
+        ],
+        "sample_seconds": 10.0,
+        "sim_ms": 2.20976269053546,
+        "simulation_seconds": 10.0,
+        "slow_33ms": 0,
+        "source_kinds": [],
+        "steps_per_frame": 0.418588399720475,
+        "view_ms": 2.30374608283106,
+        "wind_combination": "vortex",
+        "csv_frames": 1431,
+        "short_gate_passed": true
+      },
+      {
+        "arrows_enabled": true,
+        "drag": true,
+        "final_backlog_ms": 3.78202020202063,
+        "frames": 1087,
+        "gpu_ms": 2.81810692416053,
+        "input_ms": 0.0994682612695488,
+        "kind": "cloud",
+        "layout": "needs_lab",
+        "max_backlog_ms": 16.6608080808086,
+        "min_sources": 2,
+        "p50": 12.163,
+        "p95": 14.316,
+        "p99": 15.764,
+        "peak_arrows": 32,
+        "peak_source_lines": 35,
+        "pick_ms": 0.00266790324213753,
+        "rendered_size": [
+          1920,
+          1080
+        ],
+        "sample_seconds": 10.0,
+        "sim_ms": 4.09182652225161,
+        "simulation_seconds": 10.0166666666667,
+        "slow_33ms": 0,
+        "source_kinds": [
+          "vortex",
+          "vortex"
+        ],
+        "steps_per_frame": 0.551057957681693,
+        "view_ms": 2.78469424699575,
+        "wind_combination": "vortex",
+        "csv_frames": 1087,
+        "short_gate_passed": true
+      },
+      {
+        "arrows_enabled": true,
+        "drag": false,
+        "final_backlog_ms": 6.42231313131168,
+        "frames": 1413,
+        "gpu_ms": 2.48456713331564,
+        "input_ms": 0.110995753715499,
+        "kind": "rain",
+        "layout": "needs_lab",
+        "max_backlog_ms": 16.6550909090904,
+        "min_sources": 0,
+        "p50": 4.086,
+        "p95": 12.275,
+        "p99": 13.383,
+        "peak_arrows": 0,
+        "peak_source_lines": 0,
+        "pick_ms": 0.108759238208682,
+        "rendered_size": [
+          1920,
+          1080
+        ],
+        "sample_seconds": 10.0,
+        "sim_ms": 2.63006578838243,
+        "simulation_seconds": 10.0,
+        "slow_33ms": 0,
+        "source_kinds": [],
+        "steps_per_frame": 0.424628450106157,
+        "view_ms": 2.39103812118498,
+        "wind_combination": "vortex",
+        "csv_frames": 1413,
+        "short_gate_passed": true
+      },
+      {
+        "arrows_enabled": true,
+        "drag": true,
+        "final_backlog_ms": 12.2221111111102,
+        "frames": 953,
+        "gpu_ms": 3.35699251541186,
+        "input_ms": 0.1011259181532,
+        "kind": "rain",
+        "layout": "needs_lab",
+        "max_backlog_ms": 16.6637777777768,
+        "min_sources": 2,
+        "p50": 13.278,
+        "p95": 15.433,
+        "p99": 16.933,
+        "peak_arrows": 32,
+        "peak_source_lines": 35,
+        "pick_ms": 0.00279853651681202,
+        "rendered_size": [
+          1920,
+          1080
+        ],
+        "sample_seconds": 10.0,
+        "sim_ms": 5.11321617999082,
+        "simulation_seconds": 9.98333333333333,
+        "slow_33ms": 0,
+        "source_kinds": [
+          "vortex",
+          "vortex"
+        ],
+        "steps_per_frame": 0.628541448058762,
+        "view_ms": 2.97823408192878,
+        "wind_combination": "vortex",
+        "csv_frames": 953,
+        "short_gate_passed": true
+      },
+      {
+        "arrows_enabled": true,
+        "drag": false,
+        "final_backlog_ms": 7.187606060607,
+        "frames": 1331,
+        "gpu_ms": 2.63379951780851,
+        "input_ms": 0.177610818933133,
+        "kind": "cold",
+        "layout": "needs_lab",
+        "max_backlog_ms": 16.609455026457,
+        "min_sources": 0,
+        "p50": 4.576,
+        "p95": 12.766,
+        "p99": 13.719,
+        "peak_arrows": 0,
+        "peak_source_lines": 0,
+        "pick_ms": 0.17818476722081,
+        "rendered_size": [
+          1920,
+          1080
+        ],
+        "sample_seconds": 10.0,
+        "sim_ms": 2.8377530551512,
+        "simulation_seconds": 10.0,
+        "slow_33ms": 0,
+        "source_kinds": [],
+        "steps_per_frame": 0.450788880540947,
+        "view_ms": 2.44695013148009,
+        "wind_combination": "vortex",
+        "csv_frames": 1331,
+        "short_gate_passed": true
+      },
+      {
+        "arrows_enabled": true,
+        "drag": true,
+        "final_backlog_ms": 9.73909090909121,
+        "frames": 797,
+        "gpu_ms": 3.96770114491844,
+        "input_ms": 0.107767879548306,
+        "kind": "cold",
+        "layout": "needs_lab",
+        "max_backlog_ms": 16.6195353535356,
+        "min_sources": 2,
+        "p50": 14.715,
+        "p95": 16.039,
+        "p99": 16.942,
+        "peak_arrows": 32,
+        "peak_source_lines": 36,
+        "pick_ms": 0.00331367961735169,
+        "rendered_size": [
+          1920,
+          1080
+        ],
+        "sample_seconds": 10.0,
+        "sim_ms": 6.58247909641625,
+        "simulation_seconds": 10.0,
+        "slow_33ms": 0,
+        "source_kinds": [
+          "vortex",
+          "vortex"
+        ],
+        "steps_per_frame": 0.751568381430364,
+        "view_ms": 3.30846141781681,
+        "wind_combination": "vortex",
+        "csv_frames": 797,
+        "short_gate_passed": true
+      },
+      {
+        "arrows_enabled": true,
+        "drag": false,
+        "final_backlog_ms": 15.2983333333328,
+        "frames": 1364,
+        "gpu_ms": 2.56976246763884,
+        "input_ms": 0.223306451612904,
+        "kind": "cloud",
+        "layout": "needs_lab",
+        "max_backlog_ms": 16.588333333333,
+        "min_sources": 0,
+        "p50": 4.783,
+        "p95": 12.343,
+        "p99": 13.494,
+        "peak_arrows": 0,
+        "peak_source_lines": 0,
+        "pick_ms": 0.220317292423192,
+        "rendered_size": [
+          1920,
+          1080
+        ],
+        "sample_seconds": 10.0,
+        "sim_ms": 2.48735319344529,
+        "simulation_seconds": 10.0,
+        "slow_33ms": 0,
+        "source_kinds": [],
+        "steps_per_frame": 0.439149560117302,
+        "view_ms": 2.43899276599157,
+        "wind_combination": "mixed",
+        "csv_frames": 1364,
+        "short_gate_passed": true
+      },
+      {
+        "arrows_enabled": true,
+        "drag": true,
+        "final_backlog_ms": 5.40415151515156,
+        "frames": 1116,
+        "gpu_ms": 3.12976511746752,
+        "input_ms": 0.0963951612903222,
+        "kind": "cloud",
+        "layout": "needs_lab",
+        "max_backlog_ms": 16.6571515151513,
+        "min_sources": 2,
+        "p50": 11.997,
+        "p95": 14.208,
+        "p99": 15.278,
+        "peak_arrows": 32,
+        "peak_source_lines": 35,
+        "pick_ms": 0.00241488367853199,
+        "rendered_size": [
+          1920,
+          1080
+        ],
+        "sample_seconds": 10.0,
+        "sim_ms": 3.89617022989471,
+        "simulation_seconds": 10.0,
+        "slow_33ms": 0,
+        "source_kinds": [
+          "band",
+          "vortex"
+        ],
+        "steps_per_frame": 0.537634408602151,
+        "view_ms": 2.70409981238799,
+        "wind_combination": "mixed",
+        "csv_frames": 1116,
+        "short_gate_passed": true
+      },
+      {
+        "arrows_enabled": true,
+        "drag": false,
+        "final_backlog_ms": 14.2710202020192,
+        "frames": 1398,
+        "gpu_ms": 2.60034755985113,
+        "input_ms": 0.202852646638054,
+        "kind": "rain",
+        "layout": "needs_lab",
+        "max_backlog_ms": 16.6420519480513,
+        "min_sources": 0,
+        "p50": 4.181,
+        "p95": 12.182,
+        "p99": 12.9,
+        "peak_arrows": 0,
+        "peak_source_lines": 0,
+        "pick_ms": 0.202211764749028,
+        "rendered_size": [
+          1920,
+          1080
+        ],
+        "sample_seconds": 10.0,
+        "sim_ms": 2.60959346918589,
+        "simulation_seconds": 9.98333333333333,
+        "slow_33ms": 0,
+        "source_kinds": [],
+        "steps_per_frame": 0.427038626609442,
+        "view_ms": 2.36865932917561,
+        "wind_combination": "mixed",
+        "csv_frames": 1398,
+        "short_gate_passed": true
+      },
+      {
+        "arrows_enabled": true,
+        "drag": true,
+        "final_backlog_ms": 0.476888888887785,
+        "frames": 955,
+        "gpu_ms": 3.38318548552029,
+        "input_ms": 0.10143560209424,
+        "kind": "rain",
+        "layout": "needs_lab",
+        "max_backlog_ms": 16.6666666666666,
+        "min_sources": 2,
+        "p50": 13.352,
+        "p95": 15.057,
+        "p99": 15.738,
+        "peak_arrows": 32,
+        "peak_source_lines": 36,
+        "pick_ms": 0.0026136183613882,
+        "rendered_size": [
+          1920,
+          1080
+        ],
+        "sample_seconds": 10.0,
+        "sim_ms": 5.00364856020942,
+        "simulation_seconds": 10.0166666666667,
+        "slow_33ms": 0,
+        "source_kinds": [
+          "band",
+          "vortex"
+        ],
+        "steps_per_frame": 0.627225130890052,
+        "view_ms": 2.9497596940445,
+        "wind_combination": "mixed",
+        "csv_frames": 955,
+        "short_gate_passed": true
+      },
+      {
+        "arrows_enabled": true,
+        "drag": false,
+        "final_backlog_ms": 5.49277777777691,
+        "frames": 1408,
+        "gpu_ms": 2.52790052240545,
+        "input_ms": 0.2026015625,
+        "kind": "cold",
+        "layout": "needs_lab",
+        "max_backlog_ms": 16.6607777777771,
+        "min_sources": 0,
+        "p50": 4.104,
+        "p95": 12.208,
+        "p99": 12.825,
+        "peak_arrows": 0,
+        "peak_source_lines": 0,
+        "pick_ms": 0.201148423281583,
+        "rendered_size": [
+          1920,
+          1080
+        ],
+        "sample_seconds": 10.0,
+        "sim_ms": 2.60567491704767,
+        "simulation_seconds": 10.0166666666667,
+        "slow_33ms": 0,
+        "source_kinds": [],
+        "steps_per_frame": 0.426846590909091,
+        "view_ms": 2.34083817221902,
+        "wind_combination": "mixed",
+        "csv_frames": 1408,
+        "short_gate_passed": true
+      },
+      {
+        "arrows_enabled": true,
+        "drag": true,
+        "final_backlog_ms": 3.10100000000171,
+        "frames": 965,
+        "gpu_ms": 3.44260393053756,
+        "input_ms": 0.0992217616580307,
+        "kind": "cold",
+        "layout": "needs_lab",
+        "max_backlog_ms": 16.6463333333334,
+        "min_sources": 2,
+        "p50": 13.302,
+        "p95": 14.993,
+        "p99": 15.837,
+        "peak_arrows": 32,
+        "peak_source_lines": 36,
+        "pick_ms": 0.00261554915670286,
+        "rendered_size": [
+          1920,
+          1080
+        ],
+        "sample_seconds": 10.0,
+        "sim_ms": 4.93576900501943,
+        "simulation_seconds": 9.98333333333333,
+        "slow_33ms": 0,
+        "source_kinds": [
+          "band",
+          "vortex"
+        ],
+        "steps_per_frame": 0.618652849740933,
+        "view_ms": 2.92891763479598,
+        "wind_combination": "mixed",
+        "csv_frames": 965,
+        "short_gate_passed": true
+      }
+    ]
+  },
+  "deferred": [
+    "用户选择空闲后验收：两张测试图12项，每项预热5秒＋采样60秒",
+    "玩家确认漩涡手感与运输便利",
+    "正式挑战地图、风主题评价图形、空心雨滴UI、龙卷风／台风"
+  ],
+  "previews": {
+    "retained_png_count": 5,
+    "updated": [
+      "docs/previews/wind-source-play.png",
+      "docs/previews/needs-route-rain.png",
+      "docs/previews/needs-route-result.png"
+    ],
+    "other_captures": "仅.godot缓存",
+    "normal_start": true
+  }
+}

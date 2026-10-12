@@ -21,6 +21,8 @@ func run() -> void:
 	await RenderingServer.frame_post_draw
 	main.guide.cold_hint_seen = true
 	var controller := Route.new([0, 1])
+	# Actual input takes time to move the cloud; start clearing the fragile field earlier.
+	controller.narrow_lookahead = 7.0
 	var next_at := 0.5
 	var source_at := -1.0
 	var placed := false
@@ -28,15 +30,13 @@ func run() -> void:
 	var source: Dictionary = {}
 	var photographed := false
 	while main.sim.outcome == "playing":
+		if main.sim.plot_destroyed.any(func(v): return v): break
 		if placed and not removed and main.sim.elapsed_seconds - source_at >= 1.5:
 			await tap(main.hud.source_remove[0])
 			removed = main.sim.wind_sources.is_empty()
-		if main.sim.earned_stars() == 2 and main.sim.can_finish():
-			await tap(main.hud.finish_button)
-			continue
 		if main.sim.elapsed_seconds >= next_at:
 			var command := controller.next_command(main.sim, main.sim.elapsed_seconds)
-			next_at += 0.5
+			next_at += 0.25 if command.get("kind", "") == "clear" and command.get("target", -1) == 1 else 0.5
 			if not command.is_empty():
 				if not placed and command.kind == "feed":
 					await tap(main.hud.source_button)
@@ -66,4 +66,4 @@ func run() -> void:
 	file.store_string(JSON.stringify(report, "\t"))
 	report.erase("actions")
 	print("NEEDS VIEWPORT ", JSON.stringify(report))
-	quit(0 if main.sim.result_stars == 2 and not main.sim.timed_out and placed and removed and source.get("strength", -1) == 0.0 and input_pick_error < 0.001 and failures == 0 and not main.wind_input.enabled else 1)
+	quit(0 if main.sim.result_stars == 3 and not main.sim.timed_out and placed and removed and source.get("strength", -1) == 0.0 and input_pick_error < 0.001 and failures == 0 and not main.wind_input.enabled else 1)

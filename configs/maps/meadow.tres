@@ -33,7 +33,7 @@ half_axes = Vector2(1.6, 1.1)
 [resource]
 script = ExtResource("1")
 id = "meadow"
-title = "第一关 · 三处田园"
+title = "三处田园"
 hint = "借同一座山组织雨云 · 轮流照顾三处土地，雨量够前就开始移云"
 river_enabled = false
 star_level = true

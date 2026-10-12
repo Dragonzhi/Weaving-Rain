@@ -79,6 +79,7 @@ var plot_destroyed: Array[bool] = []
 var star_level := false
 var finish_safe_time := 0.0
 var result_stars := 0
+var result_saved_count := 0
 var time_limit_seconds := 180.0
 var elapsed_seconds := 0.0
 var timed_out := false
@@ -227,6 +228,7 @@ func reset(test_cloud: bool = false) -> void:
 	plot_destroyed.fill(false)
 	finish_safe_time = 0.0
 	result_stars = 0
+	result_saved_count = 0
 	elapsed_seconds = 0.0
 	timed_out = false
 	ended_for_shortage = false
@@ -367,7 +369,17 @@ func add_wind_source(point: Vector2, direction: Vector2, strength: float, endpoi
 		return {"ok": false, "reason": "先撤掉一个风源"}
 	var id := next_source_id
 	next_source_id += 1
-	wind_sources.append({"id": id, "position": point, "end": end, "direction": direction.normalized(), "strength": clampf(strength, 0.0, 1.0), "remaining": settings.source_lifetime, "lifetime": settings.source_lifetime, "fade": settings.source_fade_seconds})
+	wind_sources.append({"id": id, "kind": "band", "position": point, "end": end, "direction": direction.normalized(), "strength": clampf(strength, 0.0, 1.0), "remaining": settings.source_lifetime, "lifetime": settings.source_lifetime, "fade": settings.source_fade_seconds})
+	return {"ok": true, "id": id, "reason": ""}
+
+func add_vortex(point: Vector2, radius: float, spin: int, tier: int) -> Dictionary:
+	# Gesture limits are snapshotted on press; physical factory bounds stay valid during F6.
+	if outcome != "playing" or not point.is_finite() or not contains(point) or not is_finite(radius) or radius < 0.5 or radius > 8.0 or spin not in [-1, 1] or tier < 0 or tier > 2:
+		return {"ok": false, "reason": "无效漩涡范围、方向或档位"}
+	if wind_sources.size() >= settings.source_limit: return {"ok": false, "reason": "先撤掉一个风源"}
+	var id := next_source_id
+	next_source_id += 1
+	wind_sources.append({"id": id, "kind": "vortex", "position": point, "end": point, "radius": radius, "spin": spin, "tier": tier, "direction": Vector2.ZERO, "strength": tier / 2.0, "remaining": settings.source_lifetime, "lifetime": settings.source_lifetime, "fade": settings.source_fade_seconds})
 	return {"ok": true, "id": id, "reason": ""}
 
 func remove_wind_source(id: int) -> void:
@@ -418,6 +430,43 @@ func _accelerate_source(source: Dictionary, impulse: Vector2) -> void:
 		var i := cells[n]
 		values[i] = (values[i] + impulse * weights[n]).limit_length(maximum)
 
+func _accelerate_vortex(source: Dictionary, integral: float) -> void:
+	if source.get("core_fraction", -1.0) != settings.vortex_core_fraction or source.get("edge_fraction", -1.0) != settings.vortex_edge_fraction:
+		var cells := PackedInt32Array()
+		var radial := PackedVector2Array()
+		var tangent := PackedVector2Array()
+		var point: Vector2 = source.position
+		var radius: float = source.radius
+		var core := maxf(CELL, radius * settings.vortex_core_fraction)
+		var lo := Vector2i(((point - Vector2.ONE * radius - ORIGIN) / CELL).floor())
+		var hi := Vector2i(((point + Vector2.ONE * radius - ORIGIN) / CELL).ceil())
+		for z in range(maxi(0, lo.y), mini(DEPTH, hi.y)):
+			for x in range(maxi(0, lo.x), mini(WIDTH, hi.x)):
+				var i := z * WIDTH + x
+				var q := positions[i] - point
+				var distance := q.length()
+				if distance >= radius: continue
+				var weight := 1.0 - smoothstep(1.0 - settings.vortex_edge_fraction, 1.0, distance / radius)
+				var vector := q / maxf(core, distance) * weight
+				cells.append(i)
+				radial.append(-vector)
+				tangent.append(Vector2(-vector.y, vector.x) * source.spin)
+		source.cells = cells
+		source.radial = radial
+		source.tangent = tangent
+		source.core_fraction = settings.vortex_core_fraction
+		source.edge_fraction = settings.vortex_edge_fraction
+	var powers: Vector3 = settings.vortex_inward_acceleration
+	var inward: float = powers[source.tier] * integral
+	var rotation: float = settings.vortex_rotation_acceleration * integral
+	var values := wind
+	var cells: PackedInt32Array = source.cells
+	var radial: PackedVector2Array = source.radial
+	var tangent: PackedVector2Array = source.tangent
+	for n in cells.size():
+		var i := cells[n]
+		values[i] = (values[i] + radial[n] * inward + tangent[n] * rotation).limit_length(settings.max_wind)
+
 func _step_wind_sources(dt: float) -> void:
 	if not held_wind.is_empty():
 		var power := lerpf(settings.stroke_min_power, settings.stroke_max_power, held_wind.strength)
@@ -431,7 +480,8 @@ func _step_wind_sources(dt: float) -> void:
 		var integral := full + fading * maxf(0.0, (source.remaining - full - fading * 0.5) / source.fade)
 		var powers: Vector3 = settings.source_powers
 		var power := lerpf(powers.x, powers.y, source.strength * 2.0) if source.strength <= 0.5 else lerpf(powers.y, powers.z, source.strength * 2.0 - 1.0)
-		_accelerate_source(source, source.direction * settings.hold_gain * power * integral)
+		if source.get("kind", "band") == "vortex": _accelerate_vortex(source, integral)
+		else: _accelerate_source(source, source.direction * settings.hold_gain * power * integral)
 		source.remaining = maxf(0.0, source.remaining - dt)
 		if source.remaining <= 0.000001: wind_sources.remove_at(index)
 
@@ -571,6 +621,7 @@ func _step_fixed(dt: float) -> void:
 		if outcome == "playing" and time_remaining() <= 0.000000001:
 			elapsed_seconds = time_limit_seconds
 			timed_out = true
+			result_saved_count = saved_plot_count()
 			result_stars = earned_stars()
 			outcome = "success" if result_stars > 0 else "timeout"
 	_update_three_star_finish(dt)
@@ -795,7 +846,8 @@ func _lift_at_cold_front(dt: float) -> void:
 	var lifts := lifted
 	var front_lifts := cold_lifted
 	var points := positions
-	var second := plot_centers[1] if relay_mode else Vector2.ZERO
+	var has_second := plot_centers.size() > 1
+	var second := plot_centers[1] if has_second else Vector2.ZERO
 	for i in COUNT:
 		if cool[i] < minimum or wet[i] < 0.001:
 			continue
@@ -819,7 +871,7 @@ func _lift_at_cold_front(dt: float) -> void:
 		last_lift += amount
 		total_cold_lift += amount
 		cold_used += amount * cost
-		if relay_mode and absf(points[i].x - second.x) <= safe_half and absf(points[i].y - second.y) <= safe_half:
+		if has_second and absf(points[i].x - second.x) <= safe_half and absf(points[i].y - second.y) <= safe_half:
 			cold_lift_near_second += amount
 	humidity = wet
 	cloud = clouds
@@ -976,17 +1028,20 @@ func update_goal(dt: float) -> void:
 		outcome = "success"
 	if not _has_three_stars(): three_star_elapsed = -1.0
 
-func earned_stars() -> int:
+func saved_plot_count() -> int:
 	var count := 0
 	for target in plot_centers.size():
 		if not plot_destroyed[target] and plot_safe_times[target] >= settings.safe_seconds: count += 1
 	return count
 
+func earned_stars() -> int:
+	return preload("res://scripts/level_rating.gd").stars(saved_plot_count(), plot_centers.size())
+
 func can_finish() -> bool:
 	return star_level and not sandbox and outcome == "playing" and earned_stars() > 0 and not threat and finish_safe_time >= settings.safe_seconds
 
 func _has_three_stars() -> bool:
-	return star_level and not sandbox and outcome == "playing" and plot_centers.size() == 3 and earned_stars() == 3
+	return star_level and not sandbox and outcome == "playing" and plot_centers.size() > 0 and saved_plot_count() == plot_centers.size()
 
 func three_star_remaining() -> float:
 	if not _has_three_stars() or three_star_elapsed < 0.0: return -1.0
@@ -997,7 +1052,7 @@ func _update_three_star_finish(dt: float) -> void:
 		three_star_elapsed = -1.0
 		return
 	if three_star_elapsed < 0.0:
-		# Begin only after all three safety intervals have actually completed.
+		# Begin only after every field's safety interval has actually completed.
 		three_star_elapsed = 0.0
 	else:
 		three_star_elapsed += dt
@@ -1032,6 +1087,7 @@ func can_end_shortage() -> bool:
 func finish() -> bool:
 	if not can_finish() and not can_end_shortage(): return false
 	ended_for_shortage = can_end_shortage()
+	result_saved_count = saved_plot_count()
 	result_stars = earned_stars()
 	outcome = "success" if result_stars > 0 else "shortage"
 	return true

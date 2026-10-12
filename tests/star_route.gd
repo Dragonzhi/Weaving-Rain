@@ -11,6 +11,7 @@ var actions: Array = []
 var per_target: Array = []
 var late_clear_seconds := 0.0
 var late_clear_started := -1.0
+var narrow_lookahead := 4.5
 
 func _init(sequence: Array = [0, 1, 2], route: String = "mountain") -> void:
 	order = sequence.duplicate()
@@ -59,7 +60,7 @@ func next_command(sim: RefCounted, time: float) -> Dictionary:
 		var lookahead := 2.8
 		if sim.plot_needs[n] != null and sim.flood_limit(n) - need < need * 0.5:
 			floor_water = need * 0.2
-			lookahead = 4.5
+			lookahead = narrow_lookahead
 		if sim.water_for(n) < need and (sim.water_for(n) < floor_water or sim.water_for(n) + incoming[n] * lookahead < early_clear): continue
 		if n == order[0] and late_clear_seconds > 0.0:
 			if late_clear_started < 0.0: late_clear_started = time

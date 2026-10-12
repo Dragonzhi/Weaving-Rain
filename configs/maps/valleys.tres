@@ -37,7 +37,7 @@ half_axes = Vector2(1.5, 0.9)
 [resource]
 script = ExtResource("1")
 id = "valleys"
-title = "第二关 · 两山分雨"
+title = "两山分雨"
 hint = "两侧山坡都能造雨 · 东侧湿空气也可迎向已有冷风，在目标附近接力"
 shape = "long"
 island_center = Vector2(0, 0)

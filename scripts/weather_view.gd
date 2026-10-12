@@ -553,6 +553,8 @@ func _emit_source_lines(dt: float) -> void:
 			var radius := sim.settings.brush_radius * fposmod(source_trace_serial * 0.61803399, 1.0) * 0.9
 			var along := fposmod(source_trace_serial * 0.754877666, 1.0)
 			var p: Vector2 = source.position.lerp(source.end, along) + Vector2(cos(angle), sin(angle)) * radius
+			if source.get("kind", "band") == "vortex":
+				p = source.position + Vector2(cos(angle), sin(angle)) * source.radius * sqrt(fposmod(source_trace_serial * 0.61803399, 1.0)) * 0.95
 			wind_traces.append({"p": p, "height": 0.37, "low": true, "age": 0.0, "source": true})
 			if sim.sample_cloud(sim.display_cloud, p) > 0.06:
 				wind_traces.append({"p": p, "height": Sim.CLOUD_TOP + 0.05, "low": false, "age": 0.0, "source": true})
@@ -634,6 +636,9 @@ func _near_interaction(point: Vector2) -> float:
 	if interaction_until > elapsed and point.distance_to(interaction_point) < sim.settings.brush_radius * 2.0:
 		fade = minf(1.0, (interaction_until - elapsed) / 2.0)
 	for source in sim.wind_sources:
+		if source.get("kind", "band") == "vortex":
+			if point.distance_to(source.position) < source.radius: fade = maxf(fade, minf(1.0, source.remaining / source.fade))
+			continue
 		if point.distance_to(Geometry2D.get_closest_point_to_segment(point, source.position, source.end)) < sim.settings.brush_radius * 2.0:
 			fade = maxf(fade, minf(1.0, source.remaining / source.fade))
 	return fade
@@ -642,6 +647,10 @@ func _arrow_context_cells() -> PackedInt32Array:
 	var centers := PackedVector2Array()
 	if interaction_until > elapsed: centers.append(interaction_point)
 	for source in sim.wind_sources:
+		if source.get("kind", "band") == "vortex":
+			centers.append(source.position)
+			for direction in [Vector2.RIGHT, Vector2.LEFT, Vector2.UP, Vector2.DOWN]: centers.append(source.position + direction * source.radius * 0.6)
+			continue
 		var count := maxi(1, ceili(source.position.distance_to(source.end) / (sim.settings.brush_radius * 2.0)))
 		for n in count + 1: centers.append(source.position.lerp(source.end, float(n) / count))
 	var cells := PackedInt32Array()
