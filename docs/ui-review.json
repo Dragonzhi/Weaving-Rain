@@ -1,0 +1,30 @@
+{
+  "date": "2026-10-14",
+  "status": "UI implementation saved; remaining verification deferred because user reported imminent battery shutdown",
+  "baseline_commit": "5d208f8",
+  "implemented": ["Fixed-unit farm droplets with remainder and six-slot grouping", "Independent reservoir water gauge", "Real safety symbols and pass-through hover text", "Wind-medal rating and result rows", "Compact header and native tool/source controls", "Pause-aware UI animation and bounded vector geometry"],
+  "checks": {
+    "ui_1920x1080": "24 checks, 0 failures",
+    "ui_1280x720": "24 checks, 0 failures",
+    "compact_feedback": "25 checks, 0 failures",
+    "hud_layouts": "27 checks, 0 failures",
+    "full_coverage": "Earlier rule/scenario checks passed; continued from wind-tools-scene through needs viewport route. Full suite has NOT completed.",
+    "needs_mouse_route": "3-rating success; both fields intact; water error -0.00110978",
+    "wind_tools_mouse_route": "3-rating success; actual source creation/removal; water error -0.00149641"
+  },
+  "fixed_during_checks": ["Updated checks for compact timer and wind-medal wording", "Deduplicated clipped vertices and skipped non-triangulable subpixel display fills without rounding weather water", "Held-wind scene sampling now waits for an actual main-loop/render frame"],
+  "remaining": [
+    "Vortex viewport route failed once: seedling water 55.0424 exceeded unchanged limit 55; keep route timing variability open. Do not change thresholds or declare it solved.",
+    "Repeat vortex route and continue remaining checks from vortex-viewport-route, then review the five route comparisons",
+    "Recheck latest primary-button styling and reservoir waterline clipping with capture_ui_review.gd",
+    "Run short UI-visible/hidden diagnostic; formal performance remains deferred until idle",
+    "Export and smoke-test a new standalone package; existing preview zip is from the prior rain-area version"
+  ],
+  "screenshots": {
+    "states": "previews/ui-states.png",
+    "result": "previews/ui-result.png",
+    "source": "GPU development display fixtures, not normal gameplay completion evidence"
+  },
+  "logs": [".godot/ui-full-suite.log", ".godot/ui-second-full-suite.log", ".godot/ui-third-full-suite.log", ".godot/ui-full-continued-final.log", ".godot/ui-tiny-fill-failure.log", ".godot/ui-wind-hold-failure.log"],
+  "save_note": "All source and planning artifacts are on disk. No engine upgrade, weather-rule changes, save-format migration or platform upload performed."
+}

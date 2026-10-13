@@ -44,7 +44,7 @@ func instruction(sim: RefCounted) -> String:
 	if sim.outcome == "flood":
 		return "按 R 重试；接近适量前就开始移云。"
 	if phase == 4:
-		return "这场雨刚刚好。进入自由局后，也可选择星级测试。"
+		return "这场雨刚刚好。进入自由局后，也可选择风纹测试。"
 	if phase == 3:
 		return "移开虚线范围内的厚云与雨云，等待安全。"
 	if phase > 0 and sim.peak_density < 0.15 and sim.total_rain_rate < 0.01:

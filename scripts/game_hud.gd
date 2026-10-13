@@ -10,6 +10,21 @@ signal next_requested
 signal levels_requested
 const Sim = preload("res://scripts/weather_simulation.gd")
 const Layouts = preload("res://scripts/weather_layouts.gd")
+const Visuals = preload("res://scripts/hud_visuals.gd")
+var visuals := Visuals.new()
+var shown_water := PackedFloat64Array()
+var ui_time := 0.0
+var rating_seen := -1
+var rating_since := 0.0
+var result_since := -1.0
+var rating_rect := Rect2()
+var plot_tooltip_rect := Rect2()
+var plot_tooltip_text := ""
+var plot_glyph_slots: Array = []
+var result_row_rects: Array[Rect2] = []
+var pointer_received := false
+var pointer_position := Vector2(-1,-1)
+var draw_ms := 0.0
 var sim: Sim
 var view: Node3D
 var wind_input: Node
@@ -77,13 +92,42 @@ const CLOUD_WATER_COLOR := Color("a6bfcc")
 const INK := Color("354e57")
 const MUTED := Color("607b80")
 const PANEL := Color(0.94, 0.96, 0.89, 0.88)
-const GOLD := Color("997940")
+const GOLD := Visuals.GOLD
+
+func _process(delta: float) -> void:
+	if not paused: ui_time += minf(delta, 0.1)
+
+func _input(event: InputEvent) -> void:
+	# Read viewport-local input without consuming it. This also keeps replayed
+	# mouse events consistent with physical hover, unlike the OS pointer alone.
+	if event is InputEventMouse:
+		pointer_received = true
+		pointer_position = get_global_transform_with_canvas().affine_inverse() * event.position
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_APPLICATION_FOCUS_OUT:
+		pointer_received = true
+		pointer_position = Vector2(-1,-1)
+	elif what == NOTIFICATION_RESIZED:
+		pointer_received = false
+
+func _pointer() -> Vector2:
+	return pointer_position if pointer_received else get_local_mouse_position()
 
 func reset_feedback() -> void:
 	menu_open = false
 	source_pressed_ids.fill(-1)
 	feedback_model = sim
+	shown_water.resize(sim.plot_centers.size())
+	for target in sim.plot_centers.size(): shown_water[target] = sim.water_for(target)
+	ui_time = 0.0
+	rating_seen = -1
+	result_since = -1.0
+	plot_tooltip_rect = Rect2()
+	plot_tooltip_text = ""
+	visuals.clear_cache()
 	result_details.clear()
+	result_row_rects.clear()
 	feedback_states.clear()
 	feedback_adequate.clear()
 	feedback_texts.clear()
@@ -97,6 +141,7 @@ func reset_feedback() -> void:
 func update_feedback(dt: float) -> void:
 	if feedback_model != sim: reset_feedback()
 	for target in sim.plot_centers.size():
+		shown_water[target] = lerpf(shown_water[target], sim.water_for(target), 1.0 - exp(-dt * 20.0))
 		feedback_left[target] = maxf(0.0, feedback_left[target] - dt)
 		var state := sim.plot_status(target)
 		var text := ""
@@ -112,10 +157,10 @@ func update_feedback(dt: float) -> void:
 
 func status_text(target: int, final: bool = false) -> String:
 	if sim.is_reservoir(target):
-		return "已蓄满 · 溢流不损坏" if sim.target_complete(target) else "蓄水中 · 还差 %.1f" % (sim.required_water(target) - sim.water_for(target))
+		return "已蓄满 · 溢流不损坏" if sim.target_complete(target) else "蓄水中 · 还差 " + _quantity(sim.required_water(target)-sim.water_for(target))
 	match sim.plot_status(target):
-		"destroyed": return "过量损坏 · 不计星" if final else "损坏 · 仍可照顾其他地块"
-		"dry": return "缺水 · 还差 %.1f" % (sim.required_water(target) - sim.water_for(target)) if final else "缺水"
+		"destroyed": return "过量损坏 · 不计风纹" if final else "损坏 · 仍可照顾其他地块"
+		"dry": return "缺水 · 还差 " + _quantity(sim.required_water(target)-sim.water_for(target)) if final else "缺水"
 		"danger": return "水量已够 · 危险天气未解除" if final else "适量 · 附近仍有危险"
 		"confirming": return "水量已够 · 安全确认 %.1f / %.1f 秒" % [sim.plot_safe_times[target], sim.settings.safe_seconds] if final else "适量 · 正在确认安全"
 		_: return "已保住 · 当前安全"
@@ -130,6 +175,7 @@ func setup(model: RefCounted, weather_view: Node3D, input: Node) -> void:
 	wind_input = input
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	get_viewport().mouse_exited.connect(func(): pointer_received = true; pointer_position = Vector2(-1,-1))
 	font.font_names = PackedStringArray(["Microsoft YaHei", "Noto Sans CJK SC", "sans-serif"])
 	font.allow_system_fallback = true
 	var theme := Theme.new()
@@ -167,6 +213,8 @@ func setup(model: RefCounted, weather_view: Node3D, input: Node) -> void:
 	dismiss_hint.pressed.connect(func(): guide.cold_hint_left = 0.0)
 	add_child(dismiss_hint)
 	layout_selector = OptionButton.new()
+	layout_selector.fit_to_longest_item = false
+	layout_selector.add_theme_font_size_override("font_size", 13)
 	refresh_layouts()
 	layout_selector.item_selected.connect(func(index): layout_requested.emit(layout_ids[index]))
 	add_child(layout_selector)
@@ -181,7 +229,7 @@ func setup(model: RefCounted, weather_view: Node3D, input: Node) -> void:
 	result_retry.pressed.connect(func(): menu_open = false; restart_requested.emit())
 	add_child(result_retry)
 	levels_button = Button.new()
-	levels_button.text = "星级测试"
+	levels_button.text = "风纹测试"
 	levels_button.pressed.connect(func(): menu_open = false; levels_requested.emit())
 	add_child(levels_button)
 	timer_label = Label.new()
@@ -208,6 +256,10 @@ func setup(model: RefCounted, weather_view: Node3D, input: Node) -> void:
 	arrows_button.tooltip_text = "统一显示流向／抬升箭头与实际降雨范围；白色风线、雨线和风源标记始终保留。"
 	arrows_button.pressed.connect(func(): view.hints_enabled = not view.hints_enabled)
 	add_child(arrows_button)
+	for entry in [[brush_button, "brush"], [source_button, "source"], [vortex_button, "vortex"], [arrows_button, "hints"]]:
+		entry[0].icon = Visuals.tool_icon(entry[1])
+		entry[0].expand_icon = true
+		entry[0].add_theme_constant_override("icon_max_width", 16)
 	for index in 4:
 		var remove := Button.new()
 		remove.text = "×"
@@ -224,8 +276,8 @@ func setup(model: RefCounted, weather_view: Node3D, input: Node) -> void:
 		style.corner_radius_top_right = 8
 		style.corner_radius_bottom_left = 8
 		style.corner_radius_bottom_right = 8
-		style.content_margin_left = 12
-		style.content_margin_right = 12
+		style.content_margin_left = 7
+		style.content_margin_right = 7
 		button.add_theme_stylebox_override("normal", style)
 		var hover := style.duplicate()
 		hover.bg_color = Color("e2e9de")
@@ -233,11 +285,25 @@ func setup(model: RefCounted, weather_view: Node3D, input: Node) -> void:
 		pressed.bg_color = Color("d8dfcd")
 		button.add_theme_stylebox_override("hover", hover)
 		button.add_theme_stylebox_override("pressed", pressed)
+		button.add_theme_stylebox_override("hover_pressed", pressed)
+		var disabled := style.duplicate()
+		disabled.bg_color = Color(PANEL, 0.64)
+		button.add_theme_stylebox_override("disabled", disabled)
 		button.add_theme_color_override("font_hover_color", INK)
 		button.add_theme_color_override("font_pressed_color", INK)
 		button.add_theme_color_override("font_disabled_color", Color("82918b"))
 		button.add_theme_color_override("font_color", INK)
 		button.focus_mode = Control.FOCUS_NONE
+	for state in ["normal", "hover", "pressed", "hover_pressed"]:
+		var primary := next_button.get_theme_stylebox(state).duplicate() as StyleBoxFlat
+		primary.bg_color = Color("507b89").lightened(0.06 if state=="hover" else 0.0)
+		next_button.add_theme_stylebox_override(state, primary)
+		var secondary := result_retry.get_theme_stylebox(state).duplicate() as StyleBoxFlat
+		secondary.set_border_width_all(1)
+		secondary.border_color = Color(INK,0.32)
+		result_retry.add_theme_stylebox_override(state,secondary)
+	for state in ["font_color", "font_hover_color", "font_pressed_color"]:
+		next_button.add_theme_color_override(state, Color("f5f6eb"))
 
 func buttons() -> Array:
 	return [menu_button, retry, sandbox_button, cold_button, free_button, lesson_button, dismiss_hint, layout_selector,
@@ -355,14 +421,7 @@ func _draw_world_feedback() -> void:
 		for i in plot.size():
 			draw_line(plot[i], plot[(i + 1) % plot.size()], outline_color, 2.0 + flash * 2.0, true)
 		var label := _project(Vector3(center.x, 0.35, center.y))
-		var star := " ✓" if sim.star_level and sim.target_complete(target) else ""
-		_text(label + Vector2(-8, 5), String.chr(65 + target) + star, 18, INK)
-		if flash > 0.0:
-			var text: String = feedback_texts[target]
-			var width := font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 14).x
-			var at := label + Vector2(-width * 0.5, -30)
-			_rounded(Rect2(at + Vector2(-8, -20), Vector2(width + 16, 28)), PANEL, 6)
-			_text(at, text, 14, outline_color)
+		_text(label + Vector2(-8, 5), String.chr(65 + target), 16, INK)
 	if not wind_input.hover_valid:
 		return
 	if wind_input.tool == "source" and wind_input.dragging: return
@@ -403,18 +462,18 @@ func _draw_wind_tools() -> void:
 		last_tool = wind_input.tool
 		tool_hint_until = view.elapsed + 4.0
 	var rows := ceili(sim.wind_sources.size() / 2.0)
-	var width := 390.0
+	var width := 424.0
 	wind_toolbar_rect = Rect2(Vector2((size.x - width) * 0.5, size.y - 58 - rows * 27), Vector2(width, 42 + rows * 27))
 	_rounded(wind_toolbar_rect, PANEL, 9)
 	var at := wind_toolbar_rect.position
 	brush_button.position = at + Vector2(7, 5)
-	brush_button.size = Vector2(70, 30)
-	source_button.position = at + Vector2(81, 5)
-	source_button.size = Vector2(90, 30)
-	vortex_button.position = at + Vector2(175, 5)
-	vortex_button.size = Vector2(80, 30)
-	arrows_button.position = at + Vector2(259, 5)
-	arrows_button.size = Vector2(124, 30)
+	brush_button.size = Vector2(78, 30)
+	source_button.position = at + Vector2(89, 5)
+	source_button.size = Vector2(105, 30)
+	vortex_button.position = at + Vector2(198, 5)
+	vortex_button.size = Vector2(85, 30)
+	arrows_button.position = at + Vector2(287, 5)
+	arrows_button.size = Vector2(130, 30)
 	brush_button.set_pressed_no_signal(wind_input.tool == "brush")
 	source_button.set_pressed_no_signal(wind_input.tool == "source")
 	vortex_button.set_pressed_no_signal(wind_input.tool == "vortex")
@@ -544,6 +603,8 @@ func _draw_wind_meter(tip: Vector2, tier: int = -1, caption: String = "滚轮") 
 		var selected: bool = (wind_input.source_tier if tier < 0 else tier) == 2 - row
 		var segment := Rect2(at + Vector2(8, 7 + row * 24), Vector2(14, 20))
 		_rounded(segment, colors[row] if selected else colors[row].lerp(PANEL, 0.72), 3)
+		for tick in 3 - row:
+			draw_line(segment.position+Vector2(3,5+tick*4),segment.position+Vector2(11,5+tick*4), INK if selected else MUTED, 1.0, true)
 		if selected: draw_rect(segment.grow(1), INK, false, 1.0)
 		_text(at + Vector2(29, 23 + row * 24), labels[row], 12, INK if selected else MUTED)
 	_text(at + Vector2(8, 82), caption, 9, MUTED)
@@ -556,6 +617,7 @@ func _ground_region(target: int, padding: float = 0.0) -> PackedVector2Array:
 	var projection: Projection = view.camera.get_camera_projection()
 	if ground_model != sim or ground_view_id != view.get_instance_id() or ground_size != size or ground_transform != transform or ground_projection != projection:
 		ground_outlines.clear()
+		visuals.clear_cache()
 		ground_model = sim
 		ground_view_id = view.get_instance_id()
 		ground_size = size
@@ -573,6 +635,8 @@ func _ground_region(target: int, padding: float = 0.0) -> PackedVector2Array:
 func _draw() -> void:
 	if sim == null:
 		return
+	var draw_start := Time.get_ticks_usec()
+	if feedback_model != sim: reset_feedback()
 	var w := size.x
 	var h := size.y
 	if compact_model != sim:
@@ -604,28 +668,30 @@ func _draw() -> void:
 		free_button.position = Vector2(w * 0.5 - 90, h * 0.5 + 27)
 		free_button.size = Vector2(180, 32)
 	layout_selector.visible = play_mode == "free"
-	layout_selector.position = Vector2(20, 48)
-	layout_selector.size = Vector2(220, 30)
+	layout_selector.position = Vector2(105, 17)
+	layout_selector.size = Vector2(minf(245,w*0.21), 30)
+	layout_selector.tooltip_text = sim.layout.title + (" · 最佳%d枚风纹" % int(best_stars.get(sim.layout_id,0)) if sim.star_level else "")
 	if layout_selector.visible: layout_selector.select(layout_ids.find(sim.layout_id))
 	timer_rect = Rect2()
 	timer_label.visible = sim.timer_active()
 	if timer_label.visible:
 		var seconds := ceili(sim.time_remaining())
-		timer_label.text = "剩余 %02d:%02d" % [seconds / 60, seconds % 60]
-		timer_rect = Rect2(Vector2(249, 48), Vector2(126, 30))
+		timer_label.text = "%02d:%02d" % [seconds / 60, seconds % 60]
+		timer_label.tooltip_text = "剩余关卡时间"
+		timer_rect = Rect2(Vector2(layout_selector.position.x+layout_selector.size.x+12, 18), Vector2(76, 28))
 		timer_label.position = timer_rect.position
 		timer_label.size = timer_rect.size
-		timer_label.add_theme_font_size_override("font_size", 16)
+		timer_label.add_theme_font_size_override("font_size", 14)
 		timer_label.add_theme_color_override("font_color", GOLD if seconds <= 30 else INK)
 	_draw_reserve()
 	finish_button.visible = sim.star_level and not sim.sandbox and sim.outcome == "playing" and (sim.can_finish() or sim.can_end_shortage())
 	finish_button.disabled = not sim.can_finish() and not sim.can_end_shortage()
-	finish_button.text = "结束 · 当前 %d 星" % sim.earned_stars() if sim.can_end_shortage() else "收尾 · %d / 3 星" % sim.earned_stars()
+	finish_button.text = "结束 · 当前 %d 枚风纹" % sim.earned_stars() if sim.can_end_shortage() else "收尾 · %d / 3 风纹" % sim.earned_stars()
 	finish_button.tooltip_text = "只计当前已适量且安全的地块。" if sim.can_end_shortage() else "未损坏地块附近安全后可结算。"
 	if sim.plot_needs.any(func(needs): return needs != null and needs.goal_kind == "reservoir"):
 		finish_button.tooltip_text = "蓄水区蓄满即完成；农田仍须适量且持续安全。"
 	if sim.three_star_remaining() >= 0.0:
-		finish_button.text = "三星 · %d 秒后自动结算" % ceili(sim.three_star_remaining())
+		finish_button.text = "满风纹 · %d 秒后自动结算" % ceili(sim.three_star_remaining())
 	finish_button.position = Vector2(w - 216, h - 52)
 	finish_button.size = Vector2(196, 32)
 	next_button.visible = sim.star_level and not sim.sandbox and sim.outcome == "success"
@@ -643,7 +709,8 @@ func _draw() -> void:
 		draw_circle(marker, 4.0, INK, false, 1.2, true)
 		_text(marker + Vector2(10, -8), sim.tropical.stage, 12, INK)
 	_draw_guide()
-	_text(Vector2(22, 36), "风织雨", 22)
+	_draw_rating()
+	_text(Vector2(22, 38), "风织雨", 20)
 	var status := "把湿空气推向山坡，再把厚云送到地块上方"
 	if play_mode == "free":
 		status = sim.layout.hint
@@ -663,12 +730,12 @@ func _draw() -> void:
 	if sim.sandbox:
 		status = "交互小样 · 试拨云边或迎向冷风前沿；R 回正式开局"
 	elif sim.star_level:
-		if sim.plot_destroyed.any(func(value): return value): status = "有地块已损坏 · 仍可挽救其他土地，争取剩余星星"
+		if sim.plot_destroyed.any(func(value): return value): status = "有地块已损坏 · 仍可挽救其他目标"
 		if sim.earned_stars() > 0:
-			status = "已有 %d 颗星 · 可以继续争取更多，也可安全收尾后结算" % sim.earned_stars()
+			status = "当前 %d 枚风纹 · 可以继续争取更多，也可安全收尾后结算" % sim.earned_stars()
 			if sim.threat: status = "已有达标地块 · 清除未损坏土地附近的危险天气，才能结算"
-		if sim.can_end_shortage(): status = "剩余水分不足 · 可继续整理天气争星，也可按当前星数结束"
-		if sim.three_star_remaining() >= 0.0: status = "三星达成 · 即将自动结算，失星会取消倒数"
+		if sim.can_end_shortage(): status = "剩余水分不足 · 可继续整理天气，也可按当前风纹结束"
+		if sim.three_star_remaining() >= 0.0: status = "已获满风纹 · 即将自动结算，失去安全会取消倒数"
 	if paused:
 		status = "已暂停 · 空格继续"
 	if sim.star_level and sim.outcome != "playing":
@@ -681,7 +748,9 @@ func _draw() -> void:
 	var urgent := paused or sim.can_end_shortage() or sim.three_star_remaining() >= 0.0 or not tuning_message.is_empty()
 	if (view.elapsed < status_until or urgent) and sim.outcome == "playing":
 		var status_width := font.get_string_size(status, HORIZONTAL_ALIGNMENT_LEFT, -1, 13).x
-		status_rect = Rect2(Vector2((w - status_width) * 0.5 - 10, 17), Vector2(status_width + 20, 27))
+		var status_y := maxf(54, guide_rect.end.y+7) if guide_rect.has_area() else 54.0
+		if rating_rect.has_point(_pointer()): status_y = maxf(status_y,78)
+		status_rect = Rect2(Vector2((w - status_width) * 0.5 - 10, status_y), Vector2(status_width + 20, 27))
 		_rounded(status_rect, PANEL, 7)
 		_text(status_rect.position + Vector2(10, 19), status, 13)
 	_draw_plot_labels()
@@ -698,20 +767,21 @@ func _draw() -> void:
 		_text(Vector2(42, 238), "成雨 %.2fs · 安全 %.2f / %.2fs" % [sim.settings.hold_seconds, sim.safe_time, sim.settings.safe_seconds], 14)
 		_text(Vector2(42, 262), "冷风抬升 %.1f · 风线 %d" % [sim.total_cold_lift, view.visible_wind_lines], 14)
 		_text(Vector2(42, 288), "F2 云 / F4 冷风小样，不计通关", 13, MUTED)
+	draw_ms = (Time.get_ticks_usec()-draw_start)/1000.0
 
 func _draw_reserve() -> void:
 	reserve_rect = Rect2()
 	reserve_message = ""
 	if not sim.timer_active(): return
-	reserve_rect = Rect2(Vector2(20, 86), Vector2(220, 32))
-	_rounded(reserve_rect, PANEL, 8)
+	reserve_rect = Rect2(Vector2(20, 54), Vector2(230, 23))
+	_rounded(reserve_rect, PANEL, 6)
 	var at := reserve_rect.position
 	var baseline: float = maxf(sim.initial_water, 0.000001)
 	var wet_fraction: float = clampf(sim.remaining_humidity / baseline, 0.0, 1.0)
 	var cloud_fraction: float = clampf(sim.remaining_cloud / baseline, 0.0, 1.0 - wet_fraction)
 	var percent: String = "<1%" if wet_fraction + cloud_fraction > 0.0 and wet_fraction + cloud_fraction < 0.01 else "%d%%" % floori((wet_fraction + cloud_fraction) * 100.0)
 	_text(at + Vector2(9, 15), "储备 " + percent, 12)
-	var bar := Rect2(at + Vector2(9, 21), Vector2(202, 5))
+	var bar := Rect2(at + Vector2(83, 9), Vector2(137, 5))
 	_rounded(bar, Color("254f52"), 4)
 	if wet_fraction > 0.0: draw_rect(Rect2(bar.position, Vector2(bar.size.x * wet_fraction, 5)), VAPOR_COLOR)
 	if cloud_fraction > 0.0: draw_rect(Rect2(bar.position + Vector2(bar.size.x * wet_fraction, 0), Vector2(bar.size.x * cloud_fraction, 5)), CLOUD_WATER_COLOR)
@@ -725,7 +795,7 @@ func _draw_reserve() -> void:
 		reserve_message = "水汽所剩不多，云中仍有储水"
 	else:
 		reserve_message = "水汽成云后，储备仍可用于降雨"
-	if reserve_rect.has_point(get_local_mouse_position()):
+	if reserve_rect.has_point(_pointer()):
 		var detail := Rect2(reserve_rect.position + Vector2(0, 38), Vector2(282, 48))
 		_rounded(detail, PANEL, 7)
 		_text(detail.position + Vector2(9, 17), "浅青：水汽 · 灰蓝：云中储水", 12)
@@ -741,86 +811,174 @@ func _draw_legacy_result(w: float, h: float) -> void:
 		_text(Vector2(w * 0.5 - 230, h * 0.5 + 43), "按 R 重新开始同一个局面", 14, MUTED)
 
 func _draw_star_result(w: float, h: float) -> void:
-	var height := 224.0 + sim.plot_centers.size() * 30.0
-	result_rect = Rect2(w * 0.5 - 320, h * 0.5 - height * 0.5, 640, height)
-	_rounded(result_rect, PANEL)
-	var left := result_rect.position + Vector2(24, 34)
-	var headline := "这场雨，保住了 %d/%d 块土地。" % [sim.result_saved_count, sim.plot_centers.size()] if sim.outcome == "success" else "土地都被浇坏了，再试一次。"
-	if sim.timed_out:
-		headline = "时间到 · 保住了 %d/%d 块土地。" % [sim.result_saved_count, sim.plot_centers.size()] if sim.result_stars > 0 else "时间到 · 本次未获得星星。"
-	elif sim.ended_for_shortage:
-		headline = "本局结束 · 保住了 %d/%d 块土地。" % [sim.result_saved_count, sim.plot_centers.size()] if sim.result_stars > 0 else "本局结束 · 本次未获得星星。"
-	if sim.plot_needs.any(func(needs): return needs != null and needs.goal_kind == "reservoir"):
-		headline = ("时间到 · " if sim.timed_out else "本局结束 · ") + "完成 %d/%d 个目标。" % [sim.result_saved_count, sim.plot_centers.size()]
-	_text(left, headline, 23)
-	_text(left + Vector2(0, 44), "★".repeat(sim.result_stars) + "☆".repeat(3 - sim.result_stars), 30, GOLD)
+	var width := minf(500.0, w - 40)
+	var height := 246.0 + sim.plot_centers.size() * 64.0
+	result_rect = Rect2(Vector2((w-width)*0.5, (h-height)*0.5), Vector2(width, height))
+	_rounded(result_rect, Color(0.96,0.96,0.90,0.97), 13)
+	draw_rect(result_rect.grow(-1), Color(INK,0.35), false, 1.2)
+	var at := result_rect.position
+	if result_since < 0.0: result_since = ui_time
+	var headline := "本局完成" if sim.result_stars > 0 else "本局结束"
+	if sim.timed_out: headline = "时间到"
+	_text(at+Vector2((width-font.get_string_size(headline,HORIZONTAL_ALIGNMENT_LEFT,-1,23).x)*0.5,35), headline, 23)
+	for index in 3:
+		var age := clampf((ui_time-result_since-index*0.12)/0.2,0,1)
+		visuals.medal(self, at+Vector2(width*0.5+(index-1)*68,80), 24, index<sim.result_stars, age)
+	_text(at+Vector2(width*0.5-64,125), "风纹评价 %d/3" % sim.result_stars, 15, GOLD)
 	result_details.clear()
+	result_row_rects.clear()
 	for target in sim.plot_centers.size():
-		var text := "%s  %.1f  ·  %s" % [String.chr(65 + target), sim.water_for(target), status_text(target, true)]
-		if not sim.plot_name(target).is_empty():
-			text = "%s %s  %.1f/%.0f  ·  %s" % [String.chr(65 + target), sim.plot_name(target).left(4), sim.water_for(target), sim.required_water(target), status_text(target, true)]
-		result_details.append(text)
-		_text(left + Vector2(0, 80 + target * 30), text, 16)
-	_text(left + Vector2(0, 92 + sim.plot_centers.size() * 30), "本局 %d 星 · 最佳 %d 星 · 重试不会降低纪录" % [sim.result_stars, int(best_stars.get(sim.layout_id, 0))], 14, MUTED)
-	result_retry.position = result_rect.position + Vector2(24, height - 56)
-	result_retry.size = Vector2(160, 36)
+		var row := Rect2(at+Vector2(20,143+target*64),Vector2(width-40,64))
+		result_row_rects.append(row)
+		draw_line(row.position,Vector2(row.end.x,row.position.y),Color(INK,0.13),1.0)
+		_text(row.position+Vector2(2,25),String.chr(65+target),15)
+		_draw_water_row(target,row.position+Vector2(26,8),true)
+		var name: String = sim.plot_name(target) if not sim.plot_name(target).is_empty() else "农田"
+		var amount := "%s  %s/%s" % [name.left(8),_quantity(sim.water_for(target)),_quantity(sim.required_water(target)).trim_suffix(".0")]
+		_text(row.position+Vector2(202,24),amount,14)
+		var reason := status_text(target,true)
+		_text(row.position+Vector2(2,52),reason,15,Visuals.DAMAGE if sim.plot_destroyed[target] else MUTED)
+		result_details.append("%s %s %s/%s · %s" % [String.chr(65+target),name,_quantity(sim.water_for(target)),_quantity(sim.required_water(target)).trim_suffix(".0"),reason])
+	var summary := "完成 %d/%d 个目标 · 最佳 %d 枚风纹" % [sim.result_saved_count,sim.plot_centers.size(),int(best_stars.get(sim.layout_id,0))]
+	_text(at+Vector2(22,height-67),summary,14,MUTED)
+	result_retry.position = at+Vector2(22,height-49)
+	result_retry.size = Vector2(150,32)
 	var index := Layouts.LEVELS.find(sim.layout_id)
-	next_button.text = "下一测试局" if index >= 0 and index + 1 < Layouts.LEVELS.size() else "返回三处田园"
-	next_button.position = result_rect.position + Vector2(406, height - 56)
-	next_button.size = Vector2(210, 36)
+	next_button.text = "下一测试局" if index >= 0 and index+1 < Layouts.LEVELS.size() else "返回三处田园"
+	next_button.position = at+Vector2(width-192,height-49)
+	next_button.size = Vector2(170,32)
+
+func _group_label(units: float) -> String:
+	return "×%d" % int(units) if units < 10000 else "×"+String.num_scientific(units)
+
+func _quantity(value: float, decimals := 1) -> String:
+	if absf(value)>=1e6 or (value!=0 and absf(value)<0.1): return String.num_scientific(value)
+	return String.num(value,decimals).pad_decimals(decimals)
+
+func _water_width(target: int) -> float:
+	if sim.is_reservoir(target): return 36.0
+	var slots := Visuals.water_slots(sim.required_water(target),0)
+	var width := slots.size()*16.0-4.0
+	if slots[-1].units > 1:
+		width += 4+font.get_string_size(_group_label(slots[-1].units),HORIZONTAL_ALIGNMENT_LEFT,-1,10).x
+	return width
+
+func _draw_water_row(target: int, at: Vector2, exact := false) -> void:
+	var water: float = sim.water_for(target) if exact else shown_water[target]
+	if sim.is_reservoir(target):
+		visuals.water_glyph(self,Rect2(at,Vector2(36,18)),clampf(water/sim.required_water(target),0,1),Visuals.WATER,true)
+	else:
+		var slots := Visuals.water_slots(sim.required_water(target),water)
+		for index in slots.size():
+			visuals.water_glyph(self,Rect2(at+Vector2(index*16,0),Vector2(12,18)),slots[index].fill,water_color(target))
+			if slots[index].units > 1:
+				_text(at+Vector2(index*16+16,15),_group_label(slots[index].units),10,MUTED)
+	var progress := clampf(sim.plot_safe_times[target]/sim.settings.safe_seconds,0,1)
+	visuals.state_glyph(self,at+Vector2(_water_width(target)+15,9),sim.plot_status(target),progress)
+
+func _target_short(target: int) -> String:
+	if sim.is_reservoir(target): return "已蓄满" if sim.target_complete(target) else "蓄水中"
+	match sim.plot_status(target):
+		"dry": return "还差"+_quantity(maxf(0,sim.required_water(target)-sim.water_for(target))).trim_suffix(".0")
+		"danger": return "移云"
+		"confirming": return "确认安全"
+		"safe": return "已保住"
+		_: return "过量损坏"
+
+func _floating_rect(anchor: Rect2, width: float, height: float) -> Rect2:
+	var candidates := [Vector2(anchor.position.x,anchor.position.y-height-7),
+		Vector2(anchor.position.x,anchor.end.y+7),
+		Vector2(anchor.position.x-width-7,anchor.position.y),
+		Vector2(anchor.end.x+7,anchor.position.y)]
+	var result := Rect2()
+	for point in candidates:
+		result = Rect2(Vector2(clampf(point.x,8,size.x-width-8),clampf(point.y,108,size.y-height-90)),Vector2(width,height))
+		var clear := not result.intersects(wind_toolbar_rect) and not (menu_open and result.intersects(menu_rect))
+		for other in plot_label_rects: clear = clear and not result.intersects(other.grow(3))
+		if clear: return result
+	return result
 
 func _draw_plot_labels() -> void:
+	plot_tooltip_rect = Rect2()
+	plot_tooltip_text = ""
+	plot_glyph_slots.clear()
+	var mouse := _pointer()
 	var hovered := -1
+	var event_target := -1
 	for target in sim.plot_centers.size():
 		var outline := _ground_region(target)
 		var bottom := -INF
 		var center := Vector2.ZERO
 		for p in outline:
-			bottom = maxf(bottom, p.y)
+			bottom = maxf(bottom,p.y)
 			center += p
 		center /= outline.size()
-		var at := Vector2(clampf(center.x - 78, 12, size.x - 168), clampf(bottom + 7, 122, size.y - 108))
-		var rect := Rect2(at, Vector2(156, 42))
-		for attempt in 6:
+		var width := 20+_water_width(target)+31
+		var rect := Rect2(Vector2(clampf(center.x-width*0.5,12,size.x-width-12),clampf(bottom+7,108,size.y-108)),Vector2(width,30))
+		for attempt in 12:
 			var overlap := rect.intersects(wind_toolbar_rect) or (menu_open and rect.intersects(menu_rect))
-			for placed in plot_label_rects: overlap = overlap or rect.intersects(placed.grow(4))
+			for placed in plot_label_rects: overlap = overlap or rect.intersects(placed.grow(5))
 			if not overlap: break
-			rect.position.y = maxf(122, rect.position.y - 48)
+			rect.position.y = maxf(108,rect.position.y-36)
 		plot_label_rects.append(rect)
-		_rounded(rect, PANEL, 7)
-		var state := sim.plot_status(target)
-		var short := {"dry": "缺水", "danger": "留意移云", "confirming": "确认安全", "safe": "已保住", "destroyed": "损坏"}
-		if sim.is_reservoir(target): short = {"dry": "蓄水中", "safe": "已蓄满 · 可继续承雨"}
-		var amount: float = sim.water_for(target)
-		var accent := water_color(target)
-		var typed: bool = not sim.plot_name(target).is_empty()
-		if typed:
-			_text(rect.position + Vector2(8, 14), "%s %s · %.1f/%.0f" % [String.chr(65 + target), sim.plot_name(target).left(4), amount, sim.required_water(target)], 11)
-			_text(rect.position + Vector2(8, 38), short.get(state, ""), 10, Color("c76e60") if state == "destroyed" else MUTED)
-		else:
-			_text(rect.position + Vector2(8, 16), String.chr(65 + target), 13)
-			_text(rect.position + Vector2(27, 16), short.get(state, ""), 12, accent)
-		var bar := Rect2(rect.position + Vector2(8, 21 if typed else 25), Vector2(140, 6 if typed else 7))
-		_rounded(bar, Color("cdd8d3"), 3)
-		var fill: float = sim.plot_progress(target)
-		if fill > 0: draw_rect(Rect2(bar.position, Vector2(140 * fill, bar.size.y)), accent)
-		draw_line(bar.position + Vector2(140, -2), bar.position + Vector2(140, bar.size.y + 2), INK, 1)
-		if rect.has_point(get_local_mouse_position()): hovered = target
+		plot_glyph_slots.append([] if sim.is_reservoir(target) else Visuals.water_slots(sim.required_water(target),shown_water[target]))
+		_rounded(rect,PANEL,7)
+		_text(rect.position+Vector2(7,20),String.chr(65+target),13)
+		_draw_water_row(target,rect.position+Vector2(23,6))
+		if not blocks_wind(mouse) and (rect.has_point(mouse) or Geometry2D.is_point_in_polygon(mouse,outline)): hovered = target
+		if feedback_left[target] > 0 and (event_target < 0 or sim.plot_destroyed[target]): event_target = target
+	if sim.outcome != "playing": return
+	var target := hovered if hovered >= 0 else event_target
+	if target < 0: return
+	var anchor := plot_label_rects[target]
 	if hovered >= 0:
-		var rect := plot_label_rects[hovered]
-		var at := Vector2(clampf(rect.position.x - 42, 12, size.x - 288), rect.position.y - 62)
-		_rounded(Rect2(at, Vector2(276, 56)), PANEL, 7)
-		var detail := "%s %.1f · 适量 %.0f–%.0f" % [sim.plot_name(hovered), sim.water_for(hovered), sim.required_water(hovered), sim.flood_limit(hovered)]
-		if sim.is_reservoir(hovered): detail = "蓄水 %.1f / %.0f · 满后溢流不损坏" % [sim.water_for(hovered), sim.required_water(hovered)]
-		_text(at + Vector2(9, 19), detail, 12)
-		_text(at + Vector2(9, 42), status_text(hovered, true), 12)
+		var name: String = sim.plot_name(target) if not sim.plot_name(target).is_empty() else "农田"
+		var first := "%s %s · %s/%s" % [String.chr(65+target),name.left(12),_quantity(sim.water_for(target)),_quantity(sim.required_water(target)).trim_suffix(".0")]
+		var second := status_text(target,true)
+		var third := "满后可继续承雨" if sim.is_reservoir(target) else "适量 %s–%s · 每滴%.0f" % [_quantity(sim.required_water(target)).trim_suffix(".0"),_quantity(sim.flood_limit(target)).trim_suffix(".0"),Visuals.DROP_WATER]
+		if not sim.is_reservoir(target):
+			var slots := Visuals.water_slots(sim.required_water(target),0)
+			var tail: float = fmod(sim.required_water(target),Visuals.DROP_WATER)
+			if slots[-1].units > 1: third += " · 叠滴"+_quantity(slots[-1].capacity).trim_suffix(".0")
+			elif tail > 0: third += " · 末滴"+_quantity(tail).trim_suffix(".0")
+		var width := maxf(235,maxf(font.get_string_size(first,HORIZONTAL_ALIGNMENT_LEFT,-1,12).x,maxf(font.get_string_size(second,HORIZONTAL_ALIGNMENT_LEFT,-1,12).x,font.get_string_size(third,HORIZONTAL_ALIGNMENT_LEFT,-1,11).x))+18)
+		plot_tooltip_rect = _floating_rect(anchor,width,68)
+		plot_tooltip_text = first+"\n"+second+"\n"+third
+		_rounded(plot_tooltip_rect,PANEL,7)
+		_text(plot_tooltip_rect.position+Vector2(9,18),first,12)
+		_text(plot_tooltip_rect.position+Vector2(9,39),second,12,MUTED)
+		_text(plot_tooltip_rect.position+Vector2(9,59),third,11,MUTED)
+	else:
+		var text := _target_short(target)
+		plot_tooltip_rect = _floating_rect(anchor,font.get_string_size(text,HORIZONTAL_ALIGNMENT_LEFT,-1,12).x+18,26)
+		plot_tooltip_text = text
+		_rounded(plot_tooltip_rect,PANEL,6)
+		_text(plot_tooltip_rect.position+Vector2(9,18),text,12,Visuals.DAMAGE if sim.plot_destroyed[target] else INK)
+
+func _draw_rating() -> void:
+	rating_rect = Rect2()
+	if not sim.star_level or sim.sandbox or sim.outcome != "playing": return
+	var rating := sim.earned_stars()
+	if rating_seen != rating:
+		rating_seen = rating
+		rating_since = ui_time
+	rating_rect = Rect2(Vector2(size.x*0.5-56,15),Vector2(112,30))
+	for index in 3:
+		visuals.medal(self,rating_rect.position+Vector2(16+index*40,15),12,index<rating,clampf((ui_time-rating_since-index*0.12)/0.2,0,1))
+	if rating_rect.has_point(_pointer()):
+		var text := "当前 %d/3 · 最佳 %d 枚风纹" % [rating,int(best_stars.get(sim.layout_id,0))]
+		var width := font.get_string_size(text,HORIZONTAL_ALIGNMENT_LEFT,-1,12).x+18
+		var rect := Rect2(Vector2(size.x*0.5-width*0.5,46),Vector2(width,25))
+		_rounded(rect,PANEL,6)
+		_text(rect.position+Vector2(9,17),text,12)
 
 func refresh_layouts() -> void:
 	layout_ids = Layouts.get_ids()
 	layout_selector.clear()
+	layout_selector.clip_text = true
 	for id in layout_ids:
 		var definition := Layouts.get_definition(id)
-		layout_selector.add_item(definition.title + (" · %d星" % int(best_stars.get(id, 0)) if definition.star_level else ""))
+		layout_selector.add_item(definition.title+(" · 最佳%d风纹" % int(best_stars.get(id,0)) if definition.star_level else ""))
 	if sim != null and not sim.layout_id in layout_ids:
 		layout_ids.append(sim.layout_id)
 		layout_selector.add_item(sim.layout.title)

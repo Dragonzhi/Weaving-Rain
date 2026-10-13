@@ -35,7 +35,7 @@ func run() -> void:
 	await RenderingServer.frame_post_draw
 	check(main.sim.layout_id == "meadow" and main.sim.star_level and main.sim.plot_centers.size() == 3, "Actual entry button starts a normal three-field level")
 	check(not main.hud.finish_button.visible and main.hud.finish_button.disabled, "No stars keeps unusable finish out of the scene")
-	check(main.hud.timer_label.visible and main.hud.timer_label.text == "剩余 03:00", "Star entry displays the map countdown")
+	check(main.hud.timer_label.visible and main.hud.timer_label.text == "03:00", "Wind-medal entry displays the compact map countdown")
 	check(not main.hud.blocks_wind(main.hud.timer_rect.get_center()), "Informational countdown allows wind through")
 	main.paused = true
 	main._process(0.1)
@@ -63,7 +63,7 @@ func run() -> void:
 	main.hud.queue_redraw()
 	await process_frame
 	await RenderingServer.frame_post_draw
-	check(main.hud.reserve_message == "剩余水分不足以浇够新地块" and not main.hud.finish_button.disabled and main.hud.finish_button.text == "结束 · 当前 0 星", "Exhausted reserve offers explicit zero-star ending")
+	check(main.hud.reserve_message == "剩余水分不足以浇够新地块" and not main.hud.finish_button.disabled and main.hud.finish_button.text == "结束 · 当前 0 枚风纹", "Exhausted reserve offers explicit zero-star ending")
 	check(main.sim.outcome == "playing" and main.wind_input.enabled, "Shortage notice allows continued interaction")
 	if "--capture" in OS.get_cmdline_user_args(): root.get_texture().get_image().save_png("res://.godot/water-shortage.png")
 	click(main.hud.finish_button)
@@ -84,12 +84,12 @@ func run() -> void:
 	main.hud.queue_redraw()
 	await process_frame
 	await RenderingServer.frame_post_draw
-	check(main.hud.finish_button.text == "结束 · 当前 0 星" and main.sim.outcome == "playing", "Unsafe adequate field can continue rather than being auto-ended")
+	check(main.hud.finish_button.text == "结束 · 当前 0 枚风纹" and main.sim.outcome == "playing", "Unsafe adequate field can continue rather than being auto-ended")
 	main.sim.step(2.1)
 	main.hud.queue_redraw()
 	await process_frame
 	await RenderingServer.frame_post_draw
-	check(main.hud.finish_button.text == "结束 · 当前 1 星", "Continuing shortage updates the offered stars after real safety ticks")
+	check(main.hud.finish_button.text == "结束 · 当前 1 枚风纹", "Continuing shortage updates the offered stars after real safety ticks")
 	main.restart(false)
 	main.sim.plot_waters[0] = 110
 	main.sim.plot_waters[2] = 151
@@ -119,7 +119,7 @@ func run() -> void:
 	main.hud.queue_redraw()
 	await process_frame
 	await RenderingServer.frame_post_draw
-	check(main.hud.finish_button.text == "三星 · 3 秒后自动结算" and not main.hud.finish_button.disabled, "Actual button shows automatic delay and remains clickable")
+	check(main.hud.finish_button.text == "满风纹 · 3 秒后自动结算" and not main.hud.finish_button.disabled, "Actual button shows automatic delay and remains clickable")
 	main.paused = true
 	main._process(0.1)
 	check(main.sim.three_star_remaining() == 3.0, "Real pause freezes perfect countdown")
@@ -141,7 +141,7 @@ func run() -> void:
 	main.hud.queue_redraw()
 	await process_frame
 	await RenderingServer.frame_post_draw
-	check(main.hud.finish_button.text == "三星 · 3 秒后自动结算", "Regained stars show a fresh full countdown")
+	check(main.hud.finish_button.text == "满风纹 · 3 秒后自动结算", "Regained stars show a fresh full countdown")
 	if "--capture" in OS.get_cmdline_user_args(): root.get_texture().get_image().save_png("res://.godot/three-star-countdown.png")
 	click(main.hud.finish_button)
 	await process_frame

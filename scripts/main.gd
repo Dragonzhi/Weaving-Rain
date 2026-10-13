@@ -193,7 +193,7 @@ func record_result() -> void:
 	hud.best_stars = progress.best
 	hud.refresh_layouts()
 	hud.queue_redraw()
-	if saved != OK: _tuning_feedback("本局结果有效，保存星数失败：" + error_string(saved))
+	if saved != OK: _tuning_feedback("本局结果有效，保存风纹纪录失败：" + error_string(saved))
 
 func next_level() -> void:
 	if not sim.star_level or sim.sandbox or sim.outcome != "success": return

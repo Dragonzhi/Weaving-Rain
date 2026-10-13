@@ -71,6 +71,12 @@ func run() -> void:
 	button(start, true)
 	move(screen(Vector2(-4.5, 0)))
 	await create_timer(0.2).timeout
+	# Timers can expire after a long frame's main-loop sample. Check only after
+	# the following real main-loop/render frame has applied the held state.
+	var pending: bool = main.sim.held_wind.is_empty()
+	await process_frame
+	await RenderingServer.frame_post_draw
+	if pending: print("HELD SAMPLE after frame: dragging=", main.wind_input.dragging, " direction=", main.wind_input.gesture_direction)
 	check(not main.sim.held_wind.is_empty(), "Actual drag then hold continues blowing")
 	move(screen(Vector2(-4, 0)))
 	check(main.sim.held_wind.is_empty(), "New mouse motion immediately stops held force")
