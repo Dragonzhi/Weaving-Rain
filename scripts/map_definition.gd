@@ -17,12 +17,14 @@ extends Resource
 @export var plot_regions: Array[WRPlotRegion] = []
 ## 按地块顺序关联需求；空项继承全局天气配置。修改需求文件后重试／切图生效。
 @export var plot_needs: Array[WRPlotNeeds] = []
-## 星级关卡：一块适量且安全的土地一颗星，至少一星可主动收尾；旧练习局保持全部达标规则。
+## 每目标按用途完成，实际完成数折算固定0–3星，至少一星且农田附近安全可主动收尾；旧练习局须全部完成。
 @export var star_level := false
 ## 星级关卡的游玩时限，单位为秒。越短越需要提前安排输雨与安全收尾；越长越容易继续争星。
 ## 到时仅计算已经适量且连续安全的地块。入门、旧练习局和开发小样不计时；修改后重新开局生效。
 @export_range(1.0, 3600.0, 1.0) var time_limit_seconds := 180.0
 @export var humidity_sources: Array[WRHumiditySource] = []
+@export_group("热带主题（空项关闭）")
+@export var warm_sea: WRWarmSea
 
 func to_layout() -> Dictionary:
 	var first := mountains[0] if not mountains.is_empty() and mountains[0] != null else WRMountain.new()
@@ -32,13 +34,15 @@ func to_layout() -> Dictionary:
 		"island_axes": island_axes, "coast_variation": coast_variation, "river_enabled": river_enabled,
 		"mountain": first.position, "mountain_radius": first.radius, "mountains": mountains,
 		"plots": plots, "plot_regions": plot_regions, "plot_needs": plot_needs, "star_level": star_level, "time_limit_seconds": time_limit_seconds,
-		"west_air": west, "east_air": east, "humidity_sources": humidity_sources}
+		"west_air": west, "east_air": east, "humidity_sources": humidity_sources, "warm_sea": warm_sea}
 
 func region(index: int) -> WRPlotRegion:
 	return plot_regions[index] if index < plot_regions.size() and plot_regions[index] != null else WRPlotRegion.new()
 
 func validation_errors(plot_half: float = 1.25) -> PackedStringArray:
 	var errors := PackedStringArray()
+	if warm_sea != null:
+		for error in warm_sea.validation_errors(): errors.append("warm_sea：" + error)
 	if id.strip_edges().is_empty(): errors.append("id：不能为空")
 	if title.strip_edges().is_empty(): errors.append("title：不能为空")
 	if not is_finite(time_limit_seconds) or time_limit_seconds < 1.0 or time_limit_seconds > 3600.0:
@@ -72,6 +76,7 @@ func validation_errors(plot_half: float = 1.25) -> PackedStringArray:
 		elif absf(source.position.x) > 12 or absf(source.position.y) > 10: errors.append("humidity_sources[%d]：中心超出地图编辑范围" % n)
 	if not errors.is_empty(): return errors
 	var terrain := preload("res://scripts/terrain_model.gd").new(to_layout())
+	if warm_sea != null and terrain.is_land(warm_sea.seed_position): errors.append("warm_sea.seed_position：初始中心须在海上")
 	for n in 192:
 		var p: Vector2 = terrain.island_point(n * TAU / 192.0)
 		if absf(p.x) > 12.0 or absf(p.y) > 10.0:

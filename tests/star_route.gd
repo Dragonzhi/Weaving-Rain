@@ -12,6 +12,9 @@ var per_target: Array = []
 var late_clear_seconds := 0.0
 var late_clear_started := -1.0
 var narrow_lookahead := 4.5
+var farm_lookahead := 2.8
+var farm_floor_fraction := 0.65
+var clear_to_next := true
 
 func _init(sequence: Array = [0, 1, 2], route: String = "mountain") -> void:
 	order = sequence.duplicate()
@@ -53,11 +56,11 @@ func next_command(sim: RefCounted, time: float) -> Dictionary:
 		if n >= 0 and sim.rain[i] > 0.0:
 			incoming[n] += (sim.rain[i] * sim.settings.rain_rate + sim.settings.rain_base_rate) * sim.plot_water_scales[n]
 	for n in order:
-		if sim.plot_destroyed[n]: continue
+		if sim.plot_destroyed[n] or sim.is_reservoir(n): continue
 		var need: float = sim.required_water(n)
 		var early_clear: float = need + (sim.flood_limit(n) - need) * 0.24
-		var floor_water := need * 0.65
-		var lookahead := 2.8
+		var floor_water := need * farm_floor_fraction
+		var lookahead := farm_lookahead
 		if sim.plot_needs[n] != null and sim.flood_limit(n) - need < need * 0.5:
 			floor_water = need * 0.2
 			lookahead = narrow_lookahead
@@ -77,6 +80,7 @@ func next_command(sim: RefCounted, time: float) -> Dictionary:
 		var direction := Vector2(0, -1 if sim.plot_centers[danger_target].y < 0 else 1)
 		var kind := "clear"
 		for next_target in order:
+			if not clear_to_next: break
 			# A narrow-tolerance plot needs the rain cleared before turning it
 			# back toward another field; a direct reversal can keep rain overhead.
 			if sim.plot_needs[danger_target] != null and sim.flood_limit(danger_target) - sim.required_water(danger_target) < sim.required_water(danger_target) * 0.5: break
@@ -114,8 +118,11 @@ func next_command(sim: RefCounted, time: float) -> Dictionary:
 			return push(sim.positions[chosen] - direction * 0.5, direction, 1.2, 8.0, "front", target, time)
 	if mass < 25.0 or (peak < 1.1 and sim.total_rain_rate < 0.2 and int(time * 2) % 3 == 0):
 		var mountain: Vector2 = sim.terrain.mountain
-		for candidate in sim.terrain.mountains:
-			if candidate.position.distance_to(goal) < mountain.distance_to(goal): mountain = candidate.position
+		if sim.tropical != null:
+			mountain = sim.tropical.center
+		else:
+			for candidate in sim.terrain.mountains:
+				if candidate.position.distance_to(goal) < mountain.distance_to(goal): mountain = candidate.position
 		var source := mountain
 		var best := 0.0
 		for i in Sim.COUNT:
@@ -143,5 +150,5 @@ func report(sim: RefCounted) -> Dictionary:
 		"stars": sim.result_stars, "elapsed": sim.elapsed_seconds, "limit": sim.time_limit_seconds,
 		"strokes": strokes, "transport_strokes": transport_strokes, "transport_distance": transport_distance,
 		"front_strokes": front_strokes, "per_target": per_target, "water": Array(sim.plot_waters),
-		"destroyed": sim.plot_destroyed, "water_error": sim.water_total() - sim.initial_water,
+		"destroyed": sim.plot_destroyed, "water_error": sim.water_error(),
 		"cold_lift": sim.total_cold_lift, "actions": encoded}

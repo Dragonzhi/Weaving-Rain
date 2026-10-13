@@ -1,0 +1,31 @@
+[gd_resource type="Resource" script_class="WRMapDefinition" load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://scripts/map_definition.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/map_mountain.gd" id="2"]
+[ext_resource type="Script" path="res://scripts/map_humidity.gd" id="3"]
+[ext_resource type="Script" path="res://scripts/plot_needs.gd" id="4"]
+[ext_resource type="Resource" path="res://configs/plots/ordinary.tres" id="5"]
+[ext_resource type="Resource" path="res://configs/plots/reservoir.tres" id="6"]
+
+[sub_resource type="Resource" id="Mountain"]
+script = ExtResource("2")
+position = Vector2(-1.7, -0.6)
+radius = 2.3
+height = 2.5
+
+[sub_resource type="Resource" id="Air"]
+script = ExtResource("3")
+position = Vector2(-6.2, 1.4)
+
+[resource]
+script = ExtResource("1")
+id = "reservoir_lab"
+title = "蓄水与农田"
+hint = "农田适量后移云 · 蓄水区满后可继续承雨，不必等停雨"
+river_enabled = false
+star_level = true
+time_limit_seconds = 180.0
+mountains = Array[ExtResource("2")]([SubResource("Mountain")])
+plots = PackedVector2Array(2.8, 1.2, -4.3, 2.6)
+plot_needs = Array[ExtResource("4")]([ExtResource("5"), ExtResource("6")])
+humidity_sources = Array[ExtResource("3")]([SubResource("Air")])

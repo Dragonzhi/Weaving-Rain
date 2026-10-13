@@ -15,6 +15,12 @@ func percentile(values: Array[float], fraction: float) -> float:
 	return ordered[mini(ordered.size() - 1, ceili(ordered.size() * fraction) - 1)]
 
 func seed_stress(kind: String) -> void:
+	if main.sim.tropical != null:
+		# Development pressure only; do not let active weather vanish mid-sample.
+		main.sim.tropical.organization = 0.8
+		main.sim.tropical.strength = 0.8
+		for i in main.sim.tropical.indices:
+			main.sim.tropical.heat[i] = main.sim.tropical.sea.initial_energy * main.sim.tropical.sea.weight(main.sim.positions[i])
 	for i in Sim.COUNT:
 		var p: Vector2 = main.sim.positions[i]
 		var q := 2.8 * exp(-p.distance_squared_to(Vector2(-5, 0)) / 35.0)
@@ -26,7 +32,7 @@ func seed_stress(kind: String) -> void:
 			main.sim.cold[i] = maxf(main.sim.cold[i], q * 0.7)
 	main.sim.sandbox = true
 	main.sim.refresh_display()
-	main.sim.initial_water = main.sim.water_total()
+	main.sim.initial_water = main.sim.water_total() - main.sim.evaporated_water
 
 func pointer(t: float, press: bool = false, release: bool = false) -> void:
 	var p := Vector3(sin(t * 1.3) * 4.0, Sim.CLOUD_HEIGHT, cos(t * 0.9) * 1.5)
@@ -145,6 +151,8 @@ func run() -> void:
 			report["peak_arrows"] = peak_arrows
 			report["peak_source_lines"] = peak_source_lines
 			report["arrows_enabled"] = main.weather_view.arrows_enabled
+			report["natural_weather"] = main.sim.tropical != null
+			report["natural_organization"] = main.sim.tropical.organization if main.sim.tropical != null else 0.0
 			reports.append(report)
 			print("RUNTIME ", JSON.stringify(report))
 			var csv := FileAccess.open("res://.godot/runtime-" + label + "-" + main.sim.layout_id + "-" + kind + ("-drag" if drag else "-idle") + ".csv", FileAccess.WRITE)

@@ -101,7 +101,7 @@ func update_feedback(dt: float) -> void:
 		var state := sim.plot_status(target)
 		var text := ""
 		if state == "destroyed" and feedback_states[target] != "destroyed": text = "雨量过多 · 土地损坏"
-		elif state == "safe" and feedback_states[target] != "safe": text = "已保住 · 当前安全"
+		elif state == "safe" and feedback_states[target] != "safe": text = "已蓄满 · 可继续承雨" if sim.is_reservoir(target) else "已保住 · 当前安全"
 		elif not feedback_adequate[target] and sim.water_for(target) >= sim.required_water(target):
 			text = "雨量已够 · 留意移云收尾"
 		if not text.is_empty() and not sim.sandbox:
@@ -111,6 +111,8 @@ func update_feedback(dt: float) -> void:
 		feedback_states[target] = state
 
 func status_text(target: int, final: bool = false) -> String:
+	if sim.is_reservoir(target):
+		return "已蓄满 · 溢流不损坏" if sim.target_complete(target) else "蓄水中 · 还差 %.1f" % (sim.required_water(target) - sim.water_for(target))
 	match sim.plot_status(target):
 		"destroyed": return "过量损坏 · 不计星" if final else "损坏 · 仍可照顾其他地块"
 		"dry": return "缺水 · 还差 %.1f" % (sim.required_water(target) - sim.water_for(target)) if final else "缺水"
@@ -340,7 +342,7 @@ func _ground_square(half: float, center: Vector2 = Sim.PLOT) -> PackedVector2Arr
 func _draw_world_feedback() -> void:
 	for target in sim.plot_centers.size():
 		var center: Vector2 = sim.plot_centers[target]
-		var safety := _ground_region(target, sim.safe_half - sim.plot_half)
+		var safety := PackedVector2Array() if sim.is_reservoir(target) else _ground_region(target, sim.safe_half - sim.plot_half)
 		var safe_color := Color(0.98, 0.83, 0.57, 0.65) if sim.plot_threats[target] else Color(0.88, 0.97, 0.86, 0.46)
 		for i in safety.size():
 			if safety.size() == 4: draw_dashed_line(safety[i], safety[(i + 1) % safety.size()], safe_color, 1.5, 7.0)
@@ -352,7 +354,7 @@ func _draw_world_feedback() -> void:
 		for i in plot.size():
 			draw_line(plot[i], plot[(i + 1) % plot.size()], outline_color, 2.0 + flash * 2.0, true)
 		var label := _project(Vector3(center.x, 0.35, center.y))
-		var star := " ✓" if sim.star_level and sim.plot_safe_times[target] >= sim.settings.safe_seconds and not sim.plot_destroyed[target] else ""
+		var star := " ✓" if sim.star_level and sim.target_complete(target) else ""
 		_text(label + Vector2(-8, 5), String.chr(65 + target) + star, 18, INK)
 		if flash > 0.0:
 			var text: String = feedback_texts[target]
@@ -619,6 +621,8 @@ func _draw() -> void:
 	finish_button.disabled = not sim.can_finish() and not sim.can_end_shortage()
 	finish_button.text = "结束 · 当前 %d 星" % sim.earned_stars() if sim.can_end_shortage() else "收尾 · %d / 3 星" % sim.earned_stars()
 	finish_button.tooltip_text = "只计当前已适量且安全的地块。" if sim.can_end_shortage() else "未损坏地块附近安全后可结算。"
+	if sim.plot_needs.any(func(needs): return needs != null and needs.goal_kind == "reservoir"):
+		finish_button.tooltip_text = "蓄水区蓄满即完成；农田仍须适量且持续安全。"
 	if sim.three_star_remaining() >= 0.0:
 		finish_button.text = "三星 · %d 秒后自动结算" % ceili(sim.three_star_remaining())
 	finish_button.position = Vector2(w - 216, h - 52)
@@ -633,6 +637,10 @@ func _draw() -> void:
 	cold_button.size = Vector2(148, 30)
 	_draw_wind_tools()
 	_draw_world_feedback()
+	if sim.tropical != null:
+		var marker := _project(Vector3(sim.tropical.center.x, 0.12, sim.tropical.center.y))
+		draw_circle(marker, 4.0, INK, false, 1.2, true)
+		_text(marker + Vector2(10, -8), sim.tropical.stage, 12, INK)
 	_draw_guide()
 	_text(Vector2(22, 36), "风织雨", 22)
 	var status := "把湿空气推向山坡，再把厚云送到地块上方"
@@ -644,13 +652,13 @@ func _draw() -> void:
 		status = "冷风正在形成 · 把湿空气迎向它的前沿" if sim.relay_mode else "已经开始下雨 · 留意落点与地块水量"
 		for target in sim.plot_centers.size():
 			if sim.water_for(target) > sim.required_water(target) * 0.7 and sim.water_for(target) < sim.required_water(target):
-				status = "%s 快够水了 · 提前移云，储水还会继续落下" % String.chr(65 + target)
+				status = ("%s 快蓄满了 · 满后仍可继续承雨" if sim.is_reservoir(target) else "%s 快够水了 · 提前移云，储水还会继续落下") % String.chr(65 + target)
 	if sim.plot_centers.size() > 1 and sim.plot_water >= sim.required_water(0) and sim.second_water < sim.required_water(1):
 		status = "A 水量已够 · 提早移云，借残留冷风照顾 B"
 	elif sim.plot_centers.size() > 1 and sim.second_water >= sim.required_water(1) and sim.plot_water < sim.required_water(0):
 		status = "B 水量已够 · 提早移云，借残留冷风照顾 A"
 	elif sim.plot_water >= sim.required_water(0):
-		status = "水量已够 · 移开危险雨云，或切断补给后等储水耗尽"
+		status = "蓄水已满 · 可继续承雨" if sim.is_reservoir(0) else "水量已够 · 移开危险雨云，或切断补给后等储水耗尽"
 	if sim.sandbox:
 		status = "交互小样 · 试拨云边或迎向冷风前沿；R 回正式开局"
 	elif sim.star_level:
@@ -685,7 +693,7 @@ func _draw() -> void:
 		_rounded(Rect2(28, 140, 310, 166), PANEL)
 		_text(Vector2(42, 164), "调试 · 测试参数，不代表最终平衡", 14)
 		_text(Vector2(42, 190), "帧 %.1f ms · 模拟 %.1f ms" % [frame_ms, simulation_ms], 14)
-		_text(Vector2(42, 214), "水分误差 %.5f · 最高厚度 %.2f" % [sim.water_total() - sim.initial_water, sim.peak_density], 14)
+		_text(Vector2(42, 214), "水分误差 %.5f · 最高厚度 %.2f" % [sim.water_error(), sim.peak_density], 14)
 		_text(Vector2(42, 238), "成雨 %.2fs · 安全 %.2f / %.2fs" % [sim.settings.hold_seconds, sim.safe_time, sim.settings.safe_seconds], 14)
 		_text(Vector2(42, 262), "冷风抬升 %.1f · 风线 %d" % [sim.total_cold_lift, view.visible_wind_lines], 14)
 		_text(Vector2(42, 288), "F2 云 / F4 冷风小样，不计通关", 13, MUTED)
@@ -706,7 +714,9 @@ func _draw_reserve() -> void:
 	_rounded(bar, Color("254f52"), 4)
 	if wet_fraction > 0.0: draw_rect(Rect2(bar.position, Vector2(bar.size.x * wet_fraction, 5)), VAPOR_COLOR)
 	if cloud_fraction > 0.0: draw_rect(Rect2(bar.position + Vector2(bar.size.x * wet_fraction, 0), Vector2(bar.size.x * cloud_fraction, 5)), CLOUD_WATER_COLOR)
-	if not is_finite(sim.minimum_water_needed()) and not sim.plot_destroyed.all(func(value): return value):
+	if sim.tropical != null and sim.tropical.has_supply(sim.settings):
+		reserve_message = "暖海域仍在补给 · 当前储备不含未来蒸发"
+	elif not is_finite(sim.minimum_water_needed()) and not sim.plot_destroyed.all(func(value): return value):
 		reserve_message = "剩余地块水量已够，仍需安全收尾"
 	elif sim.water_insufficient():
 		reserve_message = "剩余水分不足以浇够新地块"
@@ -739,6 +749,8 @@ func _draw_star_result(w: float, h: float) -> void:
 		headline = "时间到 · 保住了 %d/%d 块土地。" % [sim.result_saved_count, sim.plot_centers.size()] if sim.result_stars > 0 else "时间到 · 本次未获得星星。"
 	elif sim.ended_for_shortage:
 		headline = "本局结束 · 保住了 %d/%d 块土地。" % [sim.result_saved_count, sim.plot_centers.size()] if sim.result_stars > 0 else "本局结束 · 本次未获得星星。"
+	if sim.plot_needs.any(func(needs): return needs != null and needs.goal_kind == "reservoir"):
+		headline = ("时间到 · " if sim.timed_out else "本局结束 · ") + "完成 %d/%d 个目标。" % [sim.result_saved_count, sim.plot_centers.size()]
 	_text(left, headline, 23)
 	_text(left + Vector2(0, 44), "★".repeat(sim.result_stars) + "☆".repeat(3 - sim.result_stars), 30, GOLD)
 	result_details.clear()
@@ -777,6 +789,7 @@ func _draw_plot_labels() -> void:
 		_rounded(rect, PANEL, 7)
 		var state := sim.plot_status(target)
 		var short := {"dry": "缺水", "danger": "留意移云", "confirming": "确认安全", "safe": "已保住", "destroyed": "损坏"}
+		if sim.is_reservoir(target): short = {"dry": "蓄水中", "safe": "已蓄满 · 可继续承雨"}
 		var amount: float = sim.water_for(target)
 		var accent := water_color(target)
 		var typed: bool = not sim.plot_name(target).is_empty()
@@ -796,7 +809,9 @@ func _draw_plot_labels() -> void:
 		var rect := plot_label_rects[hovered]
 		var at := Vector2(clampf(rect.position.x - 42, 12, size.x - 288), rect.position.y - 62)
 		_rounded(Rect2(at, Vector2(276, 56)), PANEL, 7)
-		_text(at + Vector2(9, 19), "%s %.1f · 适量 %.0f–%.0f" % [sim.plot_name(hovered), sim.water_for(hovered), sim.required_water(hovered), sim.flood_limit(hovered)], 12)
+		var detail := "%s %.1f · 适量 %.0f–%.0f" % [sim.plot_name(hovered), sim.water_for(hovered), sim.required_water(hovered), sim.flood_limit(hovered)]
+		if sim.is_reservoir(hovered): detail = "蓄水 %.1f / %.0f · 满后溢流不损坏" % [sim.water_for(hovered), sim.required_water(hovered)]
+		_text(at + Vector2(9, 19), detail, 12)
 		_text(at + Vector2(9, 42), status_text(hovered, true), 12)
 
 func refresh_layouts() -> void:

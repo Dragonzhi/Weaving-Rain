@@ -13,6 +13,7 @@ const LIFT_COUNT := 120
 
 var sim: Sim
 var camera: Camera3D
+var ocean_material := ShaderMaterial.new()
 var image: Image
 var water_texture: ImageTexture
 var cloud_bounds_viewport: SubViewport
@@ -30,6 +31,7 @@ var plant_groups: Array[Node3D] = []
 var plant_materials: Array[StandardMaterial3D] = []
 var plant_growth := PackedFloat32Array()
 var plant_wilt := PackedFloat32Array()
+var reservoir_surfaces: Array[MeshInstance3D] = []
 var air_image: Image
 var air_texture: ImageTexture
 var lines := ArrayMesh.new()
@@ -84,6 +86,7 @@ const LIFT_ARROW := Color("e7c77a")
 
 func setup(model: RefCounted) -> void:
 	sim = model
+	ocean_material.shader = OCEAN_SHADER
 	ribbon_points.resize(4)
 	rng.seed = 44721
 	image = Image.create(Sim.WIDTH, Sim.DEPTH, false, Image.FORMAT_RGBAF)
@@ -171,7 +174,6 @@ func _create_scene() -> void:
 	camera.current = true
 	var ocean_mesh := PlaneMesh.new()
 	ocean_mesh.size = Vector2(120.0, 120.0)
-	var ocean_material := ShaderMaterial.new()
 	ocean_material.shader = OCEAN_SHADER
 	_mesh_instance(ocean_mesh, ocean_material, Vector3(0, -0.08, 0))
 	var top := SurfaceTool.new()
@@ -241,6 +243,28 @@ func _create_plot(target: int) -> void:
 	plant_materials.append(plant_material)
 	plant_growth.append(0.65 if sim.plot_needs[target] != null else 1.0)
 	plant_wilt.append(0.0)
+	reservoir_surfaces.append(null)
+	if sim.is_reservoir(target):
+		material.albedo_color = Color("779997")
+		var bank := SurfaceTool.new()
+		bank.begin(Mesh.PRIMITIVE_TRIANGLES)
+		var outline := region.outline(sim.plot_half)
+		for n in outline.size():
+			var a := outline[n]
+			var b := outline[(n + 1) % outline.size()]
+			for p in [a, a * 0.89, b, b, a * 0.89, b * 0.89]:
+				bank.set_normal(Vector3.UP)
+				bank.add_vertex(Vector3(p.x, 0.41, p.y))
+			var normal := (a + b).normalized()
+			for p in [Vector3(a.x, 0.255, a.y), Vector3(a.x, 0.41, a.y), Vector3(b.x, 0.41, b.y), Vector3(a.x, 0.255, a.y), Vector3(b.x, 0.41, b.y), Vector3(b.x, 0.255, b.y)]:
+				bank.set_normal(Vector3(normal.x, 0, normal.y))
+				bank.add_vertex(p)
+		_mesh_instance(bank.commit(), _material(Color("c9c6a1")), Vector3(center.x, 0, center.y))
+		var surface := _mesh_instance(region.mesh(sim.plot_half), _material(Color("79bac5")), Vector3(center.x, 0.27, center.y))
+		surface.scale = Vector3(0.89, 1.0, 0.89)
+		surface.visible = false
+		reservoir_surfaces[target] = surface
+		return
 	var seedling: bool = sim.plot_needs[target] != null and sim.plot_needs[target].appearance == "seedling"
 	for row in 3:
 		for column in 3:
@@ -571,7 +595,7 @@ func _emit_field_lines(dt: float) -> void:
 		field_line_refresh = elapsed + 0.1
 		field_line_candidates.clear()
 		var low := sim.low_wind
-		var high := sim.wind
+		var high := sim.cloud_wind
 		for i in Sim.COUNT:
 			if low[i].length_squared() > 0.0036:
 				field_line_candidates.append(i * 2)
@@ -614,6 +638,7 @@ func update_map() -> void:
 		water_pixels[offset + 3] = humidity[i]
 		air_pixels[offset] = humidity[i]
 		air_pixels[offset + 1] = cold[i]
+		air_pixels[offset + 2] = sim.tropical.heat[i] if sim.tropical != null else 0.0
 		air_pixels[offset + 3] = 1.0
 	image.set_data(Sim.WIDTH, Sim.DEPTH, false, Image.FORMAT_RGBAF, map_data.to_byte_array())
 	air_image.set_data(Sim.WIDTH, Sim.DEPTH, false, Image.FORMAT_RGBAF, air_data.to_byte_array())
@@ -622,6 +647,8 @@ func update_map() -> void:
 	# Recompute the conservative bound on GPU from the same publication, no readback.
 	cloud_bounds_viewport.render_target_update_mode = SubViewport.UPDATE_ONCE
 	air_texture.update(air_image)
+	ocean_material.set_shader_parameter("sea_map", air_texture)
+	ocean_material.set_shader_parameter("warm_enabled", sim.tropical != null)
 	map_revision = sim.revision
 
 func _transform(point: Vector3, scale: float) -> Transform3D:
@@ -765,6 +792,7 @@ func update_weather(dt: float, moving: bool) -> void:
 	if map_revision != sim.revision:
 		update_map()
 	air_material.set_shader_parameter("visual_time", elapsed)
+	ocean_material.set_shader_parameter("visual_time", elapsed)
 	_update_arrows()
 	if moving or line_dirty or line_revision != sim.revision:
 		_update_lines(dt, moving)
@@ -793,6 +821,11 @@ func update_weather(dt: float, moving: bool) -> void:
 	rain_material.set_shader_parameter("visual_time", elapsed)
 	for target in plot_materials.size():
 		var water: float = sim.plot_progress(target)
+		if sim.is_reservoir(target):
+			var surface := reservoir_surfaces[target]
+			surface.visible = water > 0.0
+			if moving: surface.position.y = lerpf(surface.position.y, 0.27 + water * 0.12, 1.0 - exp(-dt * 6.0))
+			continue
 		plot_materials[target].albedo_color = Color("bf936e").lerp(Color("8eaa78"), water)
 		if sim.plot_destroyed[target]:
 			plot_materials[target].albedo_color = Color("718e95")

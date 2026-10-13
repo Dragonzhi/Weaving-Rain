@@ -1,0 +1,52 @@
+[gd_resource type="Resource" script_class="WRMapDefinition" load_steps=13 format=3]
+
+[ext_resource type="Script" path="res://scripts/map_definition.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/map_mountain.gd" id="2"]
+[ext_resource type="Script" path="res://scripts/map_humidity.gd" id="3"]
+[ext_resource type="Script" path="res://scripts/plot_needs.gd" id="4"]
+[ext_resource type="Resource" path="res://configs/plots/ordinary.tres" id="5"]
+[ext_resource type="Resource" path="res://configs/plots/reservoir.tres" id="6"]
+[ext_resource type="Script" path="res://scripts/map_warm_sea.gd" id="7"]
+[ext_resource type="Script" path="res://scripts/plot_region.gd" id="8"]
+
+[sub_resource type="Resource" id="Mountain"]
+script = ExtResource("2")
+position = Vector2(-2.0, 0.4)
+radius = 2.0
+height = 2.0
+
+[sub_resource type="Resource" id="Air"]
+script = ExtResource("3")
+position = Vector2(8.5, 0.0)
+spread = Vector2(3.8, 4.0)
+concentration = 1.5
+falloff = 1.0
+
+[sub_resource type="Resource" id="WarmSea"]
+script = ExtResource("7")
+position = Vector2(9.0, 0.0)
+half_axes = Vector2(2.8, 4.0)
+seed_position = Vector2(9.0, 0.0)
+seed_organization = 0.4
+initial_cloud_fraction = 0.2
+background_wind = Vector2(-0.025, 0.01)
+
+[sub_resource type="Resource" id="PoolShape"]
+script = ExtResource("8")
+shape = "ellipse"
+half_axes = Vector2(1.5, 1.2)
+
+[resource]
+script = ExtResource("1")
+id = "storm_coast"
+title = "海上风暴 · 借雨蓄水"
+hint = "从风暴外围引导雨带 · 蓄水区满后可溢流，农田够水后移云收尾"
+river_enabled = false
+star_level = true
+time_limit_seconds = 180.0
+mountains = Array[ExtResource("2")]([SubResource("Mountain")])
+plots = PackedVector2Array(1.7, -3.4, 5.4, 1.2)
+plot_regions = Array[ExtResource("8")]([null, SubResource("PoolShape")])
+plot_needs = Array[ExtResource("4")]([ExtResource("5"), ExtResource("6")])
+humidity_sources = Array[ExtResource("3")]([SubResource("Air")])
+warm_sea = SubResource("WarmSea")

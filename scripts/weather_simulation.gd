@@ -20,6 +20,8 @@ const FIXED_STEP := 1.0 / 60.0
 
 var settings: Settings
 var escaped_water := 0.0
+var overflow_water := 0.0
+var evaporated_water := 0.0
 var edge_indices := PackedInt32Array()
 var edge_rates := PackedFloat32Array()
 var plot_half := 1.25
@@ -62,6 +64,8 @@ var cold := PackedFloat32Array()
 var display_cold := PackedFloat32Array()
 var cold_flow := PackedVector2Array()
 var low_wind := PackedVector2Array()
+var cloud_wind := PackedVector2Array()
+var tropical: RefCounted
 var cold_lifted := PackedFloat32Array()
 var total_cold_lift := 0.0
 var cold_used := 0.0
@@ -177,6 +181,7 @@ func _init(config: Resource = null, relay: bool = false, single_cold: bool = fal
 
 func reset(test_cloud: bool = false) -> void:
 	held_wind.clear()
+	tropical = null
 	wind_sources.clear()
 	next_source_id = 1
 	cloud_motion_revision = -1
@@ -220,6 +225,10 @@ func reset(test_cloud: bool = false) -> void:
 			cloud[i] += 0.75 * exp(-pow((p.x + 1.4) / 1.4, 2) - pow((p.y + 0.6) / 1.1, 2))
 			cloud[i] += 0.70 * exp(-pow((p.x - 2.6) / 1.5, 2) - pow((p.y - 0.9) / 0.8, 2))
 		initial_water += humidity[i] + cloud[i]
+	cloud_wind = wind
+	if relay_mode and layout.get("warm_sea") != null and not test_cloud:
+		tropical = preload("res://scripts/tropical_weather.gd").new(layout.warm_sea, self)
+		cloud_wind = wind.duplicate()
 	plot_waters.resize(plot_centers.size())
 	plot_waters.fill(0.0)
 	plot_threats.resize(plot_centers.size())
@@ -237,6 +246,8 @@ func reset(test_cloud: bool = false) -> void:
 	plot_safe_times.fill(0.0)
 	rain_lost = 0.0
 	escaped_water = 0.0
+	overflow_water = 0.0
+	evaporated_water = 0.0
 	safe_time = 0.0
 	outcome = "playing"
 	max_progress = 0.0
@@ -545,6 +556,13 @@ func _step_fixed(dt: float) -> void:
 	var old_wind := wind
 	wind = updated_wind
 	next_wind = old_wind
+	if tropical != null:
+		tropical.prepare(dt, self)
+		cloud_wind.resize(COUNT)
+		for i in COUNT:
+			cloud_wind[i] = (wind[i] + tropical.sea.background_wind + tropical.high_velocity[i]).limit_length(settings.max_wind)
+	else:
+		cloud_wind = wind
 	_update_cold_flow()
 	_transport(dt)
 	if settings.open_boundary: _dissipate_edges(dt)
@@ -562,6 +580,7 @@ func _step_fixed(dt: float) -> void:
 	total_mountain_lift += last_lift
 	if cold_enabled:
 		_lift_at_cold_front(dt)
+	if tropical != null: tropical.lift(dt, self)
 	display_cloud = _smooth(cloud)
 	max_progress = 0.0
 	total_rain_rate = 0.0
@@ -602,7 +621,12 @@ func _step_fixed(dt: float) -> void:
 				cold_strength[i] = minf(cold_cap, cold_strength[i] + fallen * cold_source)
 			var target := targets[i]
 			if target >= 0:
-				water[target] += fallen * water_scales[target]
+				if is_reservoir(target):
+					var retained := minf(fallen, maxf(0.0, required_water(target) - water[target]) / water_scales[target])
+					water[target] = minf(required_water(target), water[target] + retained * water_scales[target])
+					overflow_water += fallen - retained
+				else:
+					water[target] += fallen * water_scales[target]
 			else:
 				rain_lost += fallen
 			if stored_rain[i] < rain_end:
@@ -637,7 +661,7 @@ func _transport(dt: float) -> void:
 	cloud_motion_velocity.resize(COUNT)
 	var cloud_velocities := cloud_motion_velocity
 	cloud_velocities.fill(Vector2.ZERO)
-	var mouse_wind := wind
+	var mouse_wind := cloud_wind
 	var air_wind := low_wind
 	var out_wet := next_humidity
 	var out_cold := next_cold
@@ -829,7 +853,9 @@ func _update_cold_flow() -> void:
 			gradients[i] = gradient
 			velocity = (-gradient * outflow).limit_length(max_cold)
 		flows[i] = velocity
-		air_wind[i] = (mouse_wind[i] + velocity).limit_length(max_wind)
+		var ambient := mouse_wind[i]
+		if tropical != null: ambient += tropical.sea.background_wind + tropical.low_velocity[i]
+		air_wind[i] = (ambient + velocity).limit_length(max_wind)
 
 func cold_gradient(i: int) -> Vector2:
 	return Vector2(display_cold[neighbor_right[i]] - display_cold[neighbor_left[i]], display_cold[neighbor_bottom[i]] - display_cold[neighbor_top[i]]) / (2.0 * CELL)
@@ -896,17 +922,23 @@ func cloud_velocity_at(p: Vector2) -> Vector2:
 		for dx in 2:
 			var i := clampi(z + dz, 0, DEPTH - 1) * WIDTH + clampi(x + dx, 0, WIDTH - 1)
 			var weight := (g.x - x if dx else 1.0 - (g.x - x)) * (g.y - z if dz else 1.0 - (g.y - z))
-			var velocity := cloud_motion_velocity[i] if cloud_motion_revision == revision else wind[i] * cloud_response(i)
+			var velocity := cloud_motion_velocity[i] if cloud_motion_revision == revision else cloud_wind[i] * cloud_response(i)
 			result += velocity * weight
 	return result
 
 func velocity_at(p: Vector2, low: bool = true) -> Vector2:
+	return _sample_velocity(low_wind if low else cloud_wind, p)
+
+func ambient_velocity_at(p: Vector2) -> Vector2:
+	if not contains(p): return Vector2.ZERO
+	return _sample_velocity(wind, p) + (tropical.sea.background_wind if tropical != null else Vector2.ZERO)
+
+func _sample_velocity(field: PackedVector2Array, p: Vector2) -> Vector2:
 	if not contains(p):
 		return Vector2.ZERO
 	var g := (p - ORIGIN) / CELL - Vector2(0.5, 0.5)
 	var x := floori(g.x)
 	var z := floori(g.y)
-	var field := low_wind if low else wind
 	var a := field[clampi(z, 0, DEPTH - 1) * WIDTH + clampi(x, 0, WIDTH - 1)]
 	var b := field[clampi(z, 0, DEPTH - 1) * WIDTH + clampi(x + 1, 0, WIDTH - 1)]
 	var c := field[clampi(z + 1, 0, DEPTH - 1) * WIDTH + clampi(x, 0, WIDTH - 1)]
@@ -915,6 +947,13 @@ func velocity_at(p: Vector2, low: bool = true) -> Vector2:
 
 func required_water(target: int) -> float:
 	return plot_needs[target].target_water if plot_needs[target] != null else settings.target_water
+
+func is_reservoir(target: int) -> bool:
+	return plot_needs[target] != null and plot_needs[target].goal_kind == "reservoir"
+
+func target_complete(target: int) -> bool:
+	if is_reservoir(target): return water_for(target) >= required_water(target)
+	return not plot_destroyed[target] and plot_safe_times[target] >= settings.safe_seconds
 
 func flood_limit(target: int) -> float:
 	return plot_needs[target].flood_water if plot_needs[target] != null else settings.flood_water
@@ -926,6 +965,7 @@ func plot_progress(target: int) -> float:
 	return clampf(water_for(target) / required_water(target), 0.0, 1.0)
 
 func plot_warning(target: int) -> float:
+	if is_reservoir(target): return 0.0
 	return clampf((water_for(target) - required_water(target)) / (flood_limit(target) - required_water(target)), 0.0, 1.0)
 
 func water_for(target: int) -> float:
@@ -933,6 +973,7 @@ func water_for(target: int) -> float:
 
 func plot_status(target: int) -> String:
 	# One shared interpretation for the field card, transition feedback and final result.
+	if is_reservoir(target): return "safe" if target_complete(target) else "dry"
 	if plot_destroyed[target]: return "destroyed"
 	if water_for(target) < required_water(target): return "dry"
 	if plot_threats[target]: return "danger"
@@ -1006,6 +1047,10 @@ func update_goal(dt: float) -> void:
 	threat = false
 	var complete := true
 	for target in plot_centers.size():
+		if is_reservoir(target):
+			plot_threats[target] = false
+			complete = complete and target_complete(target)
+			continue
 		var danger := false
 		for i in safety_indices[target]:
 			var visible_progress: bool = charge[i] > 0.01 and display_cloud[i] > 0.12
@@ -1031,7 +1076,7 @@ func update_goal(dt: float) -> void:
 func saved_plot_count() -> int:
 	var count := 0
 	for target in plot_centers.size():
-		if not plot_destroyed[target] and plot_safe_times[target] >= settings.safe_seconds: count += 1
+		if target_complete(target): count += 1
 	return count
 
 func earned_stars() -> int:
@@ -1076,6 +1121,7 @@ func minimum_water_needed() -> float:
 	return needed
 
 func water_insufficient() -> bool:
+	if tropical != null and tropical.has_supply(settings): return false
 	var needed := minimum_water_needed()
 	# Assume every remaining drop can reach the cheapest field: a conservative impossibility test.
 	# If all surviving fields already have enough water, only safety remains, not a water shortage.
@@ -1093,11 +1139,14 @@ func finish() -> bool:
 	return true
 
 func water_total() -> float:
-	var total: float = escaped_water + rain_lost
+	var total: float = escaped_water + rain_lost + overflow_water
 	for target in plot_centers.size(): total += plot_waters[target] / plot_water_scales[target]
 	for i in COUNT:
 		total += humidity[i] + cloud[i]
 	return total
+
+func water_error() -> float:
+	return water_total() - initial_water - evaporated_water
 
 func _dissipate_edges(dt: float) -> void:
 	var decay: float = settings.edge_decay * dt

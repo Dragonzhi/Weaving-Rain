@@ -1,4 +1,5 @@
 extends SceneTree
+const Layouts = preload("res://scripts/weather_layouts.gd")
 var checks := 0
 var failures := 0
 
@@ -176,7 +177,21 @@ func run() -> void:
 	main._process(1.0 / 60.0)
 	check(main.sim.timed_out and main.sim.result_stars == 3 and main.progress.best.get("valleys") == 3, "Timed success awards and records safe stars through the real main loop")
 	main.next_level()
-	check(main.sim.layout_id == "meadow", "Last level explicitly returns to the first level")
+	check(main.sim.layout_id == "reservoir_lab", "Valleys flows into the new reservoir test")
+	# The last entry is now a mixed tropical map. Isolate its normal finish rule
+	# before checking the wrap, rather than assuming the old two-entry list.
+	main.select_layout(Layouts.LEVELS.back())
+	main.sim.humidity.fill(0)
+	main.sim.cloud.fill(0)
+	main.sim.rain.fill(0)
+	main.sim.charge.fill(0)
+	for target in main.sim.plot_centers.size(): main.sim.plot_waters[target] = main.sim.required_water(target)
+	main.sim.refresh_display()
+	main.sim.update_goal(3.0)
+	main.finish_level()
+	check(main.sim.result_stars == 3, "Last mixed level uses each target's completion rule")
+	main.next_level()
+	check(main.sim.layout_id == "meadow", "Actual last level returns to the first level")
 	main.sim.humidity.fill(0)
 	main.sim.cloud.fill(0)
 	main.sim.rain.fill(0)

@@ -1,0 +1,490 @@
+{
+  "date": "2026-10-13",
+  "engine": "4.7.2 stable ed1daf0bf",
+  "renderer": "Forward+ D3D12",
+  "status": "implemented; player review and formal idle performance pending",
+  "rules": {
+    "reservoir_capacity": 250,
+    "time_limit_seconds": 180,
+    "reservoir_completion": "full permanently; overflow ledger; no rain safety requirement",
+    "rating": "zero=0, all=3, one not all=1, remaining=2",
+    "thermal_recovery": false,
+    "initial_cloud": "transfer authored initial humidity, no added water",
+    "live_reload": "existing LIVE_FIELDS only; tropical and capacity retry"
+  },
+  "regression": {
+    "coverage": "entire configured suite across successful prefix and continuation, not a single uninterrupted run",
+    "zero_failure_check_count": 762,
+    "playthrough_count": 30,
+    "editor_checks": 29,
+    "reservoir_tropical_checks": 29,
+    "tropical_scene_checks": 13,
+    "prefix_log": ".godot/tropical-full-second.log",
+    "continuation_log": ".godot/tropical-full-resume.log",
+    "interruption": "legacy fixtures assumed three farms, humidity-only and only two levels; corrected to authored resource and actual last-level wrap",
+    "old_route_comparison": "five records and cold-front benefit passed",
+    "final_scene_recheck": "13 checks, 0 failures; .godot/tropical-scene-final-corrected.log"
+  },
+  "routes": [
+    {
+      "record": "reservoir_lab-pool-first",
+      "mode": "simulation_controller",
+      "order": [
+        1,
+        0
+      ],
+      "stars": 3,
+      "elapsed": 30.6166666666662,
+      "water": [
+        102.44495597354,
+        250.0
+      ],
+      "destroyed": [
+        false,
+        false
+      ],
+      "strokes": 118,
+      "transport_strokes": 35,
+      "water_error": -0.00108083082727717,
+      "evaporation": 0.0,
+      "overflow": 25.1193907808,
+      "natural_lift": 0.0,
+      "ending": "full_countdown",
+      "pure_start": false,
+      "events": null,
+      "blocked": null,
+      "pick_error": null
+    },
+    {
+      "record": "storm_coast-pool-first",
+      "mode": "simulation_controller",
+      "order": [
+        1,
+        0
+      ],
+      "stars": 3,
+      "elapsed": 39.4166666666657,
+      "water": [
+        102.904129740397,
+        250.0
+      ],
+      "destroyed": [
+        false,
+        false
+      ],
+      "strokes": 151,
+      "transport_strokes": 81,
+      "water_error": -0.00195212925291344,
+      "evaporation": 94.4271988538094,
+      "overflow": 54.5384497378361,
+      "natural_lift": 303.017752319096,
+      "ending": "full_countdown",
+      "pure_start": false,
+      "events": null,
+      "blocked": null,
+      "pick_error": null
+    },
+    {
+      "record": "storm_coast-farm-first",
+      "mode": "simulation_controller",
+      "order": [
+        0,
+        1
+      ],
+      "stars": 3,
+      "elapsed": 44.9666666666654,
+      "water": [
+        135.2708747458,
+        250.0
+      ],
+      "destroyed": [
+        false,
+        false
+      ],
+      "strokes": 171,
+      "transport_strokes": 22,
+      "water_error": -0.00204061519116294,
+      "evaporation": 100.272292006761,
+      "overflow": 5.9972283078038,
+      "natural_lift": 303.202381150434,
+      "ending": "full_countdown",
+      "pure_start": false,
+      "events": null,
+      "blocked": null,
+      "pick_error": null
+    },
+    {
+      "record": "storm_coast-loss",
+      "mode": "simulation_controller",
+      "order": [
+        0,
+        1
+      ],
+      "stars": 1,
+      "elapsed": 17.066666666667,
+      "water": [
+        401.166511334469,
+        250.0
+      ],
+      "destroyed": [
+        true,
+        false
+      ],
+      "strokes": 69,
+      "transport_strokes": 39,
+      "water_error": -0.00018352005770339,
+      "evaporation": 46.7444552164525,
+      "overflow": 0.00262493913181363,
+      "natural_lift": 279.172216812402,
+      "ending": "loss_finish",
+      "pure_start": false,
+      "events": null,
+      "blocked": null,
+      "pick_error": null
+    },
+    {
+      "record": "storm_coast-pure",
+      "mode": "simulation_controller",
+      "order": [
+        1,
+        0
+      ],
+      "stars": 3,
+      "elapsed": 37.5499999999992,
+      "water": [
+        104.812722614517,
+        250.0
+      ],
+      "destroyed": [
+        false,
+        false
+      ],
+      "strokes": 147,
+      "transport_strokes": 91,
+      "water_error": -0.00194385603049341,
+      "evaporation": 104.87579575018,
+      "overflow": 61.22208012784,
+      "natural_lift": 332.99215211901,
+      "ending": "full_countdown",
+      "pure_start": true,
+      "events": null,
+      "blocked": null,
+      "pick_error": null
+    },
+    {
+      "record": "tropical-viewport-pool-first",
+      "mode": "actual_mouse",
+      "order": [
+        1,
+        0
+      ],
+      "stars": 3,
+      "elapsed": 36.3333333333326,
+      "water": [
+        106.393978104554,
+        250.0
+      ],
+      "destroyed": [
+        false,
+        false
+      ],
+      "strokes": 140,
+      "transport_strokes": 60,
+      "water_error": -0.00130609255779746,
+      "evaporation": 86.2808338911273,
+      "overflow": 62.8122956164227,
+      "natural_lift": 301.314496269628,
+      "ending": null,
+      "pure_start": null,
+      "events": 4782,
+      "blocked": 0,
+      "pick_error": 0.0
+    },
+    {
+      "record": "tropical-viewport-farm-first",
+      "mode": "actual_mouse",
+      "order": [
+        0,
+        1
+      ],
+      "stars": 3,
+      "elapsed": 62.4166666666644,
+      "water": [
+        116.259261098902,
+        250.0
+      ],
+      "destroyed": [
+        false,
+        false
+      ],
+      "strokes": 236,
+      "transport_strokes": 47,
+      "water_error": -0.00451469637778246,
+      "evaporation": 142.69814661704,
+      "overflow": 4.51135325320871,
+      "natural_lift": 364.31961637689,
+      "ending": null,
+      "pure_start": null,
+      "events": 7393,
+      "blocked": 0,
+      "pick_error": 0.0
+    }
+  ],
+  "performance": {
+    "scope": "six development pressure cases, 2s warmup +10s sample; not formal 60s acceptance",
+    "hardware": "NVIDIA GeForce RTX4060 Laptop GPU",
+    "rendered_size": [
+      1920,
+      1080
+    ],
+    "all_short_cases_met_threshold": true,
+    "p95_limit": 16.7,
+    "p99_limit": 20,
+    "advance_fraction_min": 0.99,
+    "final_backlog_limit_ms": 100,
+    "records": [
+      {
+        "arrows_enabled": true,
+        "drag": false,
+        "final_backlog_ms": 9.61966666666711,
+        "frames": 1536,
+        "gpu_ms": 1.8225515683492,
+        "input_ms": 0.0706881510416662,
+        "kind": "cloud",
+        "layout": "storm_coast",
+        "max_backlog_ms": 16.6150000000003,
+        "min_sources": 0,
+        "natural_organization": 0.829343852303453,
+        "natural_weather": true,
+        "p50": 3.288,
+        "p95": 12.824,
+        "p99": 13.726,
+        "peak_arrows": 8,
+        "peak_source_lines": 0,
+        "pick_ms": 0.0664532035589218,
+        "rendered_size": [
+          1920,
+          1080
+        ],
+        "sample_seconds": 10.0,
+        "sim_ms": 2.75373522440592,
+        "simulation_seconds": 9.98333333333333,
+        "slow_33ms": 0,
+        "source_kinds": [],
+        "steps_per_frame": 0.389322916666667,
+        "view_ms": 2.06507094701131,
+        "wind_combination": "mixed"
+      },
+      {
+        "arrows_enabled": true,
+        "drag": true,
+        "final_backlog_ms": 2.8746666666672,
+        "frames": 1255,
+        "gpu_ms": 1.95510205272659,
+        "input_ms": 0.067022310756972,
+        "kind": "cloud",
+        "layout": "storm_coast",
+        "max_backlog_ms": 16.6429696969702,
+        "min_sources": 2,
+        "natural_organization": 0.748060832023277,
+        "natural_weather": true,
+        "p50": 3.924,
+        "p95": 13.615,
+        "p99": 14.485,
+        "peak_arrows": 32,
+        "peak_source_lines": 35,
+        "pick_ms": 0.0015768907934546,
+        "rendered_size": [
+          1920,
+          1080
+        ],
+        "sample_seconds": 10.0,
+        "sim_ms": 3.67072802539841,
+        "simulation_seconds": 10.0,
+        "slow_33ms": 0,
+        "source_kinds": [
+          "band",
+          "vortex"
+        ],
+        "steps_per_frame": 0.47808764940239,
+        "view_ms": 2.41660409144671,
+        "wind_combination": "mixed"
+      },
+      {
+        "arrows_enabled": true,
+        "drag": false,
+        "final_backlog_ms": 1.442666666667,
+        "frames": 1272,
+        "gpu_ms": 1.96587674122936,
+        "input_ms": 0.0799536163522007,
+        "kind": "rain",
+        "layout": "storm_coast",
+        "max_backlog_ms": 16.6578484848487,
+        "min_sources": 0,
+        "natural_organization": 0.829571242206759,
+        "natural_weather": true,
+        "p50": 3.597,
+        "p95": 13.947,
+        "p99": 15.204,
+        "peak_arrows": 8,
+        "peak_source_lines": 0,
+        "pick_ms": 0.0756596799166697,
+        "rendered_size": [
+          1920,
+          1080
+        ],
+        "sample_seconds": 10.0,
+        "sim_ms": 3.70528771742335,
+        "simulation_seconds": 10.0,
+        "slow_33ms": 0,
+        "source_kinds": [],
+        "steps_per_frame": 0.471698113207547,
+        "view_ms": 2.42731902884237,
+        "wind_combination": "mixed"
+      },
+      {
+        "arrows_enabled": true,
+        "drag": true,
+        "final_backlog_ms": 5.20736219336309,
+        "frames": 982,
+        "gpu_ms": 2.76290265800025,
+        "input_ms": 0.0740213849287169,
+        "kind": "rain",
+        "layout": "storm_coast",
+        "max_backlog_ms": 16.6573015873024,
+        "min_sources": 2,
+        "natural_organization": 0.74591505592476,
+        "natural_weather": true,
+        "p50": 13.624,
+        "p95": 15.326,
+        "p99": 16.683,
+        "peak_arrows": 32,
+        "peak_source_lines": 35,
+        "pick_ms": 0.00185844478199293,
+        "rendered_size": [
+          1920,
+          1080
+        ],
+        "sample_seconds": 10.0,
+        "sim_ms": 5.12639970643457,
+        "simulation_seconds": 10.0,
+        "slow_33ms": 0,
+        "source_kinds": [
+          "band",
+          "vortex"
+        ],
+        "steps_per_frame": 0.609979633401222,
+        "view_ms": 2.9324727417738,
+        "wind_combination": "mixed"
+      },
+      {
+        "arrows_enabled": true,
+        "drag": false,
+        "final_backlog_ms": 2.50000000000009,
+        "frames": 1267,
+        "gpu_ms": 1.91317997114246,
+        "input_ms": 0.079098658247829,
+        "kind": "cold",
+        "layout": "storm_coast",
+        "max_backlog_ms": 16.657292929294,
+        "min_sources": 0,
+        "natural_organization": 0.829571242206759,
+        "natural_weather": true,
+        "p50": 3.551,
+        "p95": 14.03,
+        "p99": 14.806,
+        "peak_arrows": 8,
+        "peak_source_lines": 0,
+        "pick_ms": 0.0760938829574043,
+        "rendered_size": [
+          1920,
+          1080
+        ],
+        "sample_seconds": 10.0,
+        "sim_ms": 3.70810454382893,
+        "simulation_seconds": 10.0,
+        "slow_33ms": 0,
+        "source_kinds": [],
+        "steps_per_frame": 0.472770323599053,
+        "view_ms": 2.42359535319653,
+        "wind_combination": "mixed"
+      },
+      {
+        "arrows_enabled": true,
+        "drag": true,
+        "final_backlog_ms": 5.14702020202141,
+        "frames": 1048,
+        "gpu_ms": 2.50779735769024,
+        "input_ms": 0.0726364503816793,
+        "kind": "cold",
+        "layout": "storm_coast",
+        "max_backlog_ms": 16.6623535353547,
+        "min_sources": 2,
+        "natural_organization": 0.74548006569329,
+        "natural_weather": true,
+        "p50": 13.165,
+        "p95": 15.119,
+        "p99": 15.691,
+        "peak_arrows": 32,
+        "peak_source_lines": 36,
+        "pick_ms": 0.00178339281154953,
+        "rendered_size": [
+          1920,
+          1080
+        ],
+        "sample_seconds": 10.0,
+        "sim_ms": 4.71151849877743,
+        "simulation_seconds": 10.0,
+        "slow_33ms": 0,
+        "source_kinds": [
+          "band",
+          "vortex"
+        ],
+        "steps_per_frame": 0.570610687022901,
+        "view_ms": 2.79123763455689,
+        "wind_combination": "mixed"
+      }
+    ],
+    "formal_pending": "meadow,valleys 12 +storm_coast 6; 5s warmup /60s sample during user idle time",
+    "earlier_short_failures_retained": true,
+    "csv_integrity_verified": true
+  },
+  "standalone": {
+    "preset": "Windows Desktop",
+    "release": "official matching 4.7.2 template",
+    "embedded_pck": true,
+    "executable_bytes": 109472456,
+    "archive_bytes": 39425101,
+    "source_free_launch": "working directory .godot/jam-preview, no --path, fresh-guide storm_coast",
+    "smoke_exit": 0,
+    "smoke_frames": 420,
+    "log": ".godot/standalone-tropical-final.log",
+    "archive": ".godot/WeavingRain-preview.zip",
+    "taptap_upload": "not performed"
+  },
+  "native_issue": {
+    "status": "unresolved",
+    "occurrences_this_stage": 1,
+    "scenario": "headless loss route, _dissipate_edges",
+    "signal": 8,
+    "windows_exception": "0xc000008f",
+    "executable_offset": "0x490e705",
+    "meaning": "STATUS_FLOAT_INEXACT_RESULT, classification only, cause unknown",
+    "source": "https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-erref/596a1078-e883-4972-9bbc-49e60bebca55",
+    "failure_log": ".godot/tropical-partial-loss-crash.log",
+    "subsequent": "same loss route and full continuation passed; not proof fixed"
+  },
+  "visual_review": {
+    "normal_route_screenshot": "docs/previews/tropical-weather.png",
+    "result_snapshot": ".godot/tropical-route-result.png",
+    "fixture_snapshot": ".godot/tropical-scene.png",
+    "player_accepted": false,
+    "limitations": [
+      "one cloud layer",
+      "game proxy organization/convection",
+      "no complete typhoon eyewall or tornado",
+      "reservoir placeholder rim/water",
+      "no audio"
+    ]
+  }
+}

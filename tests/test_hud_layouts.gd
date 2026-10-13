@@ -11,7 +11,7 @@ func run() -> void:
 	for output in [Vector2i(1920, 1080), Vector2i(1280, 800), Vector2i(1024, 768)]:
 		root.size = output
 		await RenderingServer.frame_post_draw
-		for id in ["standard", "far", "close", "ridges", "meadow", "valleys", "needs_lab"]:
+		for id in ["standard", "far", "close", "ridges", "meadow", "valleys", "needs_lab", "reservoir_lab", "storm_coast"]:
 			main.select_layout(id)
 			main.hud.queue_redraw()
 			await RenderingServer.frame_post_draw

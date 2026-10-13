@@ -46,6 +46,8 @@ func _set_handle(gizmo: EditorNode3DGizmo, id: int, _secondary: bool, camera: Ca
 		"axis_x": node.apply_handle(id, Vector2(maxf(0.5, absf(p.x - node.map_definition.island_center.x)), node.map_definition.island_axes.y))
 		"axis_z": node.apply_handle(id, Vector2(node.map_definition.island_axes.x, maxf(0.5, absf(p.y - node.map_definition.island_center.y))))
 		"mountain_radius": node.apply_handle(id, clampf(p.distance_to(node.map_definition.mountains[data.index].position), 0.25, 5.0))
+		"warm_axis_x": node.apply_handle(id, Vector2(maxf(0.5, absf(p.x - node.map_definition.warm_sea.position.x)), node.map_definition.warm_sea.half_axes.y))
+		"warm_axis_z": node.apply_handle(id, Vector2(node.map_definition.warm_sea.half_axes.x, maxf(0.5, absf(p.y - node.map_definition.warm_sea.position.y))))
 		_: node.apply_handle(id, p)
 
 func _commit_handle(gizmo: EditorNode3DGizmo, id: int, _secondary: bool, restore: Variant, cancel: bool) -> void:

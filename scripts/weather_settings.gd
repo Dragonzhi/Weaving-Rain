@@ -9,7 +9,7 @@ extends Resource
 ## 风刷半径，世界单位，范围 0.1–8；中心推力最强，向边缘平滑减弱。
 ## 调大可同时推动更宽范围的湿空气、冷空气与云；调小便于局部修形，减少牵动旁边天气。
 @export_range(0.1, 8.0, 0.05) var brush_radius: float = 1.5
-## 风速上限，世界单位/秒，范围 0.1–12；限制鼠标风，以及叠加冷风出流后的低空总速度。
+## 风速上限，世界单位/秒，范围0.1–12；限制人工风，以及叠加背景／自然天气／冷风后的各层实际速度。
 ## 调大允许更快输送、也更易拉散或推过头；调小限制猛拨速度。未达到上限时，调大不会自动增强风。
 @export_range(0.1, 12.0, 0.1) var max_wind: float = 6.0
 ## 鼠标风的指数衰减率，1/秒；划动期间也会衰减，松手后不会立即归零。
@@ -49,7 +49,7 @@ extends Resource
 ## 调大允许多路补给，也更难照顾过量风险；调小要求更明确地选择输送位置。
 @export_range(1, 4, 1) var source_limit := 2
 @export_group("云响应")
-## 所有云的最低移动响应，范围 0–1；例如 0.24 表示云速至少为同处鼠标风速的 24%。
+## 所有云的最低移动响应，范围0–1；例如0.24表示云速至少为同处云层实际风速的24%。
 ## 调大让厚云、雨云更容易移开，也削弱轻重云的差别；调小允许它们更迟缓。此项不控制雨量。
 @export_range(0.0, 1.0, 0.01) var rain_response: float = 0.24
 ## 云水浓度带来的阻力系数；浓云响应按 1 / (1 + 平滑云水量 × 此值) 减弱。
@@ -157,6 +157,44 @@ extends Resource
 ## 海域缓冲最外侧 2 世界单位内的消散率，1/秒；越靠外消散越强，云水、降雨子集与进度同比例减少。
 ## 调大使天气更早淡出、流失更多水分；调小允许它飘得更远。0 关闭缓冲消散，但越界仍流失，显示仍有边缘淡出。
 @export var edge_decay := 1.8
+@export_group("热带主题：补给与对流（R生效）")
+## 每个有效海格的水汽补给上限，原始水量/秒，0–2。实际乘当地0–1供能；越大越易持续成云，0停补给。
+@export_range(0.0, 2.0, 0.01) var tropical_evaporation := 0.09
+## 强天气引起的供能减弱率，供能/秒，0–1；实际乘强度平方及局部影响。越大越早弱化；0不冷却。
+@export_range(0.0, 1.0, 0.001) var tropical_cooling := 0.025
+## 蒸发／对流支持的最低供能，0–0.9；调大更早停止补给，调小能利用更弱的剩余供能。
+@export_range(0.0, 0.9, 0.01) var tropical_energy_min := 0.08
+## 初始对流所需的当地水汽，原始浓度，0.01–10；越大越需先收拢。达标仍需有效汇聚。
+@export_range(0.01, 10.0, 0.05) var tropical_humidity_min := 0.35
+## 实际低空速度散度的负值阈值，1/秒，0.001–10；越大越需集中汇入，同向平移不足以造云。
+@export_range(0.001, 10.0, 0.01) var tropical_convergence_min := 0.025
+## 有效条件连续维持时间，秒，0.1–10；调大避免短暂汇聚启动，失去条件会回退。
+@export_range(0.1, 10.0, 0.1) var tropical_convection_seconds := 0.8
+## 海域有效汇聚转水汽为云的效率，0–20；调大更快补云，仍从真实水汽扣账。
+@export_range(0.0, 20.0, 0.1) var tropical_lift_rate := 3.5
+@export_group("热带主题：组织与环流（R生效）")
+## 影响半径，世界单位，1–6；越大覆盖越宽、涉及更多天气，但不凭空增加水。
+@export_range(1.0, 6.0, 0.1) var tropical_radius := 4.2
+## 满强度切向速度，单位/秒，0–12；调大旋转与云带输送更强，组合仍受max_wind限速。
+@export_range(0.0, 12.0, 0.1) var tropical_rotation := 3.4
+## 满强度低空向内速度，单位/秒，0–12；调大汇聚与供给更强，可能更快集中雨量。
+@export_range(0.0, 12.0, 0.1) var tropical_inflow := 1.8
+## 云层向外展开速度，单位/秒，0–4；越大雨带更宽，过大可能散薄。人工风仍作用两层。
+@export_range(0.0, 4.0, 0.05) var tropical_cloud_outflow := 0.25
+## 支持满组织度所需的实际对流转移速率，水量/秒，0.01–100；调大更难增强。
+@export_range(0.01, 100.0, 0.1) var tropical_support_rate := 1.8
+## 支持组织的平均切向速度，单位/秒，0.01–12；调大更需明确环流，单纯云多不会增强。
+@export_range(0.01, 12.0, 0.05) var tropical_rotation_min := 0.2
+## 组织度向支持值增长／衰弱的指数响应，1/秒，0–2。分别调大更快增强／更快减弱，不删除储水。
+@export_range(0.0, 2.0, 0.01) var tropical_growth := 0.08
+@export_range(0.0, 2.0, 0.01) var tropical_decay := 0.035
+@export_group("热带主题：外围引导（R生效）")
+## 外围环境平均风转为中心移动的倍率，0–2；调大更易引导，不读取自身环流。
+@export_range(0.0, 2.0, 0.05) var tropical_steering_gain := 0.65
+## 中心移动速度上限，单位/秒，0–2；调小更稳定，调大需更早安排雨带经过目标。
+@export_range(0.0, 2.0, 0.05) var tropical_motion_cap := 0.35
+## 中心对引导风的指数响应，1/秒，0–4；调大更快转向，调小惯性更久。0保持当前移动速度。
+@export_range(0.0, 4.0, 0.05) var tropical_steering_response := 0.35
 
 const LIVE_FIELDS := ["hold_gain", "source_powers", "brush_radius", "max_wind", "wind_decay", "wind_spread", "rain_response",
 	"stroke_min_power", "stroke_max_power", "stroke_speed_full", "stroke_gain", "cloud_drag", "rainy_cloud_response",
@@ -170,6 +208,10 @@ func validation_errors() -> PackedStringArray:
 		if typeof(value) == TYPE_FLOAT and (not is_finite(value) or value < 0): errors.append(str(property.name) + "：须为有限非负数")
 	for field in ["brush_radius", "max_wind", "stroke_speed_full", "cloud_threshold", "hold_seconds", "plot_water_scale", "safe_seconds", "three_star_finish_seconds", "plot_half"]:
 		if get(field) <= 0: errors.append(field + "：须大于零")
+	var tropical_ranges := {"tropical_evaporation": Vector2(0, 2), "tropical_cooling": Vector2(0, 1), "tropical_energy_min": Vector2(0, 0.9), "tropical_humidity_min": Vector2(0.01, 10), "tropical_convergence_min": Vector2(0.001, 10), "tropical_convection_seconds": Vector2(0.1, 10), "tropical_lift_rate": Vector2(0, 20), "tropical_radius": Vector2(1, 6), "tropical_rotation": Vector2(0, 12), "tropical_inflow": Vector2(0, 12), "tropical_cloud_outflow": Vector2(0, 4), "tropical_support_rate": Vector2(0.01, 100), "tropical_rotation_min": Vector2(0.01, 12), "tropical_growth": Vector2(0, 2), "tropical_decay": Vector2(0, 2), "tropical_steering_gain": Vector2(0, 2), "tropical_motion_cap": Vector2(0, 2), "tropical_steering_response": Vector2(0, 4)}
+	for field in tropical_ranges:
+		var limits: Vector2 = tropical_ranges[field]
+		if get(field) < limits.x or get(field) > limits.y: errors.append(field + "：超出有效范围")
 	if brush_radius > 8.0: errors.append("brush_radius：最大 8 世界单位")
 	if max_wind > 12.0: errors.append("max_wind：最大 12 世界单位/秒")
 	if three_star_finish_seconds < 0.1 or three_star_finish_seconds > 30.0: errors.append("three_star_finish_seconds：须在 0.1–30 秒")

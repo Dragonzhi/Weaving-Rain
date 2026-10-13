@@ -22,12 +22,15 @@ func _init() -> void:
 		var definition := Layouts.get_definition(id)
 		check(definition.validation_errors().is_empty(), "Star map validates: " + id + " " + str(definition.validation_errors()))
 		var sim := Sim.new(null, true, false, id)
-		check(sim.star_level and sim.plot_centers.size() == 3 and sim.earned_stars() == 0, "Three fields begin without stars: " + id)
-		check(Array(sim.cloud).max() == 0.0 and Array(sim.cold).max() == 0.0, "Star maps begin with humidity only")
+		check(sim.star_level and sim.plot_centers.size() == definition.plots.size() and sim.earned_stars() == 0, "Authored target count begins incomplete: " + id)
+		var initial_clouds: bool = definition.warm_sea != null and definition.warm_sea.initial_cloud_fraction > 0
+		check((Array(sim.cloud).max() > 0 if initial_clouds else Array(sim.cloud).max() == 0) and Array(sim.cold).max() == 0 and absf(sim.water_error()) < 0.001, "Only authored theme transfers its opening cloud budget")
 		var path: String = "res://.godot/star-map-" + id + ".tres"
 		check(ResourceSaver.save(definition, path) == OK, "Shape map saves")
 		var restored = ResourceLoader.load(path, "", ResourceLoader.CACHE_MODE_IGNORE_DEEP)
-		check(restored.star_level and restored.time_limit_seconds == definition.time_limit_seconds and restored.region(1).shape == "circle" and restored.region(2).half_axes == definition.region(2).half_axes, "Star flag, deadline and authored nested shapes survive reload")
+		var shapes := true
+		for n in definition.plots.size(): shapes = shapes and restored.region(n).shape == definition.region(n).shape and restored.region(n).half_axes == definition.region(n).half_axes
+		check(restored.star_level and restored.time_limit_seconds == definition.time_limit_seconds and shapes, "Star flag, deadline and actual authored shapes survive reload")
 	var sim := Sim.new(null, true, false, "meadow")
 	check(not sim.can_finish() and not sim.finish(), "No stars cannot finish")
 	sim.plot_waters[0] = 110.0

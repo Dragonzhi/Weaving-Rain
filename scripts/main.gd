@@ -315,7 +315,9 @@ func reload_tuning() -> bool:
 	sim.settings.apply_live(candidate)
 	for i in Simulation.COUNT:
 		sim.wind[i] = sim.wind[i].limit_length(candidate.max_wind)
+		if sim.tropical != null: sim.cloud_wind[i] = sim.cloud_wind[i].limit_length(candidate.max_wind)
 	sim._update_cold_flow()
+	sim.refresh_display()
 	pending_settings = candidate
 	_tuning_feedback("已应用：拨风、风带、漩涡力度与云响应；范围限制下一笔生效，寿命／数量及天气规则重试生效")
 	return true

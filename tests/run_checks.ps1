@@ -24,6 +24,8 @@ $checks = @(
     @{ Name = 'open-boundary'; Script = 'res://tests/test_open_boundary.gd'; Headless = $true },
     @{ Name = 'map-resources'; Script = 'res://tests/test_map_resources.gd'; Headless = $true },
     @{ Name = 'plot-needs'; Script = 'res://tests/test_plot_needs.gd'; Headless = $true },
+    @{ Name = 'reservoir-tropical'; Script = 'res://tests/test_reservoir_tropical.gd'; Headless = $true },
+    @{ Name = 'tropical-scene'; Script = 'res://tests/test_tropical_scene.gd'; Headless = $false; Args = @('--fresh-guide', '--layout=storm_coast'); Resolution = '1920x1080' },
     @{ Name = 'plot-needs-scene'; Script = 'res://tests/test_plot_needs_scene.gd'; Headless = $false; Args = @('--fresh-guide', '--layout=needs_lab'); Resolution = '1920x1080' },
     @{ Name = 'star-levels'; Script = 'res://tests/test_star_levels.gd'; Headless = $true },
     @{ Name = 'water-reserve'; Script = 'res://tests/test_water_reserve.gd'; Headless = $true },
@@ -62,7 +64,14 @@ $checks = @(
     @{ Name = 'needs-partial-loss'; Script = 'res://tests/replay_plot_needs.gd'; Headless = $true; Args = @('--reverse', '--late=5') },
     @{ Name = 'needs-viewport-route'; Script = 'res://tests/replay_plot_needs_viewport.gd'; Headless = $false; Args = @('--fresh-guide', '--layout=needs_lab'); Resolution = '1920x1080' },
     @{ Name = 'vortex-viewport-route'; Script = 'res://tests/replay_vortex_viewport.gd'; Headless = $false; Args = @('--fresh-guide', '--layout=needs_lab'); Resolution = '1920x1080' },
-    @{ Name = 'vortex-control-route'; Script = 'res://tests/replay_vortex_viewport.gd'; Headless = $false; Args = @('--fresh-guide', '--layout=needs_lab', '--no-vortex'); Resolution = '1920x1080' }
+    @{ Name = 'vortex-control-route'; Script = 'res://tests/replay_vortex_viewport.gd'; Headless = $false; Args = @('--fresh-guide', '--layout=needs_lab', '--no-vortex'); Resolution = '1920x1080' },
+    @{ Name = 'reservoir-route'; Script = 'res://tests/replay_reservoir_tropical.gd'; Headless = $true; Args = @('--layout=reservoir_lab') },
+    @{ Name = 'tropical-pool-first'; Script = 'res://tests/replay_reservoir_tropical.gd'; Headless = $true },
+    @{ Name = 'tropical-farm-first'; Script = 'res://tests/replay_reservoir_tropical.gd'; Headless = $true; Args = @('--reverse') },
+    @{ Name = 'tropical-partial-loss'; Script = 'res://tests/replay_reservoir_tropical.gd'; Headless = $true; Args = @('--loss') },
+    @{ Name = 'tropical-pure'; Script = 'res://tests/replay_reservoir_tropical.gd'; Headless = $true; Args = @('--pure') },
+    @{ Name = 'tropical-viewport-pool'; Script = 'res://tests/replay_tropical_viewport.gd'; Headless = $false; Args = @('--fresh-guide', '--layout=storm_coast'); Resolution = '1920x1080' },
+    @{ Name = 'tropical-viewport-farm'; Script = 'res://tests/replay_tropical_viewport.gd'; Headless = $false; Args = @('--fresh-guide', '--layout=storm_coast', '--reverse'); Resolution = '1920x1080' }
 )
 if ($StartAt -ne '' -and $checks.Name -notcontains $StartAt) { throw "Unknown check name: $StartAt" }
 $started = $StartAt -eq ''
@@ -82,11 +91,11 @@ foreach ($check in $checks) {
     if ($checkProcess.ExitCode -ne 0 -or $output -match '(?m)^(SCRIPT ERROR|ERROR:)') {
         throw "Check failed: $($check.Name). See $logPath"
     }
-    if ($check.ContainsKey('Editor') -and $output -notmatch 'EDITOR MAP: 24 checks, 0 failures') { throw 'Editor plugin check did not finish.' }
+    if ($check.ContainsKey('Editor') -and $output -notmatch 'EDITOR MAP: 29 checks, 0 failures') { throw 'Editor plugin check did not finish.' }
 }
 & (Join-Path $PSScriptRoot 'review_star_routes.ps1')
 if ($StartAt -eq '') {
-    Write-Output 'All rules, map-editor, tuning, feedback, viewport, and twenty-three playthrough checks passed.'
+    Write-Output 'All rules, map-editor, tuning, feedback, viewport, and thirty playthrough checks passed.'
 } else {
     Write-Output "Checks from '$StartAt' and route review passed; earlier checks were not rerun."
 }

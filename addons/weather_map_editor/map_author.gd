@@ -29,11 +29,13 @@ func signature() -> int:
 	for region in map_definition.plot_regions:
 		values.append([region.shape, region.half_axes] if region != null else null)
 	for needs in map_definition.plot_needs:
-		values.append([needs.id, needs.display_name, needs.target_water, needs.flood_water, needs.appearance] if needs != null else null)
+		values.append([needs.id, needs.display_name, needs.target_water, needs.flood_water, needs.appearance, needs.goal_kind] if needs != null else null)
 	for m in map_definition.mountains:
 		values.append([m.position, m.radius, m.height] if m != null else null)
 	for source in map_definition.humidity_sources:
 		values.append([source.position, source.spread, source.concentration, source.falloff] if source != null else null)
+	var sea := map_definition.warm_sea
+	values.append([sea.position, sea.half_axes, sea.seed_position, sea.initial_energy, sea.seed_organization, sea.initial_cloud_fraction, sea.background_wind, sea.hemisphere] if sea != null else null)
 	return hash(values)
 
 func rebuild() -> void:
@@ -51,6 +53,25 @@ func rebuild() -> void:
 	var ocean := PlaneMesh.new()
 	ocean.size = Vector2(40, 36)
 	add_mesh(ocean, Color("58aab1"), Vector3(0, -0.08, 0))
+	if map_definition.warm_sea != null and map_definition.warm_sea.validation_errors().is_empty():
+		var sea := map_definition.warm_sea
+		var warm := SurfaceTool.new()
+		warm.begin(Mesh.PRIMITIVE_TRIANGLES)
+		for z in 40:
+			for x in 48:
+				var p := Vector2(-12.0 + (x + 0.5) * 0.5, -10.0 + (z + 0.5) * 0.5)
+				var weight := sea.weight(p)
+				if weight <= 0.0 or terrain.is_land(p): continue
+				for offset in [Vector2(-0.25, -0.25), Vector2(-0.25, 0.25), Vector2(0.25, -0.25), Vector2(0.25, -0.25), Vector2(-0.25, 0.25), Vector2(0.25, 0.25)]:
+					warm.set_normal(Vector3.UP)
+					warm.set_color(Color("58aab1").lerp(Color("afd0ab"), weight * sea.initial_energy))
+					warm.add_vertex(Vector3(p.x + offset.x, -0.07, p.y + offset.y))
+		var mesh := warm.commit()
+		if mesh.get_surface_count() > 0:
+			var node := add_mesh(mesh, Color.WHITE)
+			node.material_override.vertex_color_use_as_albedo = true
+		add_label("暖海域", Vector3(sea.position.x, 0.3, sea.position.y))
+		add_label("初始扰动", Vector3(sea.seed_position.x, 0.6, sea.seed_position.y))
 	if not map_definition.island_axes.is_finite() or map_definition.island_axes.x <= 0 or map_definition.island_axes.y <= 0 or not is_finite(map_definition.coast_variation):
 		update_configuration_warnings()
 		return
@@ -101,7 +122,7 @@ func rebuild() -> void:
 		var label := String.chr(65 + n)
 		if n < map_definition.plot_needs.size() and map_definition.plot_needs[n] != null:
 			var needs := map_definition.plot_needs[n]
-			label += " %s\n%.0f–%.0f" % [needs.display_name, needs.target_water, needs.flood_water]
+			label += (" %s\n容量 %.0f" % [needs.display_name, needs.target_water]) if needs.goal_kind == "reservoir" else " %s\n%.0f–%.0f" % [needs.display_name, needs.target_water, needs.flood_water]
 		add_label(label, Vector3(p.x, 0.6, p.y))
 	for n in map_definition.mountains.size():
 		var m := map_definition.mountains[n]
@@ -169,6 +190,14 @@ func handle_data() -> Array[Dictionary]:
 		var source := map_definition.humidity_sources[n]
 		if source == null: continue
 		handles.append({"label": "湿空气 %d" % (n + 1), "kind": "air", "index": n, "p": Vector3(source.position.x, 0.35, source.position.y)})
+	var sea := map_definition.warm_sea
+	if sea != null:
+		for kind in ["warm_position", "warm_axis_x", "warm_axis_z", "warm_seed"]:
+			var p := Vector3(sea.position.x, 0.12, sea.position.y)
+			if kind == "warm_axis_x": p.x += sea.half_axes.x
+			if kind == "warm_axis_z": p.z += sea.half_axes.y
+			if kind == "warm_seed": p = Vector3(sea.seed_position.x, 0.5, sea.seed_position.y)
+			handles.append({"label": "暖海域 " + kind, "kind": kind, "index": 0, "p": p})
 	return handles
 
 func handle_value(id: int) -> Variant:
@@ -181,6 +210,9 @@ func handle_value(id: int) -> Variant:
 		"mountain_height": return map_definition.mountains[data.index].height
 		"plot": return map_definition.plots[data.index]
 		"air": return map_definition.humidity_sources[data.index].position
+		"warm_position": return map_definition.warm_sea.position
+		"warm_axis_x", "warm_axis_z": return map_definition.warm_sea.half_axes
+		"warm_seed": return map_definition.warm_sea.seed_position
 	return null
 
 func apply_handle(id: int, value: Variant) -> void:
@@ -193,6 +225,11 @@ func apply_handle(id: int, value: Variant) -> void:
 		"mountain_height": map_definition.mountains[data.index].height = value
 		"plot": map_definition.plots[data.index] = value
 		"air": map_definition.humidity_sources[data.index].position = value
+		"warm_position":
+			map_definition.warm_sea.seed_position += value - map_definition.warm_sea.position
+			map_definition.warm_sea.position = value
+		"warm_axis_x", "warm_axis_z": map_definition.warm_sea.half_axes = value
+		"warm_seed": map_definition.warm_sea.seed_position = value
 	map_definition.emit_changed()
 	rebuild()
 
