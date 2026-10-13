@@ -164,7 +164,7 @@ func run() -> void:
 	check(main.weather_view.visible_arrows > 0 and main.weather_view.visible_arrows <= 32, "Real source movement gets bounded arrows")
 	await tap(main.hud.arrows_button)
 	await RenderingServer.frame_post_draw
-	check(not main.weather_view.arrows_enabled and main.weather_view.visible_arrows == 0 and main.sim.wind_sources.size() == 1, "Arrow toggle only changes display")
+	check(not main.weather_view.hints_enabled and main.weather_view.visible_arrows == 0 and main.sim.wind_sources.size() == 1, "Arrow toggle only changes display")
 	await tap(main.hud.arrows_button)
 	button(screen(Vector2(4, 0)), true)
 	move(main.hud.wind_toolbar_rect.get_center())

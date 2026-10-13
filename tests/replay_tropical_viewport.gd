@@ -11,7 +11,13 @@ func run() -> void:
 	controller.clear_to_next = false
 	var next_at := 0.5
 	var captured := false
+	var rain_area_seen := false
+	var peak_rain_cells := 0
+	var peak_rain_focus := 0.0
 	while main.sim.outcome == "playing":
+		rain_area_seen = rain_area_seen or main.weather_view.rain_area.visible_area
+		peak_rain_cells = maxi(peak_rain_cells, main.weather_view.rain_area.wet_cells.size())
+		peak_rain_focus = maxf(peak_rain_focus, main.weather_view.rain_area.peak_focus)
 		if main.sim.elapsed_seconds >= next_at:
 			var command := controller.next_command(main.sim, main.sim.elapsed_seconds)
 			next_at += 0.25
@@ -31,6 +37,10 @@ func run() -> void:
 	report["overflow_water"] = main.sim.overflow_water
 	report["natural_lift"] = main.sim.tropical.total_lift
 	report["max_wind_lines"] = main.weather_view.visible_wind_lines
+	report["rain_area_hints_enabled"] = main.weather_view.hints_enabled
+	report["rain_area_seen"] = rain_area_seen
+	report["peak_rain_cells"] = peak_rain_cells
+	report["peak_rain_focus"] = peak_rain_focus
 	var name := "tropical-viewport-" + ("farm-first" if sequence[0] == 0 else "pool-first")
 	var file := FileAccess.open("res://.godot/" + name + ".json", FileAccess.WRITE)
 	file.store_string(JSON.stringify(report, "\t"))

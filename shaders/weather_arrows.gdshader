@@ -5,6 +5,7 @@ uniform float threshold = 1.4;
 uniform float visual_time = 0.0;
 uniform vec3 ray_direction = vec3(-0.5, -0.6, -0.6);
 #include "res://shaders/cloud_field.gdshaderinc"
+#include "res://shaders/cloud_occlusion.gdshaderinc"
 varying float visibility;
 varying float pulse;
 void vertex() {
@@ -15,25 +16,7 @@ void vertex() {
 	VERTEX += inverse(mat3(MODEL_MATRIX)) * movement * phase;
 	pulse = smoothstep(0.0, 0.18, phase) * (1.0 - smoothstep(0.76, 1.0, phase));
 	vec3 point = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
-	visibility = 1.0;
-	vec3 dir = normalize(ray_direction);
-	vec3 top = point + dir * ((4.4 - point.y) / dir.y);
-	float end = min((2.8 - top.y) / dir.y, dot(point - top, dir));
-	float dt = (2.8 - 4.4) / dir.y / 32.0;
-	float opacity = 0.0;
-	for (int i = 0; i < 32; i++) {
-		float distance = (float(i) + 0.5) * dt;
-		if (distance >= end) { break; }
-		vec3 p = top + dir * distance;
-		if (abs(p.y - 3.6) > 0.70001) { continue; }
-		float q = cloud_state(p.xz).r;
-		if (q < 0.04) { continue; }
-		float h = 0.12 + 0.58 * smoothstep(0.04, threshold * 1.8, q);
-		float y = (p.y - 3.6) / h;
-		float d = q * max(0.0, 1.0 - y * y);
-		opacity += (1.0 - opacity) * (1.0 - exp(-d * dt * 5.0));
-		if (opacity > 0.10) { visibility = 0.0; break; }
-	}
+	visibility = cloud_occludes(point) ? 0.0 : 1.0;
 }
 void fragment() {
 	if (visibility < 0.5) { discard; }

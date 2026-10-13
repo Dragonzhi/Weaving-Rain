@@ -6,6 +6,8 @@ var camera: Camera3D
 var dragging := false
 var enabled := true
 var hover_valid := false
+var hover_cloud := false
+var gesture_cloud := false
 var reference_height := 0.4
 var brush_point := Vector3.ZERO
 var last_point := Vector2.ZERO
@@ -42,6 +44,8 @@ func _on_viewport_exit() -> void:
 func cancel() -> void:
 	if sim != null: sim.clear_held_wind()
 	dragging = false
+	hover_cloud = false
+	gesture_cloud = false
 	gesture_distance = 0.0
 	meaningful_distance = 0.0
 	gesture_direction = Vector2.ZERO
@@ -154,10 +158,12 @@ func _on_plane(screen: Vector2, height: float) -> Variant:
 	return Plane(Vector3.UP, height).intersects_ray(camera.project_ray_origin(screen), camera.project_ray_normal(screen))
 
 func pick(screen: Vector2) -> Vector3:
+	hover_cloud = false
 	var origin := camera.project_ray_origin(screen)
 	var direction := camera.project_ray_normal(screen)
 	var cloud_hit: Variant = sim.pick_cloud(origin, direction)
 	if cloud_hit != null:
+		hover_cloud = true
 		return cloud_hit
 	# Trace the same terrain height function used to construct the visible island.
 	var start: Variant = _on_plane(screen, 3.15)
@@ -184,9 +190,11 @@ func pick(screen: Vector2) -> Vector3:
 func update_hover() -> void:
 	if not enabled or sim.outcome != "playing":
 		hover_valid = false
+		hover_cloud = false
 		return
 	if dragging:
 		hover_valid = Sim.contains(Vector2(brush_point.x, brush_point.z))
+		hover_cloud = gesture_cloud
 		return
 	var hovered := get_viewport().gui_get_hovered_control()
 	if hovered != null and hovered.mouse_filter != Control.MOUSE_FILTER_IGNORE:
@@ -225,6 +233,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		if hud != null and hud.blocks_wind(event.position):
 			return
 		brush_point = pick(event.position)
+		gesture_cloud = hover_cloud
 		if not Sim.contains(Vector2(brush_point.x, brush_point.z)):
 			return
 		reference_height = brush_point.y

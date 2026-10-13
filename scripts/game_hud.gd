@@ -204,8 +204,9 @@ func setup(model: RefCounted, weather_view: Node3D, input: Node) -> void:
 	vortex_button.pressed.connect(func(): wind_input.select_tool("vortex"))
 	add_child(vortex_button)
 	arrows_button = Button.new()
-	arrows_button.text = "流向提示：开"
-	arrows_button.pressed.connect(func(): view.arrows_enabled = not view.arrows_enabled)
+	arrows_button.text = "天气提示：开"
+	arrows_button.tooltip_text = "统一显示流向／抬升箭头与实际降雨范围；白色风线、雨线和风源标记始终保留。"
+	arrows_button.pressed.connect(func(): view.hints_enabled = not view.hints_enabled)
 	add_child(arrows_button)
 	for index in 4:
 		var remove := Button.new()
@@ -420,7 +421,7 @@ func _draw_wind_tools() -> void:
 	brush_button.disabled = paused
 	source_button.disabled = paused
 	vortex_button.disabled = paused
-	arrows_button.text = "流向：" + ("开" if view.arrows_enabled else "关")
+	arrows_button.text = "天气提示：" + ("开" if view.hints_enabled else "关")
 	for index in sim.wind_sources.size():
 		var source: Dictionary = sim.wind_sources[index]
 		source_remove_ids[index] = source.id

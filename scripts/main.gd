@@ -162,11 +162,13 @@ func switch_mode(mode: String) -> void:
 	sim = _new_simulation()
 	result_recorded = false
 	guide.reset(mode == "lesson")
+	var selected_hints: bool = weather_view.hints_enabled
 	remove_child(weather_view)
 	weather_view.queue_free()
 	weather_view = WeatherView.new()
 	add_child(weather_view)
 	weather_view.setup(sim)
+	weather_view.hints_enabled = selected_hints
 	wind_input.setup(sim, weather_view.camera)
 	wind_input.select_tool("brush")
 	# Resolve the current view at emission time, including after mode changes.
@@ -257,7 +259,7 @@ func _process(delta: float) -> void:
 	start = Time.get_ticks_usec()
 	if wind_input.dragging:
 		weather_view.note_interaction(Vector2(wind_input.brush_point.x, wind_input.brush_point.z))
-	weather_view.update_weather(minf(delta, 0.1), moving)
+	weather_view.update_weather(minf(delta, 0.1), moving, wind_input)
 	frame_view_ms = (Time.get_ticks_usec() - start) / 1000.0
 	wind_input.enabled = moving
 	start = Time.get_ticks_usec()

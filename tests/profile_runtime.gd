@@ -70,6 +70,7 @@ func run() -> void:
 	var duration := 60.0
 	var warmup := 5.0
 	var label := "after"
+	var hints_off := false
 	var kinds := ["cloud", "rain", "cold"]
 	for arg in OS.get_cmdline_user_args():
 		if arg.begins_with("--seconds="): duration = float(arg.trim_prefix("--seconds="))
@@ -77,6 +78,7 @@ func run() -> void:
 		if arg.begins_with("--label="): label = arg.trim_prefix("--label=")
 		if arg.begins_with("--kind="): kinds = [arg.trim_prefix("--kind=")]
 		if arg.begins_with("--wind-combination="): wind_combination = arg.trim_prefix("--wind-combination=")
+		if arg == "--hints-off": hints_off = true
 	if wind_combination not in ["band", "vortex", "mixed"]:
 		push_error("Unknown wind combination: " + wind_combination)
 		quit(1)
@@ -91,6 +93,12 @@ func run() -> void:
 	for kind in kinds:
 		for drag in [false, true]:
 			main.restart(false)
+			# Development-only old rain shader for same-session cost comparison.
+			if "--legacy-rain" in OS.get_cmdline_user_args():
+				var legacy := Shader.new()
+				legacy.code = load("res://tests/test_rain_layers.gd").LEGACY_RAIN
+				main.weather_view.rain_material.shader = legacy
+			main.weather_view.hints_enabled = not hints_off
 			seed_stress(kind)
 			main.guide.cold_hint_seen = true
 			var start := Time.get_ticks_usec()
@@ -104,6 +112,8 @@ func run() -> void:
 			var slow := 0
 			var peak_arrows := 0
 			var peak_source_lines := 0
+			var peak_rain_cells := 0
+			var peak_rain_focus := 0.0
 			var min_sources := 4
 			var previous_draw := Time.get_ticks_usec()
 			var trace := PackedStringArray(["frame_ms,steps,simulation_ms,view_ms,pick_ms,input_ms,gpu_ms"])
@@ -130,6 +140,8 @@ func run() -> void:
 				if t >= warmup:
 					peak_arrows = maxi(peak_arrows, main.weather_view.visible_arrows)
 					peak_source_lines = maxi(peak_source_lines, main.weather_view.visible_source_lines)
+					peak_rain_cells = maxi(peak_rain_cells, main.weather_view.rain_area.wet_cells.size())
+					peak_rain_focus = maxf(peak_rain_focus, main.weather_view.rain_area.peak_focus)
 					min_sources = mini(min_sources, main.sim.wind_sources.size())
 					sample_steps += main.frame_steps
 					max_backlog_ms = maxf(max_backlog_ms, main.accumulator * 1000.0)
@@ -150,7 +162,11 @@ func run() -> void:
 			report["rendered_size"] = Array([root.get_texture().get_image().get_width(), root.get_texture().get_image().get_height()])
 			report["peak_arrows"] = peak_arrows
 			report["peak_source_lines"] = peak_source_lines
-			report["arrows_enabled"] = main.weather_view.arrows_enabled
+			report["arrows_enabled"] = main.weather_view.hints_enabled
+			report["rain_area_visible"] = main.weather_view.rain_area.visible_area
+			report["peak_rain_area_cells"] = peak_rain_cells
+			report["peak_rain_focus"] = peak_rain_focus
+			report["rain_area_group_builds"] = main.weather_view.rain_area.group_builds
 			report["natural_weather"] = main.sim.tropical != null
 			report["natural_organization"] = main.sim.tropical.organization if main.sim.tropical != null else 0.0
 			reports.append(report)

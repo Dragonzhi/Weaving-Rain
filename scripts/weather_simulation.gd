@@ -56,6 +56,8 @@ var threat := false
 var peak_density := 0.0
 var peak_position := Vector2.ZERO
 var total_rain_rate := 0.0
+## Actual rain released by the last fixed step, mass/second; display only, not stored water.
+var ground_rain := PackedFloat32Array()
 var sandbox := false
 var relay_mode := false
 var cold_capable := false
@@ -189,6 +191,9 @@ func reset(test_cloud: bool = false) -> void:
 	humidity.resize(COUNT)
 	cloud.resize(COUNT)
 	rain.resize(COUNT)
+	ground_rain.resize(COUNT)
+	ground_rain.fill(0.0)
+	total_rain_rate = 0.0
 	charge.resize(COUNT)
 	lifted.resize(COUNT)
 	wind.resize(COUNT)
@@ -584,6 +589,7 @@ func _step_fixed(dt: float) -> void:
 	display_cloud = _smooth(cloud)
 	max_progress = 0.0
 	total_rain_rate = 0.0
+	ground_rain.fill(0.0)
 	var stored_cloud := cloud
 	var stored_rain := rain
 	var stored_progress := charge
@@ -614,6 +620,7 @@ func _step_fixed(dt: float) -> void:
 		max_progress = maxf(max_progress, stored_progress[i] / maxf(stored_cloud[i], 0.0001) / hold)
 		if stored_rain[i] > 0.0:
 			var fallen := minf(stored_rain[i], (stored_rain[i] * rain_rate + base_rain) * dt)
+			ground_rain[i] = fallen / dt
 			stored_rain[i] -= fallen
 			stored_cloud[i] -= fallen
 			total_rain_rate += fallen / dt

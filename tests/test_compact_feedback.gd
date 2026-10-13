@@ -57,10 +57,10 @@ func run() -> void:
 	var clock: float = view.elapsed
 	view.update_weather(0.8, false)
 	check(view.elapsed == clock and view.line_vertices == buffer and view.source_emission == emission, "Pause freezes source emission, positions and ribbon lifetime")
-	view.arrows_enabled = false
+	view.hints_enabled = false
 	view.update_weather(0.1, true)
 	check(view.visible_arrows == 0 and view.visible_source_lines > 0, "Arrow toggle preserves actual wind ribbons")
-	view.arrows_enabled = true
+	view.hints_enabled = true
 	var source_id: int = main.sim.wind_sources[0].id
 	main.sim.remove_wind_source(source_id)
 	var before: int = view.source_trace_serial
@@ -131,7 +131,7 @@ func run() -> void:
 	var low_only := true
 	for trace in view.wind_traces: low_only = low_only and trace.low
 	check(view.visible_wind_lines > 0 and low_only, "Automatic low wind has white lines without inventing upper wind")
-	view.arrows_enabled = false
+	view.hints_enabled = false
 	buffer = view.line_vertices.duplicate()
 	clock = view.elapsed
 	view.update_weather(0.5, false)

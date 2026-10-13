@@ -63,7 +63,7 @@ func detail(sim: RefCounted) -> String:
 	if phase == 3:
 		return "保持适量，并让附近危险天气清除后维持 %.0f 秒。" % sim.settings.safe_seconds
 	if phase == 2:
-		return "雨线落在地块内才加水；移云期间仍会降雨。"
+		return "淡蓝范围是实际落雨，悬停雨云可看清；移云期间仍会降雨。"
 	if phase == 1:
 		return "观察云的厚薄与雨线；拨动太猛会把云吹散。"
 	if phase == 4:

@@ -7,6 +7,7 @@ const OCEAN_SHADER = preload("res://shaders/ocean.gdshader")
 const AIR_SHADER = preload("res://shaders/low_air.gdshader")
 const RAIN_SHADER = preload("res://shaders/rain.gdshader")
 const ARROW_SHADER = preload("res://shaders/weather_arrows.gdshader")
+const RainArea = preload("res://scripts/rain_area_view.gd")
 const VAPOR_COUNT := 210
 const RAIN_COUNT := 750
 const LIFT_COUNT := 120
@@ -70,7 +71,8 @@ var ribbon_colors := PackedColorArray()
 var line_cursor := 0
 var ribbon_points := PackedVector3Array()
 var ribbon_eye := Vector3.ZERO
-var arrows_enabled := true
+var hints_enabled := true
+var rain_area: Node3D
 var arrow_mesh := ArrayMesh.new()
 var arrow_material: ShaderMaterial
 var arrow_instances := MultiMesh.new()
@@ -108,6 +110,9 @@ func setup(model: RefCounted) -> void:
 	update_map()
 	_create_scene()
 	_create_weather()
+	rain_area = RainArea.new()
+	add_child(rain_area)
+	rain_area.setup(sim, camera)
 	rain_drop_counts.resize(Sim.COUNT)
 	for i in Sim.COUNT:
 		for j in 9:
@@ -308,7 +313,11 @@ func _multimesh(count: int, mesh: Mesh, color: Color) -> MultiMesh:
 	multi.mesh = mesh
 	var node := MultiMeshInstance3D.new()
 	node.multimesh = multi
-	node.material_override = _material(color)
+	var instance_material := _material(color)
+	# Ascent marks are airborne effects; they must not become the opaque depth that
+	# the ground rain projection reconstructs behind them.
+	instance_material.depth_draw_mode = BaseMaterial3D.DEPTH_DRAW_DISABLED
+	node.material_override = instance_material
 	node.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	node.custom_aabb = AABB(Vector3(-17, -1, -15), Vector3(34, 8, 30))
 	add_child(node)
@@ -369,6 +378,11 @@ func _create_weather() -> void:
 	rainfall.mesh = drop
 	rain_material = ShaderMaterial.new()
 	rain_material.shader = RAIN_SHADER
+	rain_material.render_priority = -10
+	rain_material.set_shader_parameter("water_map", water_texture)
+	rain_material.set_shader_parameter("threshold", sim.settings.cloud_threshold)
+	rain_material.set_shader_parameter("ray_direction", -camera.global_basis.z)
+	rain_material.set_shader_parameter("edge_fade", sim.settings.open_boundary)
 	rain_material.set_shader_parameter("rain_color", Color("a6e3e8"))
 	var rain_node := MultiMeshInstance3D.new()
 	rain_node.multimesh = rainfall
@@ -712,7 +726,7 @@ func _arrow_shape(point: Vector3, direction: Vector3, color: Color, length: floa
 
 func _update_arrows() -> void:
 	arrow_material.set_shader_parameter("visual_time", elapsed)
-	if not arrows_enabled or sim.outcome != "playing":
+	if not hints_enabled or sim.outcome != "playing":
 		arrow_instances.visible_instance_count = 0
 		visible_arrows = 0
 		return
@@ -786,7 +800,7 @@ func _update_arrows() -> void:
 		visible_arrows += 1
 	arrow_instances.visible_instance_count = visible_arrows
 
-func update_weather(dt: float, moving: bool) -> void:
+func update_weather(dt: float, moving: bool, pointer: Node = null) -> void:
 	if moving:
 		elapsed += dt
 	if map_revision != sim.revision:
@@ -819,6 +833,7 @@ func update_weather(dt: float, moving: bool) -> void:
 		_update_rain()
 		rain_revision = sim.revision
 	rain_material.set_shader_parameter("visual_time", elapsed)
+	rain_area.update(dt, moving, elapsed, hints_enabled, pointer)
 	for target in plot_materials.size():
 		var water: float = sim.plot_progress(target)
 		if sim.is_reservoir(target):

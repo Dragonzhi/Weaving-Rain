@@ -1,0 +1,58 @@
+{
+	"date": "2026-10-13",
+	"status": "implemented; technical checks passed; player visual feedback and formal idle performance acceptance remain open",
+	"baseline_commit": "542de4d",
+	"rain_layer_followup": "User reported rain strokes on clouds after this implementation; corrected and checked separately in rain-layer-review.json. The measurements below remain the prior rain-area phase's history.",
+	"engine": "Godot 4.7.2 stable, Forward+, Windows D3D12",
+	"implementation": {
+		"data_field": "weather_simulation.ground_rain stores fallen / dt for each cell during the latest fixed step; it is read-only display data and excluded from water accounting",
+		"visual": "Two depth-projected GPU passes draw faint ground fill and a narrow contour visible through clouds; opaque clouds are unchanged. Rain lines and lift markers no longer write depth.",
+		"selection": "The existing cloud ray pick locks cloud context for a gesture. Hovering or moving a cloud strengthens only its connected actual-rain region; focus returns over about 0.3 seconds.",
+		"shared_toggle": "Weather hints jointly control movement/lift arrows and rain-area display. White wind lines, actual rain streaks and source markers remain. Default on; session choice survives retry, map and mode changes.",
+		"update_rate_hz": 15
+	},
+	"checks": {
+		"ground_rain": "12 checks, 0 failures",
+		"rain_area_scene_1920x1080": "22 checks, 0 failures",
+		"rain_area_scene_1280x720": "22 checks, 0 failures",
+		"full_regression": "tests/run_checks.ps1 completed from the beginning, including 30 playthroughs and five star-route comparisons; all checks passed",
+		"normal_tropical_mouse_routes": [
+			{"order": "pool first", "stars": 3, "elapsed_seconds": 37.27, "rain_area_seen": true, "peak_rain_cells": 234, "peak_rain_focus": 1.0, "water_error": -0.00146},
+			{"order": "farm first", "stars": 3, "elapsed_seconds": 62.55, "rain_area_seen": true, "peak_rain_cells": 124, "peak_rain_focus": 1.0, "water_error": -0.00385}
+		],
+		"determinism": "Two separately initialized simulations received identical input; toggling visual hints did not change humidity, cloud, rain, cold air, wind, target water or water error.",
+		"route_timing_note": "An earlier full-suite attempt had one timing-sensitive needs viewport route stop after a target flooded. Its isolated rerun passed, and the later complete final suite passed from the beginning. Logs remain under .godot/ for both runs."
+	},
+	"performance_short_comparison": {
+		"resolution": [1920, 1080],
+		"layout": "storm_coast",
+		"warmup_seconds": 5,
+		"sample_seconds_per_case": 10,
+		"stress": "cloud, rain and cold; idle and drag; drag keeps two sources (band plus vortex), arrows/wind-line workload, and active natural weather",
+		"limits_ms": {"p95": 16.7, "p99": 20.0},
+		"hints_on": [
+			{"field": "cloud", "drag": false, "p95": 15.151, "p99": 15.787, "sim_seconds": 10.0, "final_backlog_ms": 9.36, "frames_over_33ms": 0},
+			{"field": "cloud", "drag": true, "p95": 16.778, "p99": 18.606, "sim_seconds": 10.0, "final_backlog_ms": 6.51, "frames_over_33ms": 0},
+			{"field": "rain", "drag": false, "p95": 16.162, "p99": 16.916, "sim_seconds": 9.983, "final_backlog_ms": 13.03, "frames_over_33ms": 0},
+			{"field": "rain", "drag": true, "p95": 18.020, "p99": 18.837, "sim_seconds": 10.0, "final_backlog_ms": 4.52, "frames_over_33ms": 0},
+			{"field": "cold", "drag": false, "p95": 16.216, "p99": 16.907, "sim_seconds": 10.017, "final_backlog_ms": 4.24, "frames_over_33ms": 0},
+			{"field": "cold", "drag": true, "p95": 18.491, "p99": 19.715, "sim_seconds": 10.05, "final_backlog_ms": 15.38, "frames_over_33ms": 0}
+		],
+		"hints_off": [
+			{"field": "cloud", "drag": false, "p95": 15.117, "p99": 16.321, "sim_seconds": 10.0, "final_backlog_ms": 7.84, "frames_over_33ms": 0},
+			{"field": "cloud", "drag": true, "p95": 17.031, "p99": 18.697, "sim_seconds": 10.017, "final_backlog_ms": 3.47, "frames_over_33ms": 0},
+			{"field": "rain", "drag": false, "p95": 15.549, "p99": 16.836, "sim_seconds": 10.0, "final_backlog_ms": 7.32, "frames_over_33ms": 0},
+			{"field": "rain", "drag": true, "p95": 17.061, "p99": 18.110, "sim_seconds": 10.0, "final_backlog_ms": 7.20, "frames_over_33ms": 0},
+			{"field": "cold", "drag": false, "p95": 14.366, "p99": 15.044, "sim_seconds": 10.0, "final_backlog_ms": 2.14, "frames_over_33ms": 0},
+			{"field": "cold", "drag": true, "p95": 16.919, "p99": 17.766, "sim_seconds": 10.0, "final_backlog_ms": 7.94, "frames_over_33ms": 0}
+		],
+		"result": "P99 stayed under 20 ms and no sample had a frame over 33 ms. P95 exceeded 16.7 ms in several two-source drag samples both with hints on and off; the enabled cases had up to 18.491 ms. This short comparison is a diagnostic, not the formal 60-second acceptance run.",
+		"formal_idle_acceptance": "deferred per the user's prior choice"
+	},
+	"screenshots": {
+		"normal_route": "previews/rain-area-play.png",
+		"accepted_concept": "previews/rain-area-concept.png",
+		"gpu_fixture_on_off": ".godot/rain-area-active.png and .godot/rain-area-off.png"
+	},
+	"preview_package": "The Windows standalone preview was re-exported after implementation; see README for its .godot/WeavingRain-preview.zip location. This does not indicate a TapTap upload or review."
+}
