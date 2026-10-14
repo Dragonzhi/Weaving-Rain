@@ -51,6 +51,8 @@ func run() -> void:
 			return
 		seed_placed = await place_seed_vortex()
 	main.guide.cold_hint_seen = true
+	var audio_review := preload("res://tests/audio_route_record.gd").new()
+	audio_review.start(main)
 	var sequence := [0, 1] if "--reverse" in OS.get_cmdline_user_args() else [1, 0]
 	var controller := Route.new(sequence, "tropical")
 	controller.farm_lookahead = 7.0
@@ -62,6 +64,7 @@ func run() -> void:
 	var peak_rain_cells := 0
 	var peak_rain_focus := 0.0
 	while main.sim.outcome == "playing":
+		audio_review.sample()
 		rain_area_seen = rain_area_seen or main.weather_view.rain_area.visible_area
 		peak_rain_cells = maxi(peak_rain_cells, main.weather_view.rain_area.wet_cells.size())
 		peak_rain_focus = maxf(peak_rain_focus, main.weather_view.rain_area.peak_focus)
@@ -77,6 +80,9 @@ func run() -> void:
 	await RenderingServer.frame_post_draw
 	root.get_texture().get_image().save_png("res://.godot/tropical-route-result.png")
 	var report := controller.report(main.sim)
+	if "--audio-review" in OS.get_cmdline_user_args():
+		await create_timer(0.8).timeout
+		report["audio"] = audio_review.finish("res://.godot/audio-tropical-route.wav")
 	report["events"] = events
 	report["blocked"] = blocked
 	report["input_pick_error"] = input_pick_error

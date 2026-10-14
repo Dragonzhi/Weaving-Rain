@@ -1,5 +1,7 @@
 extends Node
 signal stroke_applied(from: Vector2, to: Vector2, height: float)
+signal source_created
+signal brush_motion(gesture: int, speed: float)
 const Sim = preload("res://scripts/weather_simulation.gd")
 var sim: Sim
 var camera: Camera3D
@@ -28,6 +30,7 @@ var gesture_direction := Vector2.ZERO
 var gesture_strength := 0.0
 var meaningful_distance := 0.0
 var last_motion_seconds := 0.0
+var gesture_id := 0
 var message := ""
 var message_until := 0
 
@@ -98,6 +101,7 @@ func apply_segment(a: Vector2, b: Vector2, from_time: float, to_time: float) -> 
 	if a.distance_to(b) < 0.00001: return
 	var speed := a.distance_to(b) / maxf(to_time - from_time, 0.001)
 	sim.stroke(a, b, speed)
+	if a.distance_to(b) >= 0.0001: brush_motion.emit(gesture_id,speed)
 	stroke_applied.emit(a, b, reference_height)
 	last_force = minf(speed / sim.settings.stroke_speed_full, 1.0)
 	meaningful_distance += a.distance_to(b)
@@ -132,6 +136,7 @@ func release_at(screen: Vector2) -> void:
 			if not result.ok:
 				message = result.reason
 				message_until = Time.get_ticks_msec() + 2500
+			else: source_created.emit()
 	elif tool == "vortex" and valid and enabled:
 		var released: Variant = _on_plane(screen, reference_height)
 		if released != null: brush_point = released
@@ -147,6 +152,7 @@ func release_at(screen: Vector2) -> void:
 		if not result.ok:
 			message = result.reason
 			message_until = Time.get_ticks_msec() + 2500
+		else: source_created.emit()
 	elif tool == "brush": flush()
 	cancel()
 
@@ -240,6 +246,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		last_point = Vector2(brush_point.x, brush_point.z)
 		last_time = Time.get_ticks_usec()
 		gesture_start = last_point
+		gesture_id += 1
 		gesture_button = event.button_index
 		vortex_spin = 1 if gesture_button == MOUSE_BUTTON_LEFT else -1
 		vortex_radius_limits = sim.settings.vortex_radius_limits

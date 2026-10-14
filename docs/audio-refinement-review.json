@@ -1,0 +1,482 @@
+{
+  "date": "2026-10-14",
+  "status": "Integrated after approved v4 audition; technical checks passed; final gameplay mix listening pending",
+  "base_commit": "b7f5fc55a4936d27a9755b8e28fe24fa1f2532b5",
+  "sources": "docs/audio-sources.md",
+  "assets": {
+    "adequate": {
+      "seconds": 0.38,
+      "peak": 0.4266687320674979,
+      "rms": 0.075,
+      "seam": 0.0,
+      "sha256": "a45111b38e9d03088410dbf285465ef3734bec7347c7e46bdbd2db75d4724e43",
+      "channels": 1
+    },
+    "brush": {
+      "seconds": 0.62,
+      "peak": 0.19243009839616423,
+      "rms": 0.038,
+      "seam": 0.0,
+      "sha256": "c6b480c3b1ace6578556eda40535d0ab3bfe45f36efd74a8a9431228e6f69545",
+      "channels": 2
+    },
+    "brush_2": {
+      "seconds": 0.65,
+      "peak": 0.22254982992499148,
+      "rms": 0.038,
+      "seam": 0.0,
+      "sha256": "edb1748925750e271e2970c93e1566c3142457f4bab2cc0736ff0acb948c8dc1",
+      "channels": 2
+    },
+    "brush_3": {
+      "seconds": 0.6,
+      "peak": 0.17722566338724927,
+      "rms": 0.038000000000000006,
+      "seam": 0.0,
+      "sha256": "09e728589263053445fd983f78ebeb8e3deddfc9c046980760696442e86ddc2d",
+      "channels": 2
+    },
+    "brush_4": {
+      "seconds": 0.69,
+      "peak": 0.23240673002196316,
+      "rms": 0.03799999999999999,
+      "seam": 0.0,
+      "sha256": "0b6501bdb9efc42ab876a16d6345268c62bc93b6e8f7cbd6c9f9c67e392e39a4",
+      "channels": 2
+    },
+    "brush_5": {
+      "seconds": 0.63,
+      "peak": 0.1944694931877294,
+      "rms": 0.038,
+      "seam": 0.0,
+      "sha256": "5fdee67d244e1e6c01f8ce1566a403a268a1bde4581b3abaf01b8cabc565beda",
+      "channels": 2
+    },
+    "click": {
+      "seconds": 0.12,
+      "peak": 0.24226509567450452,
+      "rms": 0.07499999999999998,
+      "seam": 0.0,
+      "sha256": "4270182438bdb980399f5b558d0fc67ed3370b34ba8b21acce5d817d9c4109f7",
+      "channels": 1
+    },
+    "damage": {
+      "seconds": 0.38,
+      "peak": 0.32093419798253797,
+      "rms": 0.07500000000000001,
+      "seam": 0.0,
+      "sha256": "d3585eb36496a50b3fa9bb27d2018cdeba2bafdd7a033a1be57589dba1a55f1c",
+      "channels": 1
+    },
+    "failure": {
+      "seconds": 0.38,
+      "peak": 0.29351275727596254,
+      "rms": 0.075,
+      "seam": 0.0,
+      "sha256": "d91989d47fd993df0ae0d06304b5b14f5f4ef6aef6255c9de307d7a3864cfe06",
+      "channels": 1
+    },
+    "full": {
+      "seconds": 0.38,
+      "peak": 0.3458417862439603,
+      "rms": 0.075,
+      "seam": 0.0,
+      "sha256": "a834b03e7e8135b6db215605d16883c5041fb935864a167d3a9c1f0349aa689f",
+      "channels": 1
+    },
+    "rain": {
+      "seconds": 21.4,
+      "peak": 0.45,
+      "rms": 0.02481171676274873,
+      "seam": 0.0262451171875,
+      "sha256": "4acc0eb81d261f955677a57080e7c572d21bde2fd829afe28957b8d55794548a",
+      "channels": 1
+    },
+    "rain_detail": {
+      "seconds": 13.4,
+      "peak": 0.42550020555970597,
+      "rms": 0.08447264038942877,
+      "seam": 0.037750244140625,
+      "sha256": "af49e498ac60e4be919ed371951b9042fbebcd0d4b6ca0e40836467a8c4c2344",
+      "channels": 2
+    },
+    "safe": {
+      "seconds": 0.38,
+      "peak": 0.34188523833033646,
+      "rms": 0.07499999999999998,
+      "seam": 0.0,
+      "sha256": "8660f1f2e6de8fe3082430dba1e1df188dff75b77569bf9b3f1f0687c8d303df",
+      "channels": 1
+    },
+    "source": {
+      "seconds": 0.38,
+      "peak": 0.3285115650032345,
+      "rms": 0.075,
+      "seam": 0.0,
+      "sha256": "c127837e8443399cf6c344a66f48a5e1691024f7e703c00edb64de043d0baf04",
+      "channels": 1
+    },
+    "success": {
+      "seconds": 0.38,
+      "peak": 0.28247939176598713,
+      "rms": 0.07500000000000001,
+      "seam": 0.0,
+      "sha256": "7be7a296b879910ea4b4c196de9ea9ee0d3c7b4c8c35159e2910eab60955486d",
+      "channels": 1
+    },
+    "wind": {
+      "seconds": 17.4,
+      "peak": 0.45,
+      "rms": 0.06725198621206255,
+      "seam": 0.00701904296875,
+      "sha256": "7d9c90ea7b0ca84404c4c083a92f55d1a7c3ac9c329b7efb7677709c973451ff",
+      "channels": 1
+    }
+  },
+  "asset_bytes": 6594536,
+  "accepted_variants_byte_identical": true,
+  "players": {
+    "weather_loops": 3,
+    "short_voices": 2
+  },
+  "checks": {
+    "gestures-1080": {
+      "checks": 24,
+      "failures": 0,
+      "log": ".godot/audio-refined-gestures-1080.log"
+    },
+    "gestures-720": {
+      "checks": 24,
+      "failures": 0,
+      "log": ".godot/audio-refined-gestures-720.log"
+    },
+    "scene-720": {
+      "checks": 53,
+      "failures": 0,
+      "log": ".godot/audio-refined-scene-720.log"
+    }
+  },
+  "gesture_details": {
+    "checks": 24,
+    "failures": 0,
+    "field_bed": 0.34753754734993,
+    "ordinary_bed": 0.0874823555350304,
+    "variants": [
+      "brush_5",
+      "brush_3",
+      "brush",
+      "brush_4",
+      "brush_2",
+      "brush_4",
+      "brush",
+      "brush_3",
+      "brush_5",
+      "brush_2"
+    ]
+  },
+  "full_suite": {
+    "log": ".godot/audio-refined-full-suite.log",
+    "uninterrupted": true,
+    "passed": true,
+    "audio_checks_1080": 53,
+    "gesture_checks_at_suite_time": 22,
+    "note": "Two subsequent RNG/mid-gesture unmute assertions brought targeted checks to24 in both sizes. Runtime code unchanged; later recorder-only focus restoration verified by tropical rerun."
+  },
+  "routes": {
+    "normal": {
+      "audio": {
+        "brush_variants": {
+          "brush": 17,
+          "brush_2": 18,
+          "brush_3": 17,
+          "brush_4": 17,
+          "brush_5": 18
+        },
+        "event_counts": {
+          "adequate": 3,
+          "brush": 87,
+          "click": 3,
+          "safe": 2,
+          "source": 1,
+          "success": 1
+        },
+        "max_short_voices": 2,
+        "peak_detail": 0.649999439716339,
+        "peak_rain": 0.278152346611023,
+        "peak_wind": 0.303554683923721,
+        "save_error": 0,
+        "wav": "res://.godot/audio-normal-route.wav"
+      },
+      "blocked": 0,
+      "commands": 89,
+      "elapsed": 45.1499999999987,
+      "input_pick_error": 0.0,
+      "outcome": "success",
+      "stars": 3,
+      "strokes": 89,
+      "water": [
+        123.247730896636,
+        120.721924169966,
+        104.946758198275
+      ],
+      "water_error": -0.00124576007021915
+    },
+    "tropical": {
+      "audio": {
+        "brush_variants": {
+          "brush": 28,
+          "brush_2": 27,
+          "brush_3": 28,
+          "brush_4": 27,
+          "brush_5": 27
+        },
+        "event_counts": {
+          "adequate": 1,
+          "brush": 137,
+          "full": 1,
+          "safe": 1,
+          "success": 1
+        },
+        "focus_restorations": 0,
+        "max_short_voices": 2,
+        "peak_detail": 0.649999558925629,
+        "peak_rain": 0.277817964553833,
+        "peak_wind": 0.322474092245102,
+        "save_error": 0,
+        "wav": "res://.godot/audio-tropical-route.wav"
+      },
+      "blocked": 0,
+      "elapsed": 35.3999999999993,
+      "input_pick_error": 0.0,
+      "outcome": "success",
+      "stars": 3,
+      "strokes": 137,
+      "water": [
+        101.175052984583,
+        250.0
+      ],
+      "water_error": -0.00142390254291058
+    }
+  },
+  "recordings": {
+    "normal": {
+      "path": ".godot\\audio-normal-route.wav",
+      "seconds": 45.81333333333333,
+      "sample_rate": 48000,
+      "channels": 2,
+      "peak": 0.188720703125,
+      "rms": 0.02348437461301548,
+      "clipped_samples": 0
+    },
+    "tropical": {
+      "path": ".godot\\audio-tropical-route.wav",
+      "seconds": 36.08533333333333,
+      "sample_rate": 48000,
+      "channels": 2,
+      "peak": 0.211822509765625,
+      "rms": 0.030770574903722835,
+      "clipped_samples": 0
+    }
+  },
+  "performance": [
+    {
+      "arrows_enabled": true,
+      "audio_enabled": true,
+      "audio_ms": 0.107933774834437,
+      "audio_peak_ms": 0.875,
+      "drag": false,
+      "final_backlog_ms": 6.68342424242439,
+      "frames": 755,
+      "gpu_ms": 3.48592230184189,
+      "hud_draw_ms": 0.948858278145696,
+      "hud_visible": true,
+      "input_ms": 0.0857801324503313,
+      "kind": "cold",
+      "layout": "storm_coast",
+      "max_backlog_ms": 16.6536666666668,
+      "min_sources": 0,
+      "natural_organization": 0.841444248637211,
+      "natural_weather": true,
+      "p50": 14.813,
+      "p95": 17.215,
+      "p99": 18.801,
+      "peak_arrows": 8,
+      "peak_rain_area_cells": 2621,
+      "peak_rain_focus": 1.0,
+      "peak_source_lines": 0,
+      "pick_ms": 0.0857391559525041,
+      "rain_area_group_builds": 178,
+      "rain_area_visible": true,
+      "rendered_size": [
+        1920,
+        1080
+      ],
+      "sample_seconds": 10.0,
+      "sim_ms": 6.21208997309603,
+      "simulation_seconds": 10.0,
+      "slow_33ms": 0,
+      "source_kinds": [],
+      "steps_per_frame": 0.79205298013245,
+      "view_ms": 4.33489303083609,
+      "wind_combination": "mixed",
+      "csv": ".godot\\runtime-audio-refined-on-storm_coast-cold-idle.csv",
+      "csv_verified_frames": 755,
+      "meets_frame_thresholds": false,
+      "simulation_ratio": 1.0
+    },
+    {
+      "arrows_enabled": true,
+      "audio_enabled": true,
+      "audio_ms": 0.12709477124183,
+      "audio_peak_ms": 1.429,
+      "drag": true,
+      "final_backlog_ms": 13.1869090909096,
+      "frames": 612,
+      "gpu_ms": 4.59714961831087,
+      "hud_draw_ms": 1.26322549019608,
+      "hud_visible": true,
+      "input_ms": 0.0902271241830067,
+      "kind": "cold",
+      "layout": "storm_coast",
+      "max_backlog_ms": 94.6383535353537,
+      "min_sources": 2,
+      "natural_organization": 0.720679892080891,
+      "natural_weather": true,
+      "p50": 16.25,
+      "p95": 18.354,
+      "p99": 19.329,
+      "peak_arrows": 32,
+      "peak_rain_area_cells": 2625,
+      "peak_rain_focus": 1.0,
+      "peak_source_lines": 35,
+      "pick_ms": 0.00218789990431343,
+      "rain_area_group_builds": 170,
+      "rain_area_visible": true,
+      "rendered_size": [
+        1920,
+        1080
+      ],
+      "sample_seconds": 10.0,
+      "sim_ms": 8.21093191508374,
+      "simulation_seconds": 10.0833333333333,
+      "slow_33ms": 0,
+      "source_kinds": [
+        "band",
+        "vortex"
+      ],
+      "steps_per_frame": 0.985294117647059,
+      "view_ms": 5.00242744395935,
+      "wind_combination": "mixed",
+      "csv": ".godot\\runtime-audio-refined-on-storm_coast-cold-drag.csv",
+      "csv_verified_frames": 612,
+      "meets_frame_thresholds": false,
+      "simulation_ratio": 1.00833333333333
+    },
+    {
+      "arrows_enabled": true,
+      "audio_enabled": false,
+      "audio_ms": 0.0211875968992248,
+      "audio_peak_ms": 0.063,
+      "drag": false,
+      "final_backlog_ms": 12.1212121212119,
+      "frames": 645,
+      "gpu_ms": 4.36204048570736,
+      "hud_draw_ms": 1.0239984496124,
+      "hud_visible": true,
+      "input_ms": 0.0952403100775196,
+      "kind": "cold",
+      "layout": "storm_coast",
+      "max_backlog_ms": 28.3626666666667,
+      "min_sources": 0,
+      "natural_organization": 0.841444248637211,
+      "natural_weather": true,
+      "p50": 15.863,
+      "p95": 18.241,
+      "p99": 19.643,
+      "peak_arrows": 8,
+      "peak_rain_area_cells": 2628,
+      "peak_rain_focus": 1.0,
+      "peak_source_lines": 0,
+      "pick_ms": 0.0975427257922269,
+      "rain_area_group_builds": 172,
+      "rain_area_visible": true,
+      "rendered_size": [
+        1920,
+        1080
+      ],
+      "sample_seconds": 10.0,
+      "sim_ms": 7.63185789123062,
+      "simulation_seconds": 10.0,
+      "slow_33ms": 0,
+      "source_kinds": [],
+      "steps_per_frame": 0.927131782945736,
+      "view_ms": 5.00655924479167,
+      "wind_combination": "mixed",
+      "csv": ".godot\\runtime-audio-refined-off-storm_coast-cold-idle.csv",
+      "csv_verified_frames": 645,
+      "meets_frame_thresholds": false,
+      "simulation_ratio": 1.0
+    },
+    {
+      "arrows_enabled": true,
+      "audio_enabled": false,
+      "audio_ms": 0.0208450704225352,
+      "audio_peak_ms": 0.068,
+      "drag": true,
+      "final_backlog_ms": 742.310070707065,
+      "frames": 568,
+      "gpu_ms": 4.46284162494498,
+      "hud_draw_ms": 1.38004577464789,
+      "hud_visible": true,
+      "input_ms": 0.0964014084507042,
+      "kind": "cold",
+      "layout": "storm_coast",
+      "max_backlog_ms": 742.310070707065,
+      "min_sources": 2,
+      "natural_organization": 0.725319123003139,
+      "natural_weather": true,
+      "p50": 17.26,
+      "p95": 19.564,
+      "p99": 20.783,
+      "peak_arrows": 32,
+      "peak_rain_area_cells": 2626,
+      "peak_rain_focus": 1.0,
+      "peak_source_lines": 35,
+      "pick_ms": 0.0027147888297766,
+      "rain_area_group_builds": 185,
+      "rain_area_visible": true,
+      "rendered_size": [
+        1920,
+        1080
+      ],
+      "sample_seconds": 10.0,
+      "sim_ms": 8.84368638589349,
+      "simulation_seconds": 9.5,
+      "slow_33ms": 0,
+      "source_kinds": [
+        "band",
+        "vortex"
+      ],
+      "steps_per_frame": 1.0,
+      "view_ms": 5.50075950085277,
+      "wind_combination": "mixed",
+      "csv": ".godot\\runtime-audio-refined-off-storm_coast-cold-drag.csv",
+      "csv_verified_frames": 568,
+      "meets_frame_thresholds": false,
+      "simulation_ratio": 0.95
+    }
+  ],
+  "performance_note": "Four sequential 10s storm pressure samples after3s warmup, mixed band/vortex in drag. Injected stress is not a normal playthrough; audio GDScript timing excludes native mixer. No causal inference from on/off difference. Formal idle-machine V1 and historic V6 remain open.",
+  "preserved_failures": {
+    ".godot/audio-gestures-first-parse.log": "Inferred Variant could not compile; corrected local declaration before tests.",
+    ".godot/audio-refined-tropical-focus-loss.json": "Initial successful gameplay capture lost desktop focus: rain peaks0 and only5brushes, unusable as full mix evidence. Original WAV retained; recorder-only restoration added; rerun rain and137brushes verified. Production focus mute unchanged."
+  },
+  "delivery": {
+    "new_export": false,
+    "new_zip": false,
+    "mcp_installed": false,
+    "music_added": false,
+    "screenshots_cache_only": true
+  },
+  "historical_review": "docs/audio-review.json"
+}

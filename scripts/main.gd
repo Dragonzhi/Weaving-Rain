@@ -7,6 +7,7 @@ const Onboarding = preload("res://scripts/onboarding.gd")
 const Layouts = preload("res://scripts/weather_layouts.gd")
 const ConfigLoader = preload("res://scripts/config_loader.gd")
 const LevelProgress = preload("res://scripts/level_progress.gd")
+const WeatherAudio = preload("res://scripts/weather_audio.gd")
 const SIMULATION_BUDGET_US := 8000
 @export var weather_settings: WRWeatherSettings = WRWeatherSettings.new()
 var settings_path := "res://configs/weather.tres"
@@ -20,6 +21,8 @@ var sim: Simulation
 var weather_view: Node3D
 var wind_input: Node
 var hud: Control
+var weather_audio: Node
+var frame_audio_ms := 0.0
 var paused := false
 var accumulator := 0.0
 var guide := Onboarding.new()
@@ -97,6 +100,18 @@ func _ready() -> void:
 	hud.levels_requested.connect(func(): select_layout(Layouts.LEVELS[0]))
 	hud.best_stars = progress.best
 	hud.refresh_layouts()
+	weather_audio = WeatherAudio.new()
+	add_child(weather_audio)
+	if "--fresh-guide" in args: weather_audio.preferences_path = ""
+	weather_audio.load_preferences()
+	_bind_audio()
+	wind_input.brush_motion.connect(func(gesture, speed): weather_audio.brush_motion(gesture,speed))
+	wind_input.source_created.connect(func(): weather_audio.cue("source"))
+	hud.sound_requested.connect(func(sound): weather_audio.cue(sound))
+	hud.audio_changed.connect(func(on, volume):
+		var was_enabled: bool = weather_audio.enabled
+		weather_audio.set_options(on,volume)
+		if on and not was_enabled: weather_audio.cue("click"))
 	for arg in args:
 		if arg == "--cloud-lab":
 			restart(true)
@@ -136,6 +151,7 @@ func restart(test_cloud: bool) -> void:
 	sim.reset(test_cloud)
 	guide.reset(play_mode == "lesson")
 	weather_view.reset_tracers()
+	weather_audio.bind(sim,weather_view.camera)
 
 func _new_simulation() -> RefCounted:
 	return Simulation.new(weather_settings, play_mode == "free", play_mode == "lesson", free_layout, custom_map)
@@ -183,6 +199,13 @@ func switch_mode(mode: String) -> void:
 	hud.play_mode = mode
 	hud.refresh_layouts()
 	hud.queue_redraw()
+	_bind_audio()
+
+func _bind_audio() -> void:
+	if weather_audio == null: return
+	weather_audio.bind(sim,weather_view.camera)
+	hud.set_audio_options(weather_audio.enabled,weather_audio.master_volume)
+	if not weather_audio.errors.is_empty(): _tuning_feedback("音效配置保留："+"；".join(weather_audio.errors))
 
 func finish_level() -> void:
 	wind_input.cancel()
@@ -228,6 +251,7 @@ func cold_lab() -> void:
 
 func _process(delta: float) -> void:
 	record_result()
+	weather_audio.set_paused(paused)
 	var moving: bool = not paused and sim.outcome == "playing"
 	var start := Time.get_ticks_usec()
 	if moving:
@@ -250,6 +274,7 @@ func _process(delta: float) -> void:
 			sim.step(Simulation.FIXED_STEP)
 			hud.update_feedback(Simulation.FIXED_STEP)
 			guide.update(sim, Simulation.FIXED_STEP)
+			weather_audio.observe_states()
 			last_step_us = Time.get_ticks_usec() - step_start
 			accumulator -= Simulation.FIXED_STEP
 			frame_steps += 1
@@ -272,6 +297,9 @@ func _process(delta: float) -> void:
 	hud.paused = paused
 	hud.tuning_message = tuning_message if Time.get_ticks_msec() < tuning_message_until else ""
 	hud.frame_ms = lerpf(hud.frame_ms, delta * 1000.0, 0.05)
+	start = Time.get_ticks_usec()
+	weather_audio.update_audio(minf(delta,0.1),paused)
+	frame_audio_ms = (Time.get_ticks_usec()-start)/1000.0
 	hud.queue_redraw()
 
 func _unhandled_key_input(event: InputEvent) -> void:

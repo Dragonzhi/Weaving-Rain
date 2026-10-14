@@ -1,0 +1,696 @@
+{
+  "date": "2026-10-14",
+  "status": "implemented; technical checks complete; full in-game listening acceptance pending",
+  "base_commit": "b7f5fc55a4936d27a9755b8e28fe24fa1f2532b5",
+  "user_feedback": [
+    "操作与成果可以了，小雨大雨合成感还是比较强",
+    "户外替换方向合适，先接入试玩"
+  ],
+  "sources": "docs/audio-sources.md",
+  "assets": {
+    "adequate": {
+      "seconds": 0.38,
+      "peak": 0.4266687320674979,
+      "rms": 0.075,
+      "seam": 0.0,
+      "sha256": "a45111b38e9d03088410dbf285465ef3734bec7347c7e46bdbd2db75d4724e43"
+    },
+    "brush": {
+      "seconds": 0.24,
+      "peak": 0.24608940715163574,
+      "rms": 0.060000000000000005,
+      "seam": 3.0517578125e-05,
+      "sha256": "dc7b024b518cabb1b4bc511b49ff2500cd6815b1cf7996c9cb616b26452acae3"
+    },
+    "click": {
+      "seconds": 0.12,
+      "peak": 0.24226509567450452,
+      "rms": 0.07499999999999998,
+      "seam": 0.0,
+      "sha256": "4270182438bdb980399f5b558d0fc67ed3370b34ba8b21acce5d817d9c4109f7"
+    },
+    "damage": {
+      "seconds": 0.38,
+      "peak": 0.32093419798253797,
+      "rms": 0.07500000000000001,
+      "seam": 0.0,
+      "sha256": "d3585eb36496a50b3fa9bb27d2018cdeba2bafdd7a033a1be57589dba1a55f1c"
+    },
+    "failure": {
+      "seconds": 0.38,
+      "peak": 0.29351275727596254,
+      "rms": 0.075,
+      "seam": 0.0,
+      "sha256": "d91989d47fd993df0ae0d06304b5b14f5f4ef6aef6255c9de307d7a3864cfe06"
+    },
+    "full": {
+      "seconds": 0.38,
+      "peak": 0.3458417862439603,
+      "rms": 0.075,
+      "seam": 0.0,
+      "sha256": "a834b03e7e8135b6db215605d16883c5041fb935864a167d3a9c1f0349aa689f"
+    },
+    "rain": {
+      "seconds": 21.4,
+      "peak": 0.45,
+      "rms": 0.02481171676274873,
+      "seam": 0.0262451171875,
+      "sha256": "4acc0eb81d261f955677a57080e7c572d21bde2fd829afe28957b8d55794548a"
+    },
+    "rain_detail": {
+      "seconds": 21.4,
+      "peak": 0.45,
+      "rms": 0.019229898157054767,
+      "seam": 0.0115966796875,
+      "sha256": "428c7a0d11a7b009b7a565f6b641e7b2b34d581ac2e2bdfc5ec88d040cdbd59a"
+    },
+    "safe": {
+      "seconds": 0.38,
+      "peak": 0.34188523833033646,
+      "rms": 0.07499999999999998,
+      "seam": 0.0,
+      "sha256": "8660f1f2e6de8fe3082430dba1e1df188dff75b77569bf9b3f1f0687c8d303df"
+    },
+    "source": {
+      "seconds": 0.38,
+      "peak": 0.3285115650032345,
+      "rms": 0.075,
+      "seam": 0.0,
+      "sha256": "c127837e8443399cf6c344a66f48a5e1691024f7e703c00edb64de043d0baf04"
+    },
+    "success": {
+      "seconds": 0.38,
+      "peak": 0.28247939176598713,
+      "rms": 0.07500000000000001,
+      "seam": 0.0,
+      "sha256": "7be7a296b879910ea4b4c196de9ea9ee0d3c7b4c8c35159e2910eab60955486d"
+    },
+    "wind": {
+      "seconds": 17.4,
+      "peak": 0.45,
+      "rms": 0.06725198621206255,
+      "seam": 0.00701904296875,
+      "sha256": "7d9c90ea7b0ca84404c4c083a92f55d1a7c3ac9c329b7efb7677709c973451ff"
+    }
+  },
+  "asset_bytes": 5576532,
+  "script_seed": 20261014,
+  "runtime_players": {
+    "weather": 3,
+    "feedback": 2
+  },
+  "configuration": "configs/audio.tres; R/map reload; F6 remains weather-only; invalid fields keep last valid",
+  "preferences": "user://audio.cfg; --fresh-guide isolated; native Timer debounces writes by 0.25s",
+  "checks": {
+    "final_audio": {
+      "1080": {
+        "checks": 53,
+        "failures": 0,
+        "log": ".godot/audio-final-1080.log"
+      },
+      "720": {
+        "checks": 53,
+        "failures": 0,
+        "log": ".godot/audio-final-720.log"
+      }
+    },
+    "full_suite_log": ".godot/audio-full-suite.log",
+    "full_suite_passed": true,
+    "scope_note": "Restarted full suite completed. Later debounce/tiny-stroke/slider-cue refinements rechecked by final dual-resolution 53 checks and both real-input recordings; not a claim that every final edit ran in one uninterrupted suite."
+  },
+  "routes": {
+    "normal_humidity_start": {
+      "audio": {
+        "event_counts": {
+          "adequate": 3,
+          "brush": 129,
+          "click": 3,
+          "safe": 3,
+          "source": 1,
+          "success": 1
+        },
+        "max_short_voices": 2,
+        "peak_detail": 0.179999887943268,
+        "peak_rain": 0.499999761581421,
+        "peak_wind": 0.431645959615707,
+        "save_error": 0,
+        "wav": "res://.godot/audio-normal-route.wav"
+      },
+      "blocked": 0,
+      "cloud_presses": 3,
+      "cold_lift": 87.6676827001933,
+      "commands": 88,
+      "created": true,
+      "destroyed": [
+        false,
+        false,
+        false
+      ],
+      "elapsed": 44.8333333333321,
+      "events": 1733,
+      "front_strokes": 0,
+      "input_disabled": true,
+      "input_pick_error": 0.0,
+      "layout": "meadow",
+      "limit": 180.0,
+      "order": [
+        0,
+        1,
+        2
+      ],
+      "outcome": "success",
+      "per_target": [
+        {
+          "distance": 33.2999992370605,
+          "front": 0,
+          "strokes": 29,
+          "transport": 14
+        },
+        {
+          "distance": 31.2000005245209,
+          "front": 0,
+          "strokes": 13,
+          "transport": 13
+        },
+        {
+          "distance": 37.2000005245209,
+          "front": 0,
+          "strokes": 46,
+          "transport": 16
+        }
+      ],
+      "placed_band": {
+        "end": [
+          -3.65793037414551,
+          0.294363021850586
+        ],
+        "lifetime": 30.0,
+        "radius": 1.5,
+        "start": [
+          -6.38675355911255,
+          1.54078722000122
+        ],
+        "strength": 0.5
+      },
+      "removed": true,
+      "route": "mountain",
+      "source_active_mountain_lift": 51.7400446142358,
+      "source_seconds": 3.01666666666666,
+      "stars": 3,
+      "strokes": 88,
+      "transport_distance": 101.700000286102,
+      "transport_strokes": 43,
+      "use_source": true,
+      "water": [
+        109.385376882636,
+        106.269295330792,
+        102.82065158433
+      ],
+      "water_error": -0.00106279703197742
+    },
+    "official_tropical_start": {
+      "audio": {
+        "event_counts": {
+          "adequate": 1,
+          "brush": 161,
+          "full": 1,
+          "safe": 1,
+          "success": 1
+        },
+        "max_short_voices": 2,
+        "peak_detail": 0.179999947547913,
+        "peak_rain": 0.49999988079071,
+        "peak_wind": 0.460998147726059,
+        "save_error": 0,
+        "wav": "res://.godot/audio-tropical-route.wav"
+      },
+      "blocked": 0,
+      "cold_lift": 388.196200258324,
+      "destroyed": [
+        false,
+        false
+      ],
+      "elapsed": 32.0999999999995,
+      "evaporated_water": 77.7558422321454,
+      "events": 1974,
+      "front_strokes": 0,
+      "input_pick_error": 0.0,
+      "layout": "storm_coast",
+      "limit": 180.0,
+      "max_wind_lines": 48,
+      "natural_lift": 285.13327022746,
+      "order": [
+        1,
+        0
+      ],
+      "outcome": "success",
+      "overflow_water": 74.8330220533822,
+      "peak_rain_cells": 235,
+      "peak_rain_focus": 1.0,
+      "per_target": [
+        {
+          "distance": 77.7000002861023,
+          "front": 0,
+          "strokes": 96,
+          "transport": 37
+        },
+        {
+          "distance": 16.7999987602234,
+          "front": 0,
+          "strokes": 30,
+          "transport": 8
+        },
+        {
+          "distance": 0.0,
+          "front": 0,
+          "strokes": 0,
+          "transport": 0
+        }
+      ],
+      "pure_start": false,
+      "rain_area_hints_enabled": true,
+      "rain_area_seen": true,
+      "route": "tropical",
+      "seed_vortex_placed_by_mouse": false,
+      "stars": 3,
+      "strokes": 126,
+      "transport_distance": 94.4999990463257,
+      "transport_strokes": 45,
+      "water": [
+        101.985136330269,
+        250.0
+      ],
+      "water_error": -0.000976593029236028
+    }
+  },
+  "native_master_recordings": {
+    "audio-normal-route": {
+      "seconds": 45.525333333333336,
+      "rate": 48000,
+      "channels": 2,
+      "peak": 0.163238525390625,
+      "rms": 0.01750872376700716,
+      "clipped": 0
+    },
+    "audio-tropical-route": {
+      "seconds": 34.42133333333334,
+      "rate": 48000,
+      "channels": 2,
+      "peak": 0.179534912109375,
+      "rms": 0.02114140639683577,
+      "clipped": 0
+    }
+  },
+  "listening_excerpt": {
+    "path": ".godot/audio-gameplay-preview.wav",
+    "source": ".godot/audio-tropical-route.wav",
+    "segments_seconds": [
+      [
+        8,
+        19
+      ],
+      [
+        "last 2 seconds"
+      ]
+    ],
+    "inter_segment_silence": 0.4
+  },
+  "performance_short": [
+    {
+      "arrows_enabled": true,
+      "audio_enabled": true,
+      "audio_ms": 0.106425328554361,
+      "audio_peak_ms": 1.056,
+      "drag": false,
+      "final_backlog_ms": 12.7777777777778,
+      "frames": 837,
+      "gpu_ms": 3.29575726179809,
+      "hud_draw_ms": 1.61408960573477,
+      "hud_visible": true,
+      "input_ms": 0.0400179211469534,
+      "kind": "cold",
+      "layout": "meadow",
+      "max_backlog_ms": 16.6016666666667,
+      "min_sources": 0,
+      "natural_organization": 0.0,
+      "natural_weather": false,
+      "p50": 13.395,
+      "p95": 15.632,
+      "p99": 16.698,
+      "peak_arrows": 0,
+      "peak_rain_area_cells": 2544,
+      "peak_rain_focus": 0.0,
+      "peak_source_lines": 0,
+      "pick_ms": 0.0414683251967709,
+      "rain_area_group_builds": 178,
+      "rain_area_visible": true,
+      "rendered_size": [
+        1920,
+        1080
+      ],
+      "sample_seconds": 10.0,
+      "sim_ms": 3.96772910132915,
+      "simulation_seconds": 10.0,
+      "slow_33ms": 0,
+      "source_kinds": [],
+      "steps_per_frame": 0.714456391875747,
+      "view_ms": 4.46058368568922,
+      "wind_combination": "mixed",
+      "csv": ".godot/runtime-audio-on-meadow-cold-idle.csv",
+      "csv_verified_frames": 837,
+      "meets_short_thresholds": true
+    },
+    {
+      "arrows_enabled": true,
+      "audio_enabled": true,
+      "audio_ms": 0.141211505922166,
+      "audio_peak_ms": 0.901,
+      "drag": true,
+      "final_backlog_ms": 246.643111111112,
+      "frames": 591,
+      "gpu_ms": 4.59846055084074,
+      "hud_draw_ms": 2.04979695431472,
+      "hud_visible": true,
+      "input_ms": 0.103023688663283,
+      "kind": "cold",
+      "layout": "meadow",
+      "max_backlog_ms": 261.010444444445,
+      "min_sources": 2,
+      "natural_organization": 0.0,
+      "natural_weather": false,
+      "p50": 16.692,
+      "p95": 19.076,
+      "p99": 20.027,
+      "peak_arrows": 32,
+      "peak_rain_area_cells": 2541,
+      "peak_rain_focus": 1.0,
+      "peak_source_lines": 36,
+      "pick_ms": 0.00252453163392249,
+      "rain_area_group_builds": 177,
+      "rain_area_visible": true,
+      "rendered_size": [
+        1920,
+        1080
+      ],
+      "sample_seconds": 10.0,
+      "sim_ms": 7.20634963911802,
+      "simulation_seconds": 9.88333333333333,
+      "slow_33ms": 0,
+      "source_kinds": [
+        "band",
+        "vortex"
+      ],
+      "steps_per_frame": 1.0,
+      "view_ms": 5.42930208002855,
+      "wind_combination": "mixed",
+      "csv": ".godot/runtime-audio-on-meadow-cold-drag.csv",
+      "csv_verified_frames": 591,
+      "meets_short_thresholds": false
+    },
+    {
+      "arrows_enabled": true,
+      "audio_enabled": false,
+      "audio_ms": 0.0204268867924528,
+      "audio_peak_ms": 0.045,
+      "drag": false,
+      "final_backlog_ms": 4.28822222222235,
+      "frames": 848,
+      "gpu_ms": 3.2196574660967,
+      "hud_draw_ms": 1.60777594339622,
+      "hud_visible": true,
+      "input_ms": 0.037571933962264,
+      "kind": "cold",
+      "layout": "meadow",
+      "max_backlog_ms": 16.5240000000001,
+      "min_sources": 0,
+      "natural_organization": 0.0,
+      "natural_weather": false,
+      "p50": 13.293,
+      "p95": 15.69,
+      "p99": 16.457,
+      "peak_arrows": 0,
+      "peak_rain_area_cells": 2541,
+      "peak_rain_focus": 0.0,
+      "peak_source_lines": 0,
+      "pick_ms": 0.0458242848234357,
+      "rain_area_group_builds": 180,
+      "rain_area_visible": true,
+      "rendered_size": [
+        1920,
+        1080
+      ],
+      "sample_seconds": 10.0,
+      "sim_ms": 3.93856062979068,
+      "simulation_seconds": 10.0,
+      "slow_33ms": 0,
+      "source_kinds": [],
+      "steps_per_frame": 0.706367924528302,
+      "view_ms": 4.4474965221477,
+      "wind_combination": "mixed",
+      "csv": ".godot/runtime-audio-off-meadow-cold-idle.csv",
+      "csv_verified_frames": 848,
+      "meets_short_thresholds": true
+    },
+    {
+      "arrows_enabled": true,
+      "audio_enabled": false,
+      "audio_ms": 0.0201531986531986,
+      "audio_peak_ms": 0.074,
+      "drag": true,
+      "final_backlog_ms": 136.650777777779,
+      "frames": 594,
+      "gpu_ms": 4.69545717592593,
+      "hud_draw_ms": 2.05600841750842,
+      "hud_visible": true,
+      "input_ms": 0.0961548821548822,
+      "kind": "cold",
+      "layout": "meadow",
+      "max_backlog_ms": 142.079777777778,
+      "min_sources": 2,
+      "natural_organization": 0.0,
+      "natural_weather": false,
+      "p50": 16.628,
+      "p95": 19.09,
+      "p99": 19.909,
+      "peak_arrows": 32,
+      "peak_rain_area_cells": 2545,
+      "peak_rain_focus": 1.0,
+      "peak_source_lines": 35,
+      "pick_ms": 0.00243770674824313,
+      "rain_area_group_builds": 177,
+      "rain_area_visible": true,
+      "rendered_size": [
+        1920,
+        1080
+      ],
+      "sample_seconds": 10.0,
+      "sim_ms": 7.26462788694234,
+      "simulation_seconds": 9.93333333333333,
+      "slow_33ms": 0,
+      "source_kinds": [
+        "band",
+        "vortex"
+      ],
+      "steps_per_frame": 1.0,
+      "view_ms": 5.40600133825231,
+      "wind_combination": "mixed",
+      "csv": ".godot/runtime-audio-off-meadow-cold-drag.csv",
+      "csv_verified_frames": 594,
+      "meets_short_thresholds": false
+    },
+    {
+      "arrows_enabled": true,
+      "audio_enabled": true,
+      "audio_ms": 0.143486301369863,
+      "audio_peak_ms": 0.941,
+      "drag": false,
+      "final_backlog_ms": 317.983333333334,
+      "frames": 584,
+      "gpu_ms": 4.63859119154003,
+      "hud_draw_ms": 0.97782705479452,
+      "hud_visible": true,
+      "input_ms": 0.0399075342465753,
+      "kind": "cold",
+      "layout": "storm_coast",
+      "max_backlog_ms": 317.983333333334,
+      "min_sources": 0,
+      "natural_organization": 0.841346392929991,
+      "natural_weather": true,
+      "p50": 16.867,
+      "p95": 19.019,
+      "p99": 19.63,
+      "peak_arrows": 8,
+      "peak_rain_area_cells": 3584,
+      "peak_rain_focus": 0.0,
+      "peak_source_lines": 0,
+      "pick_ms": 0.0502877202752518,
+      "rain_area_group_builds": 182,
+      "rain_area_visible": true,
+      "rendered_size": [
+        1920,
+        1080
+      ],
+      "sample_seconds": 10.0,
+      "sim_ms": 8.79724706362372,
+      "simulation_seconds": 9.76666666666667,
+      "slow_33ms": 0,
+      "source_kinds": [],
+      "steps_per_frame": 1.0,
+      "view_ms": 5.46324136812393,
+      "wind_combination": "mixed",
+      "csv": ".godot/runtime-audio-on-storm_coast-cold-idle.csv",
+      "csv_verified_frames": 584,
+      "meets_short_thresholds": false
+    },
+    {
+      "arrows_enabled": true,
+      "audio_enabled": true,
+      "audio_ms": 0.147905027932961,
+      "audio_peak_ms": 0.9,
+      "drag": true,
+      "final_backlog_ms": 1428.89888888889,
+      "frames": 537,
+      "gpu_ms": 4.30098583711592,
+      "hud_draw_ms": 1.41118994413408,
+      "hud_visible": true,
+      "input_ms": 0.105260707635009,
+      "kind": "cold",
+      "layout": "storm_coast",
+      "max_backlog_ms": 1428.89888888889,
+      "min_sources": 2,
+      "natural_organization": 0.728286897838732,
+      "natural_weather": true,
+      "p50": 18.23,
+      "p95": 21.288,
+      "p99": 22.208,
+      "peak_arrows": 32,
+      "peak_rain_area_cells": 2622,
+      "peak_rain_focus": 1.0,
+      "peak_source_lines": 35,
+      "pick_ms": 0.00258286105853885,
+      "rain_area_group_builds": 176,
+      "rain_area_visible": true,
+      "rendered_size": [
+        1920,
+        1080
+      ],
+      "sample_seconds": 10.0,
+      "sim_ms": 9.36298209817272,
+      "simulation_seconds": 8.98333333333333,
+      "slow_33ms": 0,
+      "source_kinds": [
+        "band",
+        "vortex"
+      ],
+      "steps_per_frame": 1.0,
+      "view_ms": 5.78011295027351,
+      "wind_combination": "mixed",
+      "csv": ".godot/runtime-audio-on-storm_coast-cold-drag.csv",
+      "csv_verified_frames": 537,
+      "meets_short_thresholds": false
+    },
+    {
+      "arrows_enabled": true,
+      "audio_enabled": false,
+      "audio_ms": 0.0202878787878788,
+      "audio_peak_ms": 0.045,
+      "drag": false,
+      "final_backlog_ms": 0.958333333334255,
+      "frames": 660,
+      "gpu_ms": 4.4179472952178,
+      "hud_draw_ms": 0.919299999999999,
+      "hud_visible": true,
+      "input_ms": 0.0395166666666666,
+      "kind": "cold",
+      "layout": "storm_coast",
+      "max_backlog_ms": 93.8251111111114,
+      "min_sources": 0,
+      "natural_organization": 0.841432877905099,
+      "natural_weather": true,
+      "p50": 15.644,
+      "p95": 17.883,
+      "p99": 18.582,
+      "peak_arrows": 8,
+      "peak_rain_area_cells": 3584,
+      "peak_rain_focus": 0.0,
+      "peak_source_lines": 0,
+      "pick_ms": 0.0448439280192057,
+      "rain_area_group_builds": 174,
+      "rain_area_visible": true,
+      "rendered_size": [
+        1920,
+        1080
+      ],
+      "sample_seconds": 10.0,
+      "sim_ms": 7.69856844815341,
+      "simulation_seconds": 10.0833333333333,
+      "slow_33ms": 0,
+      "source_kinds": [],
+      "steps_per_frame": 0.913636363636364,
+      "view_ms": 4.85818721886837,
+      "wind_combination": "mixed",
+      "csv": ".godot/runtime-audio-off-storm_coast-cold-idle.csv",
+      "csv_verified_frames": 660,
+      "meets_short_thresholds": false
+    },
+    {
+      "arrows_enabled": true,
+      "audio_enabled": false,
+      "audio_ms": 0.0201654676258992,
+      "audio_peak_ms": 0.043,
+      "drag": true,
+      "final_backlog_ms": 962.994333333324,
+      "frames": 556,
+      "gpu_ms": 4.53627552059915,
+      "hud_draw_ms": 1.42152158273381,
+      "hud_visible": true,
+      "input_ms": 0.0962284172661871,
+      "kind": "cold",
+      "layout": "storm_coast",
+      "max_backlog_ms": 962.994333333324,
+      "min_sources": 2,
+      "natural_organization": 0.727013510306584,
+      "natural_weather": true,
+      "p50": 17.681,
+      "p95": 20.195,
+      "p99": 21.427,
+      "peak_arrows": 32,
+      "peak_rain_area_cells": 2622,
+      "peak_rain_focus": 1.0,
+      "peak_source_lines": 36,
+      "pick_ms": 0.00265467638592068,
+      "rain_area_group_builds": 181,
+      "rain_area_visible": true,
+      "rendered_size": [
+        1920,
+        1080
+      ],
+      "sample_seconds": 10.0,
+      "sim_ms": 9.13783933790468,
+      "simulation_seconds": 9.3,
+      "slow_33ms": 0,
+      "source_kinds": [
+        "band",
+        "vortex"
+      ],
+      "steps_per_frame": 1.0,
+      "view_ms": 5.53608934141749,
+      "wind_combination": "mixed",
+      "csv": ".godot/runtime-audio-off-storm_coast-cold-drag.csv",
+      "csv_verified_frames": 556,
+      "meets_short_thresholds": false
+    }
+  ],
+  "performance_note": "10s samples after 3s warmup; sequential; mixed injected pressure fixture, not ordinary play. Audio GDScript timing excludes native audio-thread mixing. Frame/advance failures remain; on/off differences are not isolated causal cost. V1 formal idle-machine tests deferred; V6 unresolved.",
+  "preserved_failures": {
+    ".godot/audio-full-suite-first-fixture.log": "Residual-wind fixture only advanced one fixed step, below existing .06 velocity floor; corrected to establish real air first.",
+    ".godot/audio-perf-first-indent-error.log": "New performance-record lines had excess indentation; repaired and only unfinished samples rerun."
+  },
+  "delivery": {
+    "mcp_installed": false,
+    "new_export": false,
+    "new_zip": false,
+    "music_added": false,
+    "screenshots_cache_only": true
+  }
+}

@@ -17,6 +17,9 @@ $checks = @(
     @{ Name = 'onboarding'; Script = 'res://tests/test_onboarding.gd'; Headless = $true },
     @{ Name = 'layouts'; Script = 'res://tests/test_layouts.gd'; Headless = $true },
     @{ Name = 'wind-path'; Script = 'res://tests/test_wind_path.gd'; Headless = $true },
+    @{ Name = 'audio-scene'; Script = 'res://tests/test_audio_scene.gd'; Headless = $false; Args = @('--fresh-guide', '--layout=meadow'); Resolution = '1920x1080' },
+    @{ Name = 'audio-gestures'; Script = 'res://tests/test_audio_gestures.gd'; Headless = $false; Args = @('--fresh-guide', '--layout=meadow'); Resolution = '1920x1080' },
+    @{ Name = 'rain-audio'; Script = 'res://tests/test_rain_audio.gd'; Headless = $false; Args = @('--fresh-guide', '--layout=meadow'); Resolution = '1920x1080' },
     @{ Name = 'compact-feedback'; Script = 'res://tests/test_compact_feedback.gd'; Headless = $false; Args = @('--fresh-guide', '--layout=meadow'); Resolution = '1920x1080' },
     @{ Name = 'hud-layouts'; Script = 'res://tests/test_hud_layouts.gd'; Headless = $false; Args = @('--fresh-guide', '--free-play') },
     @{ Name = 'ui-visuals'; Script = 'res://tests/test_ui_visuals.gd'; Headless = $false; Args = @('--fresh-guide', '--layout=needs_lab'); Resolution = '1920x1080' },
@@ -64,7 +67,7 @@ $checks = @(
     @{ Name = 'valleys-three-mountain'; Script = 'res://tests/replay_star_levels.gd'; Headless = $true; Args = @('--layout=valleys', '--route=mountain', '--output=res://.godot/star-final-valleys-mountain.json') },
     @{ Name = 'valleys-three-relay'; Script = 'res://tests/replay_star_levels.gd'; Headless = $true; Args = @('--layout=valleys', '--route=relay', '--output=res://.godot/star-final-valleys-relay.json') },
     @{ Name = 'valleys-late-clear'; Script = 'res://tests/replay_star_levels.gd'; Headless = $true; Args = @('--layout=valleys', '--late-clear=5', '--partial', '--output=res://.godot/star-final-valleys-late.json') },
-    @{ Name = 'wind-tools-route'; Script = 'res://tests/replay_wind_tools_viewport.gd'; Headless = $false; Args = @('--fresh-guide', '--layout=meadow'); Resolution = '1920x1080' },
+    @{ Name = 'wind-tools-route'; Script = 'res://tests/replay_wind_tools_viewport.gd'; Headless = $false; Args = @('--fresh-guide', '--layout=meadow', '--audio-review'); Resolution = '1920x1080' },
     @{ Name = 'needs-ordinary-first'; Script = 'res://tests/replay_plot_needs.gd'; Headless = $true },
     @{ Name = 'needs-seedling-first'; Script = 'res://tests/replay_plot_needs.gd'; Headless = $true; Args = @('--reverse') },
     @{ Name = 'needs-partial-loss'; Script = 'res://tests/replay_plot_needs.gd'; Headless = $true; Args = @('--reverse', '--late=5') },
@@ -76,7 +79,7 @@ $checks = @(
     @{ Name = 'tropical-farm-first'; Script = 'res://tests/replay_reservoir_tropical.gd'; Headless = $true; Args = @('--reverse') },
     @{ Name = 'tropical-partial-loss'; Script = 'res://tests/replay_reservoir_tropical.gd'; Headless = $true; Args = @('--loss') },
     @{ Name = 'tropical-pure'; Script = 'res://tests/replay_reservoir_tropical.gd'; Headless = $true; Args = @('--pure') },
-    @{ Name = 'tropical-viewport-pool'; Script = 'res://tests/replay_tropical_viewport.gd'; Headless = $false; Args = @('--fresh-guide', '--layout=storm_coast'); Resolution = '1920x1080' },
+    @{ Name = 'tropical-viewport-pool'; Script = 'res://tests/replay_tropical_viewport.gd'; Headless = $false; Args = @('--fresh-guide', '--layout=storm_coast', '--audio-review'); Resolution = '1920x1080' },
     @{ Name = 'tropical-viewport-farm'; Script = 'res://tests/replay_tropical_viewport.gd'; Headless = $false; Args = @('--fresh-guide', '--layout=storm_coast', '--reverse'); Resolution = '1920x1080' },
     @{ Name = 'tropical-viewport-pure'; Script = 'res://tests/replay_tropical_viewport.gd'; Headless = $false; Args = @('--fresh-guide', '--layout=storm_coast', '--pure'); Resolution = '1920x1080' }
 )

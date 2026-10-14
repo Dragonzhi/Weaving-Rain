@@ -12,6 +12,8 @@ func run() -> void:
 	main = load("res://scenes/main.tscn").instantiate()
 	root.add_child(main)
 	await RenderingServer.frame_post_draw
+	var audio_review := preload("res://tests/audio_route_record.gd").new()
+	audio_review.start(main)
 	main.guide.cold_hint_seen = true
 	var controller := Route.new([0, 1, 2], "mountain")
 	var next_at := 0.5
@@ -26,6 +28,7 @@ func run() -> void:
 	var captured_front := false
 	var strokes := 0
 	while main.sim.outcome == "playing":
+		audio_review.sample()
 		if created and not removed and main.sim.elapsed_seconds - source_started >= 3.0:
 			active_lift = main.sim.total_mountain_lift - source_lift_start
 			source_active_seconds = main.sim.elapsed_seconds - source_started
@@ -60,6 +63,9 @@ func run() -> void:
 	await RenderingServer.frame_post_draw
 	if use_source: root.get_texture().get_image().save_png("res://.godot/wind-tools-result.png")
 	var report := controller.report(main.sim)
+	if "--audio-review" in OS.get_cmdline_user_args():
+		await create_timer(0.8).timeout
+		report["audio"] = audio_review.finish("res://.godot/audio-normal-route.wav")
 	report["events"] = events
 	report["created"] = created
 	report["removed"] = removed

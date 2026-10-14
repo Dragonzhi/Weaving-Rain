@@ -8,6 +8,8 @@ signal layout_requested(id: String)
 signal finish_requested
 signal next_requested
 signal levels_requested
+signal sound_requested(sound: String)
+signal audio_changed(enabled: bool, volume: float)
 const Sim = preload("res://scripts/weather_simulation.gd")
 const Layouts = preload("res://scripts/weather_layouts.gd")
 const Visuals = preload("res://scripts/hud_visuals.gd")
@@ -73,6 +75,10 @@ var result_details: Array[String] = []
 var menu_button: Button
 var menu_open := false
 var menu_rect := Rect2()
+var audio_button: Button
+var audio_volume: HSlider
+var audio_enabled := true
+var audio_label: Label
 var plot_label_rects: Array[Rect2] = []
 var compact_model: RefCounted
 var tool_hint_until := 4.0
@@ -189,6 +195,22 @@ func setup(model: RefCounted, weather_view: Node3D, input: Node) -> void:
 		wind_input.cancel()
 		queue_redraw())
 	add_child(menu_button)
+	audio_button = Button.new()
+	audio_button.pressed.connect(func():
+		audio_enabled = not audio_enabled
+		audio_changed.emit(audio_enabled,audio_volume.value/100.0))
+	add_child(audio_button)
+	audio_volume = HSlider.new()
+	audio_volume.min_value = 0
+	audio_volume.max_value = 100
+	audio_volume.step = 1
+	audio_volume.focus_mode = Control.FOCUS_NONE
+	audio_volume.value_changed.connect(func(value): audio_changed.emit(audio_enabled,value/100.0))
+	add_child(audio_volume)
+	audio_label = Label.new()
+	audio_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	audio_label.add_theme_color_override("font_color",INK)
+	add_child(audio_label)
 	retry = Button.new()
 	retry.text = "重新开始  R"
 	retry.pressed.connect(func(): menu_open = false; restart_requested.emit())
@@ -265,10 +287,16 @@ func setup(model: RefCounted, weather_view: Node3D, input: Node) -> void:
 		remove.text = "×"
 		remove.button_down.connect(func(): source_pressed_ids[index] = source_remove_ids[index])
 		remove.pressed.connect(func():
-			if source_pressed_ids[index] >= 0 and not paused and sim.outcome == "playing": sim.remove_wind_source(source_pressed_ids[index]))
+			if source_pressed_ids[index] >= 0 and not paused and sim.outcome == "playing":
+				var found: bool = sim.wind_sources.any(func(source): return source.id == source_pressed_ids[index])
+				sim.remove_wind_source(source_pressed_ids[index])
+				if found: sound_requested.emit("click"))
 		source_remove.append(remove)
 		add_child(remove)
 	for button in buttons():
+		if button != audio_button and not button in source_remove:
+			if button is OptionButton: button.item_selected.connect(func(_index): sound_requested.emit("click"))
+			else: button.pressed.connect(func(): sound_requested.emit("click"))
 		button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 		var style := StyleBoxFlat.new()
 		style.bg_color = PANEL
@@ -307,7 +335,11 @@ func setup(model: RefCounted, weather_view: Node3D, input: Node) -> void:
 
 func buttons() -> Array:
 	return [menu_button, retry, sandbox_button, cold_button, free_button, lesson_button, dismiss_hint, layout_selector,
-		finish_button, next_button, result_retry, levels_button, brush_button, source_button, vortex_button, arrows_button] + source_remove
+		finish_button, next_button, result_retry, levels_button, brush_button, source_button, vortex_button, arrows_button, audio_button] + source_remove
+
+func set_audio_options(on: bool, volume: float) -> void:
+	audio_enabled = on
+	audio_volume.set_value_no_signal(volume*100.0)
 
 func _text(at: Vector2, text: String, font_size: int = 16, color := INK) -> void:
 	draw_string(font, at, text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, color)
@@ -646,11 +678,22 @@ func _draw() -> void:
 		last_status = ""
 	result_rect = Rect2()
 	plot_label_rects.clear()
-	menu_rect = Rect2(Vector2(w - 190, 56), Vector2(170, 112 if play_mode == "free" and not sim.star_level else 77))
+	var menu_base := 112 if play_mode == "free" and not sim.star_level else 77
+	menu_rect = Rect2(Vector2(w - 190, 56), Vector2(170, menu_base+68))
 	menu_button.position = Vector2(w - 82, 18)
 	menu_button.size = Vector2(62, 30)
 	menu_button.text = "收起" if menu_open else "菜单"
 	if menu_open: _rounded(menu_rect, PANEL, 9)
+	audio_button.visible = menu_open
+	audio_button.text = "音效：开" if audio_enabled else "音效：关"
+	audio_button.position = menu_rect.position+Vector2(8,menu_base)
+	audio_button.size = Vector2(154,28)
+	audio_volume.visible = menu_open
+	audio_volume.position = menu_rect.position+Vector2(48,menu_base+36)
+	audio_volume.size = Vector2(114,22)
+	audio_label.visible = menu_open
+	audio_label.text = "音量"
+	audio_label.position = menu_rect.position+Vector2(10,menu_base+36)
 	retry.visible = menu_open
 	retry.position = menu_rect.position + Vector2(8, 7)
 	retry.size = Vector2(154, 30)

@@ -72,6 +72,7 @@ func run() -> void:
 	var label := "after"
 	var hints_off := false
 	var hud_off := "--hud-off" in OS.get_cmdline_user_args()
+	var audio_off := "--audio-off" in OS.get_cmdline_user_args()
 	var kinds := ["cloud", "rain", "cold"]
 	for arg in OS.get_cmdline_user_args():
 		if arg.begins_with("--seconds="): duration = float(arg.trim_prefix("--seconds="))
@@ -94,6 +95,8 @@ func run() -> void:
 	for kind in kinds:
 		for drag in [false, true]:
 			main.restart(false)
+			main.weather_audio.set_focused(true)
+			main.weather_audio.set_options(not audio_off,0.75,false)
 			main.hud.visible = not hud_off
 			# Development-only old rain shader for same-session cost comparison.
 			if "--legacy-rain" in OS.get_cmdline_user_args():
@@ -109,6 +112,8 @@ func run() -> void:
 			var sums := Vector4.ZERO
 			var input_sum := 0.0
 			var hud_sum := 0.0
+			var audio_sum := 0.0
+			var audio_peak := 0.0
 			var steps := 0
 			var sample_steps := 0
 			var max_backlog_ms := 0.0
@@ -119,7 +124,7 @@ func run() -> void:
 			var peak_rain_focus := 0.0
 			var min_sources := 4
 			var previous_draw := Time.get_ticks_usec()
-			var trace := PackedStringArray(["frame_ms,steps,simulation_ms,view_ms,pick_ms,input_ms,gpu_ms,hud_draw_ms"])
+			var trace := PackedStringArray(["frame_ms,steps,simulation_ms,view_ms,pick_ms,input_ms,gpu_ms,hud_draw_ms,audio_ms"])
 			if drag:
 				if not stress_sources(): return
 				pointer(0.0, true)
@@ -155,8 +160,10 @@ func run() -> void:
 				input_sum += input_ms + main.frame_input_ms
 				var hud_ms: float = main.hud.draw_ms if main.hud.visible else 0.0
 				hud_sum += hud_ms
+				audio_sum += main.frame_audio_ms
+				audio_peak = maxf(audio_peak,main.frame_audio_ms)
 				steps += main.frame_steps
-				trace.append("%.4f,%d,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f" % [ms, main.frame_steps, main.frame_simulation_ms, main.frame_view_ms, main.frame_pick_ms, input_ms + main.frame_input_ms, gpu_ms, hud_ms])
+				trace.append("%.4f,%d,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f" % [ms, main.frame_steps, main.frame_simulation_ms, main.frame_view_ms, main.frame_pick_ms, input_ms + main.frame_input_ms, gpu_ms, hud_ms,main.frame_audio_ms])
 				if ms > 33.0: slow += 1
 			pointer(duration + warmup, false, true)
 			var count := frames.size()
@@ -164,6 +171,9 @@ func run() -> void:
 			report["min_sources"] = min_sources
 			report["hud_visible"] = not hud_off
 			report["hud_draw_ms"] = hud_sum / count
+			report["audio_enabled"] = not audio_off
+			report["audio_ms"] = audio_sum / count
+			report["audio_peak_ms"] = audio_peak
 			report["wind_combination"] = wind_combination
 			report["source_kinds"] = main.sim.wind_sources.map(func(s): return s.kind) if drag else []
 			report["rendered_size"] = Array([root.get_texture().get_image().get_width(), root.get_texture().get_image().get_height()])

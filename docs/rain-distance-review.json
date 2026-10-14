@@ -1,0 +1,87 @@
+{
+  "date": "2026-10-14",
+  "status": "Distant rain revision integrated; technical checks complete, listening acceptance pending",
+  "feedback": [
+    "Rain starts too suddenly",
+    "Near leaf/ground impacts do not fit distant overhead clouds"
+  ],
+  "changes": {
+    "source": "Same accepted outdoor weak rain and A heavy rain; no new sources",
+    "distance": "Offline100Hz high-pass, soft high shelf around1.2kHz,4.2kHz low-pass and linked stereo soft peak control; no makeup gain",
+    "rain_attack_seconds": 1.1,
+    "rain_release_seconds": 0.9,
+    "wind_fade_seconds": 0.25,
+    "stop_fade_seconds": 0.15
+  },
+  "assets": {
+    "rain": {
+      "seconds": 21.4,
+      "peak": 0.06293701750807218,
+      "rms": 0.01568864284262735,
+      "seam": 0.00115966796875,
+      "sha256": "656746dc3f8d1d2700b560870c6c254e37985cccb07a759e3af37e58a66f6ce4",
+      "high_band_change_db": -23.977278782726582,
+      "before_peak": 0.449981689453125,
+      "after_peak": 0.06292724609375
+    },
+    "rain_detail": {
+      "seconds": 13.4,
+      "peak": 0.17014369569997903,
+      "rms": 0.047909864850025796,
+      "seam": 0.0052490234375,
+      "sha256": "3581d8bce794942686150761a96986ceb4aa377f54a1b580067930fe1e0965c3",
+      "high_band_change_db": -14.376222688680667,
+      "before_peak": 0.42547607421875,
+      "after_peak": 0.170135498046875
+    }
+  },
+  "other14_assets_unchanged": true,
+  "players": {
+    "loops": 3,
+    "short": 2
+  },
+  "checks": {
+    "envelope-1080": {
+      "checks": 11,
+      "failures": 0,
+      "log": ".godot/rain-distance-v1/envelope-1080.log"
+    },
+    "envelope-720": {
+      "checks": 11,
+      "failures": 0,
+      "log": ".godot/rain-distance-v1/envelope-720.log"
+    },
+    "audio-1080": {
+      "checks": 53,
+      "failures": 0,
+      "log": ".godot/rain-distance-v1/audio-1080.log"
+    },
+    "gestures-1080": {
+      "checks": 24,
+      "failures": 0,
+      "log": ".godot/rain-distance-v1/gestures-1080.log"
+    }
+  },
+  "envelope": {
+    "100ms_ratio": 0.0868992883205153,
+    "100ms_vs60_error": 5.96046447753906e-08,
+    "30vs60_error": 0.0,
+    "3_3seconds_ratio": 0.950212971988567,
+    "checks": 11,
+    "failures": 0,
+    "first_frame_ratio": 0.015037308210586
+  },
+  "auditions": {
+    "comparison": ".godot/rain-distance-v1/01-near-before-far-after.wav",
+    "onset_tail": ".godot/rain-distance-v1/02-far-rain-onset-tail.wav"
+  },
+  "scope": "Only rain assets and audio smoothing/configuration changed. Prior full-suite pass is history; only associated audio checks rerun here. Formal long performance V1 and historic V6 remain open.",
+  "new_export": false,
+  "music_added": false,
+  "preserved_failure": {
+    "log": ".godot/rain-distance-v1/gestures-first-failure.log",
+    "checks": 23,
+    "failures": 5,
+    "note": "Last gestures did not produce expected brush counts; unchanged standalone rerun24/0. Desktop focus interference suspected, not traced or proven. Not a first-pass clean run."
+  }
+}

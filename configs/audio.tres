@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="WRAudioSettings" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/audio_settings.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+wind_gain = 0.35
+rain_gain = 0.5
+rain_detail_gain = 0.65
+feedback_gain = 0.45
+brush_gain = 0.85
+brush_pitch_range = Vector2(0.92, 1.1)
+brush_pitch_seconds = 0.06
+brush_wind_gain = 0.25
+wind_tail_seconds = 2.0
+heavy_rain_range = Vector2(0.2, 0.85)
+wind_full_speed = 3.0
+rain_full_rate = 20.0
+rain_peak_rate = 0.5
+fade_seconds = 0.25
+rain_attack_seconds = 1.1
+rain_release_seconds = 0.9
+stop_fade_seconds = 0.15
+feedback_cooldown = 0.18
+pan_limit = 0.22
