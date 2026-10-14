@@ -89,7 +89,9 @@ func run() -> void:
 	main.weather_view.cloud_material.set_shader_parameter("use_cloud_bounds", true)
 	var rows: Array[Vector2i] = []
 	for y in picture.get_height():
-		for x in picture.get_width():
+		# Directional light can turn an annular band into a crescent. Track its
+		# outer/right contour rather than jumping to the other limb at the hollow.
+		for x in range(picture.get_width()-1,-1,-1):
 			var color := picture.get_pixel(x, y)
 			if color.r < 0.86 and color.r > 0.68 and color.b > 0.78:
 				rows.append(Vector2i(x, y))

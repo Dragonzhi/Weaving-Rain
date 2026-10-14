@@ -20,6 +20,7 @@ $checks = @(
     @{ Name = 'compact-feedback'; Script = 'res://tests/test_compact_feedback.gd'; Headless = $false; Args = @('--fresh-guide', '--layout=meadow'); Resolution = '1920x1080' },
     @{ Name = 'hud-layouts'; Script = 'res://tests/test_hud_layouts.gd'; Headless = $false; Args = @('--fresh-guide', '--free-play') },
     @{ Name = 'ui-visuals'; Script = 'res://tests/test_ui_visuals.gd'; Headless = $false; Args = @('--fresh-guide', '--layout=needs_lab'); Resolution = '1920x1080' },
+    @{ Name = 'scene-lighting'; Script = 'res://tests/test_scene_lighting.gd'; Headless = $false; Args = @('--fresh-guide', '--layout=reservoir_lab'); Resolution = '1920x1080' },
     @{ Name = 'wind-tools'; Script = 'res://tests/test_wind_tools.gd'; Headless = $true },
     @{ Name = 'wind-tools-scene'; Script = 'res://tests/test_wind_tools_scene.gd'; Headless = $false; Args = @('--fresh-guide', '--layout=meadow') },
     @{ Name = 'open-boundary'; Script = 'res://tests/test_open_boundary.gd'; Headless = $true },
@@ -75,7 +76,8 @@ $checks = @(
     @{ Name = 'tropical-partial-loss'; Script = 'res://tests/replay_reservoir_tropical.gd'; Headless = $true; Args = @('--loss') },
     @{ Name = 'tropical-pure'; Script = 'res://tests/replay_reservoir_tropical.gd'; Headless = $true; Args = @('--pure') },
     @{ Name = 'tropical-viewport-pool'; Script = 'res://tests/replay_tropical_viewport.gd'; Headless = $false; Args = @('--fresh-guide', '--layout=storm_coast'); Resolution = '1920x1080' },
-    @{ Name = 'tropical-viewport-farm'; Script = 'res://tests/replay_tropical_viewport.gd'; Headless = $false; Args = @('--fresh-guide', '--layout=storm_coast', '--reverse'); Resolution = '1920x1080' }
+    @{ Name = 'tropical-viewport-farm'; Script = 'res://tests/replay_tropical_viewport.gd'; Headless = $false; Args = @('--fresh-guide', '--layout=storm_coast', '--reverse'); Resolution = '1920x1080' },
+    @{ Name = 'tropical-viewport-pure'; Script = 'res://tests/replay_tropical_viewport.gd'; Headless = $false; Args = @('--fresh-guide', '--layout=storm_coast', '--pure'); Resolution = '1920x1080' }
 )
 if ($StartAt -ne '' -and $checks.Name -notcontains $StartAt) { throw "Unknown check name: $StartAt" }
 $started = $StartAt -eq ''
@@ -99,7 +101,7 @@ foreach ($check in $checks) {
 }
 & (Join-Path $PSScriptRoot 'review_star_routes.ps1')
 if ($StartAt -eq '') {
-    Write-Output 'All rules, map-editor, tuning, feedback, viewport, and thirty playthrough checks passed.'
+    Write-Output 'All configured rules, map-editor, tuning, feedback, viewport, playthrough checks and route comparisons passed.'
 } else {
     Write-Output "Checks from '$StartAt' and route review passed; earlier checks were not rerun."
 }

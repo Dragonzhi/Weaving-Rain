@@ -1,5 +1,8 @@
 shader_type spatial;
 render_mode unshaded;
+uniform sampler2D water_map : filter_linear, repeat_disable;
+#include "res://shaders/cloud_field.gdshaderinc"
+#include "res://shaders/scene_lighting.gdshaderinc"
 varying vec3 world_position;
 uniform sampler2D sea_map : filter_linear, repeat_disable;
 uniform bool warm_enabled = false;
@@ -21,5 +24,6 @@ void fragment() {
 	float line = 1.0 - smoothstep(0.003, 0.003 + fwidth(curve), abs(curve));
 	float length_mask = 1.0 - smoothstep(0.16, 0.21, abs(local.x));
 	color += vec3(0.13, 0.16, 0.14) * line * length_mask * step(0.68, hash);
+	color = receive_cloud_shadow(color,world_position,0.30);
 	ALBEDO = pow(color, vec3(2.2));
 }

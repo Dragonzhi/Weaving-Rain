@@ -72,6 +72,7 @@ func _ready() -> void:
 	weather_view = WeatherView.new()
 	add_child(weather_view)
 	weather_view.setup(sim)
+	if not weather_view.style_errors.is_empty(): _tuning_feedback("显示配置保留："+"；".join(weather_view.style_errors))
 	wind_input = WindInput.new()
 	add_child(wind_input)
 	wind_input.setup(sim, weather_view.camera)
@@ -163,11 +164,14 @@ func switch_mode(mode: String) -> void:
 	result_recorded = false
 	guide.reset(mode == "lesson")
 	var selected_hints: bool = weather_view.hints_enabled
+	var selected_style_path: String = weather_view.style_path
 	remove_child(weather_view)
 	weather_view.queue_free()
 	weather_view = WeatherView.new()
 	add_child(weather_view)
+	weather_view.style_path = selected_style_path
 	weather_view.setup(sim)
+	if not weather_view.style_errors.is_empty(): _tuning_feedback("显示配置保留："+"；".join(weather_view.style_errors))
 	weather_view.hints_enabled = selected_hints
 	wind_input.setup(sim, weather_view.camera)
 	wind_input.select_tool("brush")

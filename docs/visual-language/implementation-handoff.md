@@ -20,10 +20,10 @@
 
 ## 当前场景交接
 
-用户认可初版UI，并要求下一阶段场景立体感计划与参考图。完整步骤以[场景实施计划](../scene-volume-implementation-plan.md)为准；新[整体／云体／田池参考](scene-reference-images.md)仅供审阅，尚未实施。
+用户认可初版UI，随后授权提交基线8f24ca7并在codex/scene-volume分支执行。完整步骤以[场景实施计划](../scene-volume-implementation-plan.md)为准；统一受光与地面材料已接入，实际范围见[实施记录](../scene-volume-review.json)。[整体／云体／田池参考](scene-reference-images.md)仍是概念。
 
 先读cloud.gdshader、cloud_field.gdshaderinc、terrain.gdshader、weather_view.gd及ui-review.json。复用地形固定光向，云约四档、地面两三档，影子冷而浅；先云＋山，再云影／海岸，再田／池。图中地形位置、云瓣和石纹不照搬，不导入固定天气素材。
 
 首份产物须有薄云／厚云／雨云及移动长边GPU对照、云形／拾取不变和短性能数据。不可因加光照减少原采样或拖慢模拟；表面估计细节先小样选定。农田／池轮廓、实际雨区与原生UI输入保留，1920×1080及1280×720审阅；正式长测、原生波动继续开放。
 
-本轮仅方案与生成参考，不扩展声音、独立开始／选关页面或投稿。实际运行代码待下一次执行授权。
+本轮不扩展声音、独立开始／选关页面或投稿。显示参数在configs/scene_style.tres，R／切图重读，F6不改。原V1／V6与新场景试玩反馈仍开放。

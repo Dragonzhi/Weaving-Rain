@@ -16,4 +16,4 @@
 | 云体 | 云顶亮、转折面和底面偏冷，厚云与雨云分别表达 | 颜色和暗影强度为示意；形状仍来自真实水分，不添加固定球体、噪声或更深黑影 |
 | 细节 | 土边薄、叶面有朝向、池内壁和水位关系清楚 | 图有少量刻痕和石纹，首版省略；池岸高度、田垄和接触影必须适合正常镜头，不扩大目标受雨范围 |
 
-完整步骤和约束：[场景实施计划](../scene-volume-implementation-plan.md)。生成及修正的完整提示词：[scene-prompts.json](scene-prompts.json)。原UI参考和本轮场景参考分开保存，当前实机仍看ui-review.json。
+完整步骤和约束：[场景实施计划](../scene-volume-implementation-plan.md)。生成及修正的完整提示词：[scene-prompts.json](scene-prompts.json)。原UI参考和场景参考分开保存；分支代码已接入，实际图与检查范围见[场景实施记录](../scene-volume-review.json)，不将本页概念图当作实际截图。

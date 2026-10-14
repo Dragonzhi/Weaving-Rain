@@ -8,11 +8,18 @@ const AIR_SHADER = preload("res://shaders/low_air.gdshader")
 const RAIN_SHADER = preload("res://shaders/rain.gdshader")
 const ARROW_SHADER = preload("res://shaders/weather_arrows.gdshader")
 const RainArea = preload("res://scripts/rain_area_view.gd")
+const SceneStyle = preload("res://scripts/scene_style.gd")
+const CONTACT_SHADER = preload("res://shaders/contact_shadow.gdshader")
 const VAPOR_COUNT := 210
 const RAIN_COUNT := 750
 const LIFT_COUNT := 120
 
 var sim: Sim
+var scene_style: SceneStyle
+var style_errors := PackedStringArray()
+var style_path := "res://configs/scene_style.tres"
+var contact_positions: Array[Vector3] = []
+var contact_radii: Array[float] = []
 var camera: Camera3D
 var ocean_material := ShaderMaterial.new()
 var image: Image
@@ -26,10 +33,10 @@ var lift_positions := PackedVector3Array()
 var lift_age := PackedFloat32Array()
 var rng := RandomNumberGenerator.new()
 var elapsed := 0.0
-var plot_material: StandardMaterial3D
-var plot_materials: Array[StandardMaterial3D] = []
+var plot_material: ShaderMaterial
+var plot_materials: Array[ShaderMaterial] = []
 var plant_groups: Array[Node3D] = []
-var plant_materials: Array[StandardMaterial3D] = []
+var plant_materials: Array[ShaderMaterial] = []
 var plant_growth := PackedFloat32Array()
 var plant_wilt := PackedFloat32Array()
 var reservoir_surfaces: Array[MeshInstance3D] = []
@@ -88,6 +95,10 @@ const LIFT_ARROW := Color("e7c77a")
 
 func setup(model: RefCounted) -> void:
 	sim = model
+	var loaded := preload("res://scripts/config_loader.gd").scene_style(style_path)
+	scene_style = loaded.resource
+	style_errors = loaded.errors
+	if not style_errors.is_empty(): print("SCENE STYLE retained: ", "；".join(style_errors))
 	ocean_material.shader = OCEAN_SHADER
 	ribbon_points.resize(4)
 	rng.seed = 44721
@@ -108,6 +119,9 @@ func setup(model: RefCounted) -> void:
 	air_image = Image.create(Sim.WIDTH, Sim.DEPTH, false, Image.FORMAT_RGBAF)
 	air_texture = ImageTexture.create_from_image(air_image)
 	update_map()
+	ocean_material.set_shader_parameter("water_map",water_texture)
+	ocean_material.set_shader_parameter("edge_fade",sim.settings.open_boundary)
+	scene_style.apply(ocean_material)
 	_create_scene()
 	_create_weather()
 	rain_area = RainArea.new()
@@ -144,7 +158,47 @@ func _terrain_material(color: Color, shore: bool = false) -> ShaderMaterial:
 	material.set_shader_parameter("shore", shore)
 	material.set_shader_parameter("water_map", water_texture)
 	material.set_shader_parameter("edge_fade", sim.settings.open_boundary)
+	scene_style.apply(material)
 	return material
+
+func _scene_material(color: Color) -> ShaderMaterial:
+	var material := _terrain_material(color)
+	material.set_shader_parameter("ground_material",false)
+	return material
+
+func _boundary_wall(points: PackedVector2Array, low: float, high: float, inward := false) -> ArrayMesh:
+	var wall := SurfaceTool.new()
+	wall.begin(Mesh.PRIMITIVE_TRIANGLES)
+	for index in points.size():
+		var a := points[index]
+		var b := points[(index+1)%points.size()]
+		var outward := Vector2((b-a).y,-(b-a).x).normalized()
+		var normal := Vector3(outward.x,0,outward.y)*(-1.0 if inward else 1.0)
+		var vertices := [Vector3(a.x,low,a.y),Vector3(a.x,high,a.y),Vector3(b.x,high,b.y),Vector3(a.x,low,a.y),Vector3(b.x,high,b.y),Vector3(b.x,low,b.y)]
+		if inward: vertices.reverse()
+		for p in vertices: _vertex(wall,p,normal)
+	return wall.commit()
+
+func _create_contact_shadows() -> void:
+	var instances := MultiMesh.new()
+	instances.transform_format = MultiMesh.TRANSFORM_3D
+	var plane := PlaneMesh.new()
+	plane.size = Vector2(2,2)
+	instances.mesh = plane
+	instances.instance_count = contact_positions.size()
+	for index in contact_positions.size():
+		var radius := contact_radii[index]
+		var offset := Vector3(-scene_style.light_direction.x,0,-scene_style.light_direction.z).normalized()*radius*0.35
+		instances.set_instance_transform(index,Transform3D(Basis.IDENTITY.scaled(Vector3(radius,1,radius*0.65)),contact_positions[index]+offset))
+	var node := MultiMeshInstance3D.new()
+	node.multimesh = instances
+	var material := ShaderMaterial.new()
+	material.shader = CONTACT_SHADER
+	material.render_priority = -8
+	material.set_shader_parameter("contact_shadow_strength",scene_style.contact_shadow_strength)
+	node.material_override = material
+	node.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	add_child(node)
 
 func _vertex(st: SurfaceTool, p: Vector3, normal: Vector3) -> void:
 	st.set_normal(normal)
@@ -196,7 +250,7 @@ func _create_scene() -> void:
 			for p in [p0, p2, p1, p1, p2, p3]:
 				_top_vertex(top, p, maxf(0.22, sim.terrain.height(p)))
 	top.index()
-	_mesh_instance(top.commit(), _terrain_material(Color("9bbb83")))
+	_mesh_instance(top.commit(), _terrain_material(scene_style.land_color))
 	var shore := SurfaceTool.new()
 	shore.begin(Mesh.PRIMITIVE_TRIANGLES)
 	for segment in 96:
@@ -215,7 +269,21 @@ func _create_scene() -> void:
 		var normal := Vector3(cos((a + b) * 0.5), 0, sin((a + b) * 0.5))
 		for p in [v2, v2 - Vector3.UP * 0.65, v3, v3, v2 - Vector3.UP * 0.65, v3 - Vector3.UP * 0.65]:
 			_vertex(shore, p, normal)
-	_mesh_instance(shore.commit(), _terrain_material(Color("e5d6a4"), true))
+	_mesh_instance(shore.commit(), _terrain_material(scene_style.shore_color, true))
+	# Small decorative water band; the simulation coastline/height field stays unchanged.
+	var nearshore := SurfaceTool.new()
+	nearshore.begin(Mesh.PRIMITIVE_TRIANGLES)
+	for segment in 96:
+		var a := segment*TAU/96.0
+		var b := (segment+1)*TAU/96.0
+		var p0 := _island_point(a,1.045)
+		var p1 := _island_point(b,1.045)
+		var p2 := _island_point(a,1.11)
+		var p3 := _island_point(b,1.11)
+		for p in [p0,p2,p1,p1,p2,p3]: _vertex(nearshore,Vector3(p.x,-0.076,p.y),Vector3.UP)
+	var water_band := _scene_material(Color("66b4b7"))
+	water_band.set_shader_parameter("water_surface",true)
+	_mesh_instance(nearshore.commit(),water_band)
 	if sim.layout.get("river_enabled", true): _create_river()
 	for target in sim.plot_centers.size():
 		_create_plot(target)
@@ -232,25 +300,30 @@ func _create_scene() -> void:
 		rock.radial_segments = 6
 		rock.rings = 3
 		_mesh_instance(rock, _terrain_material(Color("6f917c")), Vector3(p.x, sim.terrain.height(p) + 0.09, p.y))
+		contact_positions.append(Vector3(p.x,sim.terrain.height(p)+0.003,p.y))
+		contact_radii.append(0.28)
+	_create_contact_shadows()
 
 func _create_plot(target: int) -> void:
 	var center: Vector2 = sim.plot_centers[target]
 	var region: WRPlotRegion = sim.plot_regions[target]
 	var plot_mesh := region.mesh(sim.plot_half)
-	var material := _material(Color("bf936b"))
+	var material := _scene_material(scene_style.soil_color)
+	material.set_shader_parameter("soil_rows",not sim.is_reservoir(target))
+	material.set_shader_parameter("plot_center",center)
 	plot_materials.append(material)
 	_mesh_instance(plot_mesh, material, Vector3(center.x, 0.255, center.y))
 	var group := Node3D.new()
 	group.position = Vector3(center.x, 0.29, center.y)
 	add_child(group)
 	plant_groups.append(group)
-	var plant_material := _material(Color("578563"))
+	var plant_material := _scene_material(Color("578563"))
 	plant_materials.append(plant_material)
 	plant_growth.append(0.65 if sim.plot_needs[target] != null else 1.0)
 	plant_wilt.append(0.0)
 	reservoir_surfaces.append(null)
 	if sim.is_reservoir(target):
-		material.albedo_color = Color("779997")
+		material.set_shader_parameter("base_color",Color("779997"))
 		var bank := SurfaceTool.new()
 		bank.begin(Mesh.PRIMITIVE_TRIANGLES)
 		var outline := region.outline(sim.plot_half)
@@ -264,18 +337,27 @@ func _create_plot(target: int) -> void:
 			for p in [Vector3(a.x, 0.255, a.y), Vector3(a.x, 0.41, a.y), Vector3(b.x, 0.41, b.y), Vector3(a.x, 0.255, a.y), Vector3(b.x, 0.41, b.y), Vector3(b.x, 0.255, b.y)]:
 				bank.set_normal(Vector3(normal.x, 0, normal.y))
 				bank.add_vertex(p)
-		_mesh_instance(bank.commit(), _material(Color("c9c6a1")), Vector3(center.x, 0, center.y))
-		var surface := _mesh_instance(region.mesh(sim.plot_half), _material(Color("79bac5")), Vector3(center.x, 0.27, center.y))
+		_mesh_instance(bank.commit(), _scene_material(scene_style.bank_color), Vector3(center.x, 0, center.y))
+		var inside := PackedVector2Array()
+		for p in outline: inside.append(p*0.89)
+		_mesh_instance(_boundary_wall(inside,0.255,0.41,true),_scene_material(scene_style.bank_color.darkened(0.12)),Vector3(center.x,0,center.y))
+		var water_material := _scene_material(scene_style.water_color)
+		water_material.set_shader_parameter("water_surface",true)
+		water_material.set_shader_parameter("plot_center",center)
+		var surface := _mesh_instance(region.mesh(sim.plot_half), water_material, Vector3(center.x, 0.27, center.y))
 		surface.scale = Vector3(0.89, 1.0, 0.89)
 		surface.visible = false
 		reservoir_surfaces[target] = surface
 		return
+	_mesh_instance(_boundary_wall(region.outline(sim.plot_half),0.221,0.255),_scene_material(scene_style.soil_color.darkened(0.12)),Vector3(center.x,0,center.y))
 	var seedling: bool = sim.plot_needs[target] != null and sim.plot_needs[target].appearance == "seedling"
 	for row in 3:
 		for column in 3:
 			if seedling and (row + column) % 2 != 0: continue
 			var point := Vector3(center.x - 0.75 + column * 0.75, 0.29, center.y - 0.75 + row * 0.75)
 			if not region.contains(Vector2(point.x, point.z) - center, sim.plot_half): continue
+			contact_positions.append(Vector3(point.x,0.258,point.z))
+			contact_radii.append(0.13 if seedling else 0.18)
 			var stem := CylinderMesh.new()
 			stem.top_radius = 0.024
 			stem.bottom_radius = 0.024
@@ -334,6 +416,7 @@ func _create_weather() -> void:
 	cloud_material.set_shader_parameter("edge_fade", sim.settings.open_boundary)
 	cloud_material.set_shader_parameter("threshold", sim.settings.cloud_threshold)
 	cloud_material.set_shader_parameter("ray_direction", -camera.global_basis.z)
+	scene_style.apply(cloud_material)
 	var clouds := _mesh_instance(box, cloud_material, Vector3(0, (Sim.CLOUD_TOP + Sim.CLOUD_BOTTOM) * 0.5, 0))
 	clouds.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	var lift_mesh := BoxMesh.new()
@@ -838,12 +921,14 @@ func update_weather(dt: float, moving: bool, pointer: Node = null) -> void:
 		var water: float = sim.plot_progress(target)
 		if sim.is_reservoir(target):
 			var surface := reservoir_surfaces[target]
+			if moving: surface.material_override.set_shader_parameter("visual_time",elapsed)
 			surface.visible = water > 0.0
 			if moving: surface.position.y = lerpf(surface.position.y, 0.27 + water * 0.12, 1.0 - exp(-dt * 6.0))
 			continue
-		plot_materials[target].albedo_color = Color("bf936e").lerp(Color("8eaa78"), water)
+		var soil := scene_style.soil_color.lerp(Color("8eaa78"),water)
 		if sim.plot_destroyed[target]:
-			plot_materials[target].albedo_color = Color("718e95")
+			soil = Color("718e95")
+		if plot_materials[target].get_shader_parameter("base_color") != soil: plot_materials[target].set_shader_parameter("base_color",soil)
 		if moving:
 			var growth := 0.65 + 0.35 * water if sim.plot_needs[target] != null else 1.0
 			var blend := 1.0 - exp(-dt * 6.0)
@@ -851,7 +936,8 @@ func update_weather(dt: float, moving: bool, pointer: Node = null) -> void:
 			plant_wilt[target] = lerpf(plant_wilt[target], 1.0 if sim.plot_destroyed[target] else 0.0, blend)
 		plant_groups[target].scale.y = plant_growth[target]
 		plant_groups[target].rotation.z = plant_wilt[target] * -0.35
-		plant_materials[target].albedo_color = Color("578563").lerp(Color("946856"), plant_wilt[target])
+		var leaves := Color("578563").lerp(Color("946856"),plant_wilt[target])
+		if plant_materials[target].get_shader_parameter("base_color") != leaves: plant_materials[target].set_shader_parameter("base_color",leaves)
 
 func _update_rain() -> void:
 	var total := 0

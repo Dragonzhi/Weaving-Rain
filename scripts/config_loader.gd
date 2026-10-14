@@ -1,5 +1,15 @@
 extends RefCounted
 ## Validation is transactional: callers keep the previous resource on failure.
+static var last_scene_style: WRSceneStyle
+
+static func scene_style(path := "res://configs/scene_style.tres") -> Dictionary:
+	# Keep deep loading outside the resource script itself: it also reloads that script.
+	var candidate = ResourceLoader.load(path, "", ResourceLoader.CACHE_MODE_IGNORE_DEEP) if ResourceLoader.exists(path) else null
+	var errors: PackedStringArray = candidate.validation_errors() if candidate is WRSceneStyle else PackedStringArray(["scene_style：资源不存在或类型错误："+path])
+	if errors.is_empty(): last_scene_style = candidate.duplicate(true)
+	elif last_scene_style == null: last_scene_style = WRSceneStyle.new()
+	return {"resource": last_scene_style.duplicate(true), "errors": errors}
+
 static func settings(path: String) -> Dictionary:
 	if not ResourceLoader.exists(path): return {"errors": PackedStringArray(["配置文件不存在：" + path])}
 	var resource = ResourceLoader.load(path, "", ResourceLoader.CACHE_MODE_IGNORE_DEEP)

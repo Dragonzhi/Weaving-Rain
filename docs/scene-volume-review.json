@@ -1,0 +1,546 @@
+{
+  "date": "2026-10-14",
+  "baseline_commit": "8f24ca7",
+  "branch": "codex/scene-volume",
+  "engine": "Godot 4.7.2 stable, Forward+, D3D12",
+  "status": "Scene volume prototype implemented and locally packaged; player acceptance and formal performance pending",
+  "implemented": [
+    "Shared fixed light direction and independent scene_style.tres",
+    "Continuous cloud-surface cubic derivative; eight extra reads only at visible surface, none for saturated thickness",
+    "Cloud lighting blended 0.7 with original weather/vertical shade; shape, opacity and 32-step lattice unchanged",
+    "Single-height soft projected cloud shadow across terrain/farms/pool; weaker water and ocean",
+    "Existing shoreline plus decorative shallow-water band",
+    "Thin soil side and subtle rows, directional leaves and pooled contact shadows",
+    "Existing pool rim and water-height range retained; inner wall and restrained water ripples",
+    "Retry/deep reload, F6 separation and invalid-style snapshot fallback"
+  ],
+  "checks": {
+    "lighting_1920x1080": "29 checks, 0 failures",
+    "lighting_1280x720": "29 checks, 0 failures",
+    "gradient_error": 0.00569769786671,
+    "cloud_surface": "8 checks, 0 failures; CPU/GPU reconstruction and exact empty-space optimization retained",
+    "original_full_suite": "One uninterrupted run of all original rule/editor/GPU/scene checks, 30 routes and five comparisons passed in scene-full-suite.log. Later minor material/config guards and 0.7 color tuning rechecked with relevant GPU/needs tests.",
+    "new_pure_mouse": "Added afterwards; normal zero-seed development-map construction, actual vortex/brush input, 3-rating countdown success. Final expanded 31-route suite was NOT rerun uninterrupted.",
+    "export": "10 actual map/mode startup renders verified by smoke_export.ps1, no project --path",
+    "ui": "24 GPU checks passed; native input/close buttons and rating/save rules retained"
+  },
+  "pure_mouse_route": {
+    "blocked": 0,
+    "cold_lift": 185.366791559057,
+    "destroyed": [
+      false,
+      false
+    ],
+    "elapsed": 38.7833333333324,
+    "evaporated_water": 115.930340757361,
+    "events": 4087,
+    "front_strokes": 0,
+    "input_pick_error": 0.0,
+    "layout": "storm_coast",
+    "limit": 180.0,
+    "max_wind_lines": 46,
+    "natural_lift": 249.10265530475,
+    "order": [
+      1,
+      0
+    ],
+    "outcome": "success",
+    "overflow_water": 50.4459116589809,
+    "peak_rain_cells": 174,
+    "peak_rain_focus": 1.0,
+    "per_target": [
+      {
+        "distance": 174.299995183945,
+        "front": 0,
+        "strokes": 131,
+        "transport": 83
+      },
+      {
+        "distance": 29.0999972820282,
+        "front": 0,
+        "strokes": 19,
+        "transport": 13
+      },
+      {
+        "distance": 0.0,
+        "front": 0,
+        "strokes": 0,
+        "transport": 0
+      }
+    ],
+    "pure_start": true,
+    "rain_area_hints_enabled": true,
+    "rain_area_seen": true,
+    "route": "tropical",
+    "seed_vortex_placed_by_mouse": true,
+    "stars": 3,
+    "strokes": 150,
+    "transport_distance": 203.399992465973,
+    "transport_strokes": 96,
+    "water": [
+      106.780382633919,
+      250.0
+    ],
+    "water_error": -0.00191817794461713
+  },
+  "short_performance": {
+    "warmup_seconds": 3,
+    "sample_seconds": 10,
+    "kind": "cloud+rain+cold",
+    "wind": "band+vortex",
+    "csv_rows_verified": true,
+    "stages": [
+      {
+        "stage": "scene-before",
+        "cloud_light_strength": 0.0,
+        "samples": [
+          {
+            "layout": "meadow",
+            "drag": false,
+            "frames": 827,
+            "p95": 16.218,
+            "p99": 17.338,
+            "slow_33ms": 0,
+            "sim_ms": 4.4999090745919,
+            "view_ms": 3.45330980293984,
+            "gpu_ms": 4.18195532137999,
+            "hud_draw_ms": 1.90533494558646,
+            "simulation_seconds": 10.0,
+            "final_backlog_ms": 4.73000000000028,
+            "max_backlog_ms": 16.6433636363638,
+            "min_sources": 0,
+            "peak_arrows": 0,
+            "peak_source_lines": 0,
+            "rendered_size": [
+              1920,
+              1080
+            ]
+          },
+          {
+            "layout": "meadow",
+            "drag": true,
+            "frames": 579,
+            "p95": 19.566,
+            "p99": 20.267,
+            "slow_33ms": 0,
+            "sim_ms": 7.95102598094775,
+            "view_ms": 4.44130041356326,
+            "gpu_ms": 5.83593286174978,
+            "hud_draw_ms": 2.37517962003454,
+            "simulation_seconds": 9.68333333333333,
+            "final_backlog_ms": 446.700777777779,
+            "max_backlog_ms": 446.700777777779,
+            "min_sources": 2,
+            "peak_arrows": 32,
+            "peak_source_lines": 35,
+            "rendered_size": [
+              1920,
+              1080
+            ]
+          }
+        ]
+      },
+      {
+        "stage": "scene-before",
+        "cloud_light_strength": 0.0,
+        "samples": [
+          {
+            "layout": "storm_coast",
+            "drag": false,
+            "frames": 662,
+            "p95": 18.093,
+            "p99": 18.841,
+            "slow_33ms": 0,
+            "sim_ms": 8.33261394212613,
+            "view_ms": 4.15533281309007,
+            "gpu_ms": 5.09128130310612,
+            "hud_draw_ms": 0.980670694864048,
+            "simulation_seconds": 10.2,
+            "final_backlog_ms": 0.493090909092126,
+            "max_backlog_ms": 250.676666666667,
+            "min_sources": 0,
+            "peak_arrows": 8,
+            "peak_source_lines": 0,
+            "rendered_size": [
+              1920,
+              1080
+            ]
+          },
+          {
+            "layout": "storm_coast",
+            "drag": true,
+            "frames": 597,
+            "p95": 18.641,
+            "p99": 19.525,
+            "slow_33ms": 0,
+            "sim_ms": 9.1736367383794,
+            "view_ms": 4.48984669440955,
+            "gpu_ms": 5.64923044584904,
+            "hud_draw_ms": 1.38494974874372,
+            "simulation_seconds": 9.98333333333333,
+            "final_backlog_ms": 183.115696969698,
+            "max_backlog_ms": 185.076030303031,
+            "min_sources": 2,
+            "peak_arrows": 32,
+            "peak_source_lines": 36,
+            "rendered_size": [
+              1920,
+              1080
+            ]
+          }
+        ]
+      },
+      {
+        "stage": "scene-cloud-stage",
+        "cloud_light_strength": 1.0,
+        "samples": [
+          {
+            "layout": "meadow",
+            "drag": false,
+            "frames": 904,
+            "p95": 15.372,
+            "p99": 16.43,
+            "slow_33ms": 0,
+            "sim_ms": 3.83370728619331,
+            "view_ms": 3.11327746906112,
+            "gpu_ms": 3.89754438822248,
+            "hud_draw_ms": 1.83298451327434,
+            "simulation_seconds": 10.0,
+            "final_backlog_ms": 0.241333333333534,
+            "max_backlog_ms": 16.6546666666668,
+            "min_sources": 0,
+            "peak_arrows": 0,
+            "peak_source_lines": 0,
+            "rendered_size": [
+              1920,
+              1080
+            ]
+          },
+          {
+            "layout": "meadow",
+            "drag": true,
+            "frames": 656,
+            "p95": 18.308,
+            "p99": 19.817,
+            "slow_33ms": 0,
+            "sim_ms": 6.87785153272675,
+            "view_ms": 3.97415012266578,
+            "gpu_ms": 4.82686856897866,
+            "hud_draw_ms": 2.20976981707317,
+            "simulation_seconds": 10.0,
+            "final_backlog_ms": 8.72000000000016,
+            "max_backlog_ms": 31.4543333333335,
+            "min_sources": 2,
+            "peak_arrows": 32,
+            "peak_source_lines": 35,
+            "rendered_size": [
+              1920,
+              1080
+            ]
+          }
+        ]
+      },
+      {
+        "stage": "scene-cloud-stage",
+        "cloud_light_strength": 1.0,
+        "samples": [
+          {
+            "layout": "storm_coast",
+            "drag": false,
+            "frames": 607,
+            "p95": 18.597,
+            "p99": 19.442,
+            "slow_33ms": 0,
+            "sim_ms": 8.91867422389827,
+            "view_ms": 4.32708689958299,
+            "gpu_ms": 5.32338537376442,
+            "hud_draw_ms": 1.085607907743,
+            "simulation_seconds": 10.1,
+            "final_backlog_ms": 7.04800000000208,
+            "max_backlog_ms": 78.2617777777782,
+            "min_sources": 0,
+            "peak_arrows": 8,
+            "peak_source_lines": 0,
+            "rendered_size": [
+              1920,
+              1080
+            ]
+          },
+          {
+            "layout": "storm_coast",
+            "drag": true,
+            "frames": 569,
+            "p95": 19.866,
+            "p99": 21.024,
+            "slow_33ms": 0,
+            "sim_ms": 9.46716673302944,
+            "view_ms": 4.71735123297452,
+            "gpu_ms": 5.86910887384666,
+            "hud_draw_ms": 1.45450087873462,
+            "simulation_seconds": 9.51666666666667,
+            "final_backlog_ms": 763.888333333329,
+            "max_backlog_ms": 763.888333333329,
+            "min_sources": 2,
+            "peak_arrows": 32,
+            "peak_source_lines": 36,
+            "rendered_size": [
+              1920,
+              1080
+            ]
+          }
+        ]
+      },
+      {
+        "stage": "scene-final",
+        "cloud_light_strength": 1.0,
+        "samples": [
+          {
+            "layout": "meadow",
+            "drag": false,
+            "frames": 1257,
+            "p95": 12.6,
+            "p99": 13.676,
+            "slow_33ms": 0,
+            "sim_ms": 2.42562140295595,
+            "view_ms": 2.36217494530628,
+            "gpu_ms": 2.05266872700378,
+            "hud_draw_ms": 1.54870167064439,
+            "simulation_seconds": 9.98333333333333,
+            "final_backlog_ms": 3.78787878787887,
+            "max_backlog_ms": 16.6666666666667,
+            "min_sources": 0,
+            "peak_arrows": 0,
+            "peak_source_lines": 0,
+            "rendered_size": [
+              1920,
+              1080
+            ]
+          },
+          {
+            "layout": "meadow",
+            "drag": true,
+            "frames": 889,
+            "p95": 15.754,
+            "p99": 17.265,
+            "slow_33ms": 0,
+            "sim_ms": 4.5600022958556,
+            "view_ms": 3.04751981685883,
+            "gpu_ms": 2.97525583960208,
+            "hud_draw_ms": 1.86889876265467,
+            "simulation_seconds": 10.0,
+            "final_backlog_ms": 7.00855555555584,
+            "max_backlog_ms": 16.6570000000003,
+            "min_sources": 2,
+            "peak_arrows": 32,
+            "peak_source_lines": 35,
+            "rendered_size": [
+              1920,
+              1080
+            ]
+          }
+        ]
+      },
+      {
+        "stage": "scene-final",
+        "cloud_light_strength": 1.0,
+        "samples": [
+          {
+            "layout": "storm_coast",
+            "drag": false,
+            "frames": 865,
+            "p95": 16.577,
+            "p99": 17.406,
+            "slow_33ms": 0,
+            "sim_ms": 5.72021202131503,
+            "view_ms": 3.28182097859465,
+            "gpu_ms": 3.20860221730491,
+            "hud_draw_ms": 0.963890173410404,
+            "simulation_seconds": 9.98333333333333,
+            "final_backlog_ms": 3.705666666667,
+            "max_backlog_ms": 16.5716666666669,
+            "min_sources": 0,
+            "peak_arrows": 8,
+            "peak_source_lines": 0,
+            "rendered_size": [
+              1920,
+              1080
+            ]
+          },
+          {
+            "layout": "storm_coast",
+            "drag": true,
+            "frames": 663,
+            "p95": 18.217,
+            "p99": 18.851,
+            "slow_33ms": 0,
+            "sim_ms": 8.03428132070136,
+            "view_ms": 4.05496993719363,
+            "gpu_ms": 4.33357821043081,
+            "hud_draw_ms": 1.304395173454,
+            "simulation_seconds": 10.0333333333333,
+            "final_backlog_ms": 11.7466666666669,
+            "max_backlog_ms": 34.905666666667,
+            "min_sources": 2,
+            "peak_arrows": 32,
+            "peak_source_lines": 35,
+            "rendered_size": [
+              1920,
+              1080
+            ]
+          }
+        ]
+      },
+      {
+        "stage": "scene-delivery",
+        "cloud_light_strength": 0.7,
+        "samples": [
+          {
+            "layout": "meadow",
+            "drag": false,
+            "frames": 1161,
+            "p95": 13.434,
+            "p99": 14.827,
+            "slow_33ms": 0,
+            "sim_ms": 2.70862668059593,
+            "view_ms": 2.57036843575043,
+            "gpu_ms": 2.18901468124192,
+            "hud_draw_ms": 1.60535142118863,
+            "simulation_seconds": 10.0,
+            "final_backlog_ms": 7.54499999999992,
+            "max_backlog_ms": 18.0973333333334,
+            "min_sources": 0,
+            "peak_arrows": 0,
+            "peak_source_lines": 0,
+            "rendered_size": [
+              1920,
+              1080
+            ]
+          },
+          {
+            "layout": "meadow",
+            "drag": true,
+            "frames": 840,
+            "p95": 16.143,
+            "p99": 17.13,
+            "slow_33ms": 0,
+            "sim_ms": 4.91643938337054,
+            "view_ms": 3.25847487676711,
+            "gpu_ms": 3.33070940290179,
+            "hud_draw_ms": 1.93184642857143,
+            "simulation_seconds": 10.0,
+            "final_backlog_ms": 4.09090909090919,
+            "max_backlog_ms": 16.6532424242428,
+            "min_sources": 2,
+            "peak_arrows": 32,
+            "peak_source_lines": 36,
+            "rendered_size": [
+              1920,
+              1080
+            ]
+          }
+        ]
+      },
+      {
+        "stage": "scene-delivery",
+        "cloud_light_strength": 0.7,
+        "samples": [
+          {
+            "layout": "storm_coast",
+            "drag": false,
+            "frames": 866,
+            "p95": 16.471,
+            "p99": 17.467,
+            "slow_33ms": 0,
+            "sim_ms": 5.65596921008949,
+            "view_ms": 3.28604006161591,
+            "gpu_ms": 3.08709561742206,
+            "hud_draw_ms": 0.975963048498845,
+            "simulation_seconds": 10.0166666666667,
+            "final_backlog_ms": 6.66666666666671,
+            "max_backlog_ms": 16.6560000000002,
+            "min_sources": 0,
+            "peak_arrows": 8,
+            "peak_source_lines": 0,
+            "rendered_size": [
+              1920,
+              1080
+            ]
+          },
+          {
+            "layout": "storm_coast",
+            "drag": true,
+            "frames": 687,
+            "p95": 18.022,
+            "p99": 18.954,
+            "slow_33ms": 0,
+            "sim_ms": 7.54731210766921,
+            "view_ms": 3.95478494302675,
+            "gpu_ms": 4.04472002365357,
+            "hud_draw_ms": 1.31095487627365,
+            "simulation_seconds": 10.0,
+            "final_backlog_ms": 2.39211111111147,
+            "max_backlog_ms": 16.6203333333336,
+            "min_sources": 2,
+            "peak_arrows": 32,
+            "peak_source_lines": 35,
+            "rendered_size": [
+              1920,
+              1080
+            ]
+          }
+        ]
+      }
+    ],
+    "delivery_verdict": "Final 0.7 samples: meadow meets frame/time gates, storm idle meets gates; storm drag P95 18.022ms fails, P99 18.954ms meets. All four final samples advance >=99%, end backlog <=100ms, no >33ms frames.",
+    "earlier_failures": "Before/stage-one samples include insufficient advancement and excessive backlog; preserved, not replaced by final successes.",
+    "limitation": "Variable background load, real event timing and evolving pressure fields. Apparent improvements are not isolated incremental shader cost.",
+    "formal_pending": "Meadow/valleys 12 and storm_coast 6 full 5s warmup /60s cases during user idle time; V1 and V6 remain open."
+  },
+  "screenshots": {
+    "cloud": "previews/scene-volume-cloud.png",
+    "cloud_source": "Actual mouse pure-start development-variant route at 8 seconds, not the official seeded map opening or player acceptance",
+    "ground": "previews/scene-volume-ground.png",
+    "ground_source": "Injected GPU art-review fixture, enlarged camera; not gameplay completion evidence",
+    "fixture_set": ".godot/scene-review/ (six images, two resolutions)",
+    "concepts": "visual-language/scene-references/ are generated references only"
+  },
+  "limitations": [
+    "Fixed 3.6-height shadow projection, no volumetric self-shadowing or dynamic GI",
+    "Fixed small contact-shadow shapes, no full physical plant/rock shadow",
+    "Geometry height field, rain regions, thresholds and save format unchanged; stronger volumes still require player review",
+    "Old native signal 8 / route overflow variability not solved or closed"
+  ],
+  "fixes_during_validation": [
+    "Moved deep style load to existing ConfigLoader to avoid self-reload VM error",
+    "Used raw Vector4 cloud palette values to avoid double color conversion",
+    "Gradient probe viewport now explicitly renders once",
+    "Gray-band check follows same outer crescent limb; retains continuity and max-bend threshold",
+    "Skipped exactly-zero height derivative lookups and redundant material updates",
+    "Rejected overflowing direction length before GPU normalization"
+  ],
+  "standalone": {
+    "template": "4.7.2.stable official",
+    "archive": ".godot/WeavingRain-scene-volume.zip",
+    "preview_alias": ".godot/WeavingRain-preview.zip",
+    "ui_baseline": ".godot/WeavingRain-ui-baseline-8f24ca7.zip",
+    "executable_bytes": 109503056,
+    "archive_bytes": 39449688,
+    "exe_sha256": "8B1E64FB1FDCE984E3289485808B072AB5F5FA720641B8F7E395A885AC1FFD6A",
+    "actual_startups": 10,
+    "startup_only": true,
+    "uploaded": false
+  },
+  "logs": [
+    ".godot/scene-full-suite.log",
+    ".godot/scene-lighting-verified-1920x1080.log",
+    ".godot/scene-final-07-lighting-1280.log",
+    ".godot/scene-tones-test_scene_lighting.log",
+    ".godot/scene-tones-test_cloud_surface.log",
+    ".godot/scene-pure-mouse.log",
+    ".godot/scene-delivery-export.log",
+    ".godot/scene-delivery-smoke.log",
+    ".godot/scene-cloud-initial.log",
+    ".godot/scene-cloud-loader-fixed.log",
+    ".godot/scene-lighting-stage.log"
+  ]
+}

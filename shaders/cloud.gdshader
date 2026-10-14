@@ -7,6 +7,14 @@ uniform sampler2D depth_texture : hint_depth_texture, filter_nearest, repeat_dis
 uniform float threshold = 1.4;
 uniform vec3 ray_direction = vec3(-0.5, -0.6, -0.6);
 #include "res://shaders/cloud_field.gdshaderinc"
+#include "res://shaders/cloud_lighting.gdshaderinc"
+uniform vec3 light_direction = vec3(-0.6, 1.0, 0.3);
+uniform float cloud_light_strength = 0.7;
+uniform float cloud_normal_gain = 2.5;
+uniform vec4 cloud_color0 = vec4(0.94,0.96,0.92,1.0);
+uniform vec4 cloud_color1 = vec4(0.78,0.85,0.87,1.0);
+uniform vec4 cloud_color2 = vec4(0.59,0.73,0.79,1.0);
+uniform vec4 cloud_color3 = vec4(0.38,0.59,0.69,1.0);
 varying vec3 world_front;
 void vertex() { world_front = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz; }
 float density(vec3 p, float q) {
@@ -69,6 +77,19 @@ void fragment() {
 			float h = 0.12 + 0.58 * smoothstep(0.04, threshold * 1.8, front.r);
 			float upper = clamp((surface.y - 3.6) / h, -1.0, 1.0);
 			shade = clamp(front.r / (threshold * 2.0) * 0.64 + front.g / max(front.r, 0.001) * 0.16 - upper * 0.26, 0.0, 1.0);
+			if (cloud_light_strength > 0.0) {
+				float t = clamp((front.r-0.04)/(threshold*1.8-0.04),0.0,1.0);
+				float slope = 0.58*6.0*t*(1.0-t)/(threshold*1.8-0.04);
+				vec2 gradient = vec2(0.0);
+				// Saturated thickness has exactly zero derivative; avoid eight useless reads.
+				if (slope > 0.0 && cloud_normal_gain > 0.0) { gradient = cloud_gradient(surface.xz,front.r)*slope*cloud_normal_gain; }
+				vec3 normal = normalize(vec3(-gradient.x, upper>=0.0 ? 1.0 : -1.0,-gradient.y));
+				float lit = max(dot(normal,normalize(light_direction)),0.0);
+				float weather = clamp(front.r/(threshold*2.0)*0.64,0.0,1.0);
+				float rain = front.g/max(front.r,0.001);
+				float directed = clamp(weather*0.16+0.42*(1.0-lit)-0.12*lit+rain*0.15*(1.0-lit),0.0,1.0);
+				shade = mix(shade,directed,cloud_light_strength);
+			}
 			found_surface = true;
 		}
 		float a = (1.0 - opacity) * (1.0 - exp(-d * dt * 5.0));
@@ -76,9 +97,9 @@ void fragment() {
 		if (opacity > 0.985) { break; }
 	}
 	float edge = max(fwidth(shade) * 0.85, 0.002);
-	vec3 color = mix(vec3(0.94, 0.96, 0.92), vec3(0.78, 0.85, 0.87), smoothstep(0.13 - edge, 0.13 + edge, shade));
-	color = mix(color, vec3(0.59, 0.73, 0.79), smoothstep(0.28 - edge, 0.28 + edge, shade));
-	color = mix(color, vec3(0.38, 0.59, 0.69), smoothstep(0.46 - edge, 0.46 + edge, shade));
+	vec3 color = mix(cloud_color0.rgb, cloud_color1.rgb, smoothstep(0.13 - edge, 0.13 + edge, shade));
+	color = mix(color, cloud_color2.rgb, smoothstep(0.28 - edge, 0.28 + edge, shade));
+	color = mix(color, cloud_color3.rgb, smoothstep(0.46 - edge, 0.46 + edge, shade));
 	ALBEDO = pow(color, vec3(2.2));
 	// A narrow antialiased edge, with graphic color bands inside.
 	float rim = max(fwidth(opacity), 0.01);

@@ -4,7 +4,7 @@
 
 当前界面方向：[视觉规范](docs/visual-language/DESIGN.md)、[认可的参考图](docs/visual-language/reference-images.md)与[UI实施计划](docs/ui-implementation-plan.md)。雨滴、池水位、悬浮状态和风纹奖章已接入，验证记录见[UI实施记录](docs/ui-review.json)。场景立体感提升另属后续阶段。
 
-下一阶段的[场景立体感计划](docs/scene-volume-implementation-plan.md)及[三张新概念参考](docs/visual-language/scene-reference-images.md)已归档，采用统一光向和分层明暗；当前仅方案，运行效果尚未修改。
+[场景立体感计划](docs/scene-volume-implementation-plan.md)已在 `codex/scene-volume` 分支接入统一光向、云影、土侧面和池内壁，见[实施记录](docs/scene-volume-review.json)。[三张概念参考](docs/visual-language/scene-reference-images.md)说明方向，实际效果仍待试玩。
 
 《风织雨》是一款通过拨动空气组织云雨的天气操控游戏。你用鼠标推动湿空气，借山坡抬升成云，也可以借降雨产生的冷风，在新的位置组织下一场雨，把适量的雨送到需要水的土地上。
 
@@ -22,7 +22,7 @@
 
 使用 **Godot 4.7.2 stable 标准版**导入本目录的 `project.godot`，按 **F5** 运行。项目使用 GDScript，无需 .NET 或第三方插件。
 
-本地Windows试玩包位于 `.godot/WeavingRain-preview.zip`，现已更新为雨滴／风纹UI版。解压后运行 `WeavingRain.exe`；`PlayReservoir.cmd`／`PlayStorm.cmd` 可直接进入两份新增小样。包内说明包含操作及已知问题，无需安装Godot。入门与九张地图的独立启动已逐项核对，不代表正式性能或玩家体验验收。
+本地Windows试玩包位于 `.godot/WeavingRain-preview.zip`，当前为场景立体感分支版，也另存为 `.godot/WeavingRain-scene-volume.zip`。UI基线包保留为 `.godot/WeavingRain-ui-baseline-8f24ca7.zip`。解压后运行 `WeavingRain.exe`；`PlayReservoir.cmd`／`PlayStorm.cmd` 可直接进入两份新增小样。无需安装Godot，正式性能与新场景体验仍待验收。
 
 ## 游玩
 
@@ -91,6 +91,8 @@ A/B/C 的空心雨滴位于各自地块旁，每滴默认20单位，普通田五
 
 天气可以吹入岛外海域并逐渐离开，不会自动补回。地图编辑和手感配置见 [地图编辑与调参](docs/map-authoring.md)：打开 `scenes/map_editor.tscn` 可拖动山、目标和湿空气；全局参数位于 `configs/weather.tres`。
 
+场景使用固定光向和分层明暗，云影与淡蓝降雨范围分别表达遮光和实际落雨。显示参数位于 `configs/scene_style.tres`，可调整光向、云体明暗、软影和材料色板，保存后R／切图生效；F6仍只负责天气手感。只改显示不会改变云形、目标面积或需水规则。
+
 ## 项目状态
 
 目前已有单目标入门、四个练习局面、两张三田测试图、需水差异小样和两张一田一池测试图。地图支持多山、三种目标形状、独立需求及可选暖海域，仍只有单一云层。视觉采用平滑轮廓与分层色块，云、水汽和冷风的形态由实时数据生成。
@@ -99,7 +101,7 @@ A/B/C 的空心雨滴位于各自地块旁，每滴默认20单位，普通田五
 
 实际降雨范围现已显示在地面，并与箭头共用 **天气提示** 开关；详情与本轮GPU检查见[雨区反馈记录](docs/rain-area-review.json)。淡蓝只表示真实落雨，操作雨云会加强对应区域。实机视觉与性能仍需后续试玩；短压力采样不替代空闲时的正式长测。
 
-历史热带阶段六项10秒短测最慢P95为15.33ms、P99为16.68ms；随后雨线修复对照未达帧时间及模拟推进要求，不能把前轮数字当成当前性能验收。原两图及新主题图的60秒正式长测按约定留到空闲。原生signal 8及真实事件回放波动根因未解决，[看板](docs/task-board.md)继续追踪。雨滴、池水位和风纹UI已接入；成熟台风眼墙、龙卷风、声音与场景立体感提升留后续。
+历史热带阶段六项10秒短测最慢P95为15.33ms、P99为16.68ms；随后雨线修复对照未达帧时间及模拟推进要求，不能把前轮数字当成当前性能验收。原两图及新主题图的60秒正式长测按约定留到空闲。原生signal 8及真实事件回放波动根因未解决，[看板](docs/task-board.md)继续追踪。雨滴、池水位、风纹UI及场景立体感小样已接入，场景观感仍待试玩；成熟台风眼墙、龙卷风与声音留后续。
 
 [策划与讨论记录](docs/cloud-weather-game-design-v0.1.md) · [开发协作说明](AGENTS.md)
 
