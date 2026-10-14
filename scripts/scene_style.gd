@@ -5,7 +5,7 @@ extends Resource
 
 @export_group("共同受光")
 ## 指向太阳的世界方向。水平分量越大，侧面差异与影子偏移越明显；y必须为正。
-@export var light_direction := Vector3(-0.6, 1.0, 0.3)
+@export var light_direction := Vector3(-0.6, 0.75, 0.3)
 ## 背光面的最低明度倍率。调大更柔和、更亮，调小转折更强；不改变天气。
 @export_range(0.0, 1.0) var environment_floor := 0.74
 ## 0沿用旧云分色，1完全采用方向明暗；中间值混合。不会改变云轮廓或降雨。
@@ -18,6 +18,16 @@ extends Resource
 @export_range(0.0, 1.0) var cloud_shadow_strength := 0.18
 ## 植物／石块脚下软影强度。调小更轻盈，调大更贴地；不影响危险天气判定。
 @export_range(0.0, 1.0) var contact_shadow_strength := 0.14
+## 山体落地投影的压暗量。调大更贴地，调小更轻；山影与云影合计压暗最多0.32。
+@export_range(0.0, 0.3) var terrain_shadow_strength := 0.16
+
+@export_group("地面造型（仅显示）")
+## 田台顶面世界高度；陆地仍为0.22。调大土边更清楚，不增加实际坡度或接雨量。
+@export_range(0.30, 0.46) var farm_top_height := 0.36
+## 土边／池岸向内的倒角宽度。调大亮边更宽；不扩张目标轮廓，过宽会挤占顶面。
+@export_range(0.02, 0.10) var bevel_width := 0.055
+## 装饰池岸顶面高度。满水面仍最高0.39；调大露出的池壁更多，不增加容量。
+@export_range(0.46, 0.65) var reservoir_rim_height := 0.52
 
 @export_group("材料色板")
 ## 四档云色，从亮到暗。仅是显示色板，雨云仍由真实雨水子集决定。
@@ -36,6 +46,11 @@ func validation_errors() -> PackedStringArray:
 		var value: float = get(field)
 		if not is_finite(value) or value < 0 or value > 1: errors.append(field+"：须在0–1内")
 	if not is_finite(cloud_normal_gain) or cloud_normal_gain < 0 or cloud_normal_gain > 6: errors.append("cloud_normal_gain：须在0–6内")
+	for field in ["terrain_shadow_strength", "farm_top_height", "bevel_width", "reservoir_rim_height"]:
+		var limits: Vector2 = {"terrain_shadow_strength":Vector2(0,0.3),"farm_top_height":Vector2(0.30,0.46),"bevel_width":Vector2(0.02,0.10),"reservoir_rim_height":Vector2(0.46,0.65)}[field]
+		var value: float = get(field)
+		if not is_finite(value) or value < limits.x or value > limits.y: errors.append(field+"：须在"+str(limits.x)+"–"+str(limits.y)+"内")
+	if farm_top_height-bevel_width <= 0.225: errors.append("farm_top_height / bevel_width：倒角下缘须高于0.225，避免土侧面沉入陆地")
 	if cloud_colors.size() != 4: errors.append("cloud_colors：须有四档颜色")
 	var colors := cloud_colors.duplicate()
 	var names := PackedStringArray()
@@ -50,7 +65,7 @@ func validation_errors() -> PackedStringArray:
 	return errors
 
 func apply(material: ShaderMaterial) -> void:
-	for field in ["light_direction", "environment_floor", "cloud_light_strength", "cloud_normal_gain", "cloud_shadow_strength", "contact_shadow_strength"]:
+	for field in ["light_direction", "environment_floor", "cloud_light_strength", "cloud_normal_gain", "cloud_shadow_strength", "contact_shadow_strength", "terrain_shadow_strength"]:
 		material.set_shader_parameter(field, get(field))
 	# These cloud uniforms are numeric sRGB values, like the original shader literals.
 	# Passing a Color would invoke the renderer's color conversion before pow(...,2.2).

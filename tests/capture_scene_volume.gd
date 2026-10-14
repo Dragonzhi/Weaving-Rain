@@ -7,6 +7,7 @@ func save_view(name: String) -> void:
 	main.wind_input.enabled = false
 	main.weather_view.update_weather(0,false)
 	main.hud.reset_feedback()
+	main.hud.queue_redraw() # The frozen fixture has no main-loop HUD redraw.
 	(await render()).save_png("res://.godot/scene-review/"+name+".png")
 func run() -> void:
 	DirAccess.make_dir_recursive_absolute("res://.godot/scene-review")
@@ -24,6 +25,7 @@ func run() -> void:
 		main.sim.cloud.fill(0)
 		main.sim.rain.fill(0)
 		main.sim.cold.fill(0)
+		main.sim.refresh_display()
 		main.sim.plot_waters[0] = 65
 		main.sim.plot_waters[1] = main.sim.required_water(1)
 		main.sim.update_goal(0)
@@ -32,6 +34,28 @@ func run() -> void:
 		main.hud.visible = false
 		main.weather_view.camera.size = 9.0
 		await save_view("details-"+str(resolution.x))
+		main.select_layout("reservoir_lab")
+		main.hud.visible = true
+		main.sim.humidity.fill(0)
+		main.sim.cloud.fill(0)
+		main.sim.rain.fill(0)
+		main.sim.cold.fill(0)
+		main.sim.refresh_display()
+		for progress in [0.0,0.5,1.0]:
+			main.sim.plot_waters[1] = main.sim.required_water(1)*progress
+			main.sim.update_goal(0)
+			main.weather_view.update_weather(2,true)
+			await save_view("pool-"+str(progress)+"-"+str(resolution.x))
+		main.select_layout("meadow")
+		main.sim.humidity.fill(0)
+		main.sim.cloud.fill(0)
+		main.sim.rain.fill(0)
+		main.sim.cold.fill(0)
+		main.sim.refresh_display()
+		for target in main.sim.plot_centers.size(): main.sim.plot_waters[target] = 65
+		main.sim.update_goal(0)
+		main.weather_view.update_weather(1,true)
+		await save_view("shapes-"+str(resolution.x))
 		main.select_layout("meadow")
 		main.hud.visible = true
 		main.sim.humidity.fill(0.0)
@@ -52,5 +76,5 @@ func run() -> void:
 		main.sim.refresh_display()
 		main.weather_view.update_weather(0.3,true)
 		await save_view("cloud-rain-"+str(resolution.x))
-	print("SCENE REVIEW: six GPU display fixtures; not normal gameplay completion evidence")
+	print("SCENE REVIEW: fourteen GPU display fixtures; not normal gameplay completion evidence")
 	quit()

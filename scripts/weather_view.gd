@@ -20,6 +20,11 @@ var style_errors := PackedStringArray()
 var style_path := "res://configs/scene_style.tres"
 var contact_positions: Array[Vector3] = []
 var contact_radii: Array[float] = []
+var terrain_shadow_texture: ImageTexture
+var terrain_shadow_build_ms := 0.0
+var farm_top_meshes: Array[MeshInstance3D] = []
+var farm_ridge_materials: Array[ShaderMaterial] = []
+var farm_side_materials: Array[ShaderMaterial] = []
 var camera: Camera3D
 var ocean_material := ShaderMaterial.new()
 var image: Image
@@ -99,6 +104,9 @@ func setup(model: RefCounted) -> void:
 	scene_style = loaded.resource
 	style_errors = loaded.errors
 	if not style_errors.is_empty(): print("SCENE STYLE retained: ", "；".join(style_errors))
+	var shadow_start := Time.get_ticks_usec()
+	terrain_shadow_texture = ImageTexture.create_from_image(preload("res://scripts/terrain_shadow.gd").build(sim.terrain,scene_style.light_direction))
+	terrain_shadow_build_ms = (Time.get_ticks_usec()-shadow_start)/1000.0
 	ocean_material.shader = OCEAN_SHADER
 	ribbon_points.resize(4)
 	rng.seed = 44721
@@ -158,6 +166,8 @@ func _terrain_material(color: Color, shore: bool = false) -> ShaderMaterial:
 	material.set_shader_parameter("shore", shore)
 	material.set_shader_parameter("water_map", water_texture)
 	material.set_shader_parameter("edge_fade", sim.settings.open_boundary)
+	material.set_shader_parameter("terrain_shadow_map",terrain_shadow_texture)
+	material.set_shader_parameter("terrain_shadow_enabled",true)
 	scene_style.apply(material)
 	return material
 
@@ -175,9 +185,74 @@ func _boundary_wall(points: PackedVector2Array, low: float, high: float, inward 
 		var outward := Vector2((b-a).y,-(b-a).x).normalized()
 		var normal := Vector3(outward.x,0,outward.y)*(-1.0 if inward else 1.0)
 		var vertices := [Vector3(a.x,low,a.y),Vector3(a.x,high,a.y),Vector3(b.x,high,b.y),Vector3(a.x,low,a.y),Vector3(b.x,high,b.y),Vector3(b.x,low,b.y)]
-		if inward: vertices.reverse()
+		# Godot front faces use clockwise winding; outward faces need the
+		# reverse of the geometric cross-product orientation of this strip.
+		if not inward: vertices.reverse()
 		for p in vertices: _vertex(wall,p,normal)
 	return wall.commit()
+
+func _ring(outer: PackedVector2Array, inner: PackedVector2Array, low: float, high: float) -> ArrayMesh:
+	var surface := SurfaceTool.new()
+	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
+	for i in outer.size():
+		var next := (i+1)%outer.size()
+		var a := Vector3(outer[i].x,low,outer[i].y)
+		var b := Vector3(outer[next].x,low,outer[next].y)
+		var c := Vector3(inner[i].x,high,inner[i].y)
+		var d := Vector3(inner[next].x,high,inner[next].y)
+		var normal := (c-a).cross(b-a).normalized()
+		for p in [a,b,c,b,d,c]: _vertex(surface,p,normal)
+	return surface.commit()
+
+func plot_display_height(target: int) -> float:
+	return scene_style.reservoir_rim_height if sim.is_reservoir(target) else scene_style.farm_top_height
+
+func display_surface_height(p: Vector2, ground_height: float = NAN) -> float:
+	var height: float = sim.terrain.height(p) if is_nan(ground_height) else ground_height
+	for target in sim.plot_centers.size():
+		if sim.plot_regions[target].contains(p-sim.plot_centers[target],sim.plot_half):
+			height = maxf(height,plot_display_height(target))
+	return height
+
+func _farm_ridges(region: WRPlotRegion, inset: Vector2) -> ArrayMesh:
+	var st := SurfaceTool.new()
+	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var axes := region.axes(sim.plot_half)*inset
+	for row in 3:
+		var x := (row-1)*minf(0.75,axes.x*0.5)
+		var width := minf(0.11,axes.x*0.1)
+		var length := axes.y*0.96
+		if region.shape != "rectangle": length *= sqrt(maxf(0,1.0-pow((absf(x)+width)/axes.x,2)))
+		for side in [-1.0,1.0]:
+			var a := Vector3(x+side*width,0,-length)
+			var b := Vector3(x+side*width,0,length)
+			var c := Vector3(x,0.03,-length)
+			var d := Vector3(x,0.03,length)
+			var normal := Vector3(side*0.03,width,0).normalized()
+			var vertices := [a,c,b,b,c,d]
+			if side > 0: vertices.reverse()
+			for p in vertices: _vertex(st,p,normal)
+	return st.commit()
+
+func _plant_mesh(seedling: bool) -> ArrayMesh:
+	# Stem and both leaves share one surface/material and one instance per plant.
+	var st := SurfaceTool.new()
+	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var stem := CylinderMesh.new()
+	stem.top_radius = 0.020 if seedling else 0.025
+	stem.bottom_radius = stem.top_radius
+	stem.height = 0.15 if seedling else 0.21
+	stem.radial_segments = 5
+	st.append_from(stem,0,Transform3D(Basis.IDENTITY,Vector3.UP*stem.height*0.5))
+	var leaf := SphereMesh.new()
+	leaf.radius = 0.09 if seedling else 0.13
+	leaf.height = 0.075 if seedling else 0.12
+	leaf.radial_segments = 8
+	leaf.rings = 3
+	for side in [-1.0,1.0]:
+		var basis := Basis(Vector3.FORWARD,side*0.4).scaled(Vector3(1,1,0.55))
+		st.append_from(leaf,0,Transform3D(basis,Vector3(side*leaf.radius*0.70,stem.height*0.9,0)))
+	return st.commit()
 
 func _create_contact_shadows() -> void:
 	var instances := MultiMesh.new()
@@ -199,6 +274,26 @@ func _create_contact_shadows() -> void:
 	node.material_override = material
 	node.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	add_child(node)
+
+func _plot_contact_shadow(target: int) -> void:
+	var region: WRPlotRegion = sim.plot_regions[target]
+	var axes := region.axes(sim.plot_half)
+	var expanded := WRPlotRegion.new()
+	expanded.shape = region.shape
+	expanded.half_axes = axes+Vector2.ONE*0.16
+	var material := ShaderMaterial.new()
+	material.shader = CONTACT_SHADER
+	material.render_priority = -8
+	material.set_shader_parameter("plot_shadow",true)
+	material.set_shader_parameter("ellipse",region.shape != "rectangle")
+	# Local geometry includes the expanded outline; its inner falloff follows
+	# the unexpanded actual region, independent of the receiver height.
+	material.set_shader_parameter("plot_axes",axes)
+	material.set_shader_parameter("contact_shadow_strength",scene_style.contact_shadow_strength)
+	var center: Vector2 = sim.plot_centers[target]
+	var offset := -Vector2(scene_style.light_direction.x,scene_style.light_direction.z).normalized()*0.06
+	var node := _mesh_instance(expanded.mesh(sim.plot_half),material,Vector3(center.x+offset.x,0.223,center.y+offset.y))
+	node.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 
 func _vertex(st: SurfaceTool, p: Vector3, normal: Vector3) -> void:
 	st.set_normal(normal)
@@ -278,10 +373,11 @@ func _create_scene() -> void:
 		var b := (segment+1)*TAU/96.0
 		var p0 := _island_point(a,1.045)
 		var p1 := _island_point(b,1.045)
-		var p2 := _island_point(a,1.11)
-		var p3 := _island_point(b,1.11)
+		var p2 := _island_point(a,1.13)
+		var p3 := _island_point(b,1.13)
 		for p in [p0,p2,p1,p1,p2,p3]: _vertex(nearshore,Vector3(p.x,-0.076,p.y),Vector3.UP)
-	var water_band := _scene_material(Color("66b4b7"))
+	var water_band := _scene_material(Color("72c1c5"))
+	water_band.set_shader_parameter("terrain_shadow_enabled",false)
 	water_band.set_shader_parameter("water_surface",true)
 	_mesh_instance(nearshore.commit(),water_band)
 	if sim.layout.get("river_enabled", true): _create_river()
@@ -305,16 +401,20 @@ func _create_scene() -> void:
 	_create_contact_shadows()
 
 func _create_plot(target: int) -> void:
+	_plot_contact_shadow(target)
 	var center: Vector2 = sim.plot_centers[target]
 	var region: WRPlotRegion = sim.plot_regions[target]
 	var plot_mesh := region.mesh(sim.plot_half)
 	var material := _scene_material(scene_style.soil_color)
-	material.set_shader_parameter("soil_rows",not sim.is_reservoir(target))
 	material.set_shader_parameter("plot_center",center)
 	plot_materials.append(material)
-	_mesh_instance(plot_mesh, material, Vector3(center.x, 0.255, center.y))
+	var height := 0.255 if sim.is_reservoir(target) else scene_style.farm_top_height
+	var top := _mesh_instance(plot_mesh, material, Vector3(center.x,height,center.y))
+	farm_top_meshes.append(top)
+	farm_ridge_materials.append(null)
+	farm_side_materials.append(null)
 	var group := Node3D.new()
-	group.position = Vector3(center.x, 0.29, center.y)
+	group.position = Vector3(center.x,height+0.03,center.y)
 	add_child(group)
 	plant_groups.append(group)
 	var plant_material := _scene_material(Color("578563"))
@@ -324,54 +424,53 @@ func _create_plot(target: int) -> void:
 	reservoir_surfaces.append(null)
 	if sim.is_reservoir(target):
 		material.set_shader_parameter("base_color",Color("779997"))
-		var bank := SurfaceTool.new()
-		bank.begin(Mesh.PRIMITIVE_TRIANGLES)
 		var outline := region.outline(sim.plot_half)
-		for n in outline.size():
-			var a := outline[n]
-			var b := outline[(n + 1) % outline.size()]
-			for p in [a, a * 0.89, b, b, a * 0.89, b * 0.89]:
-				bank.set_normal(Vector3.UP)
-				bank.add_vertex(Vector3(p.x, 0.41, p.y))
-			var normal := (a + b).normalized()
-			for p in [Vector3(a.x, 0.255, a.y), Vector3(a.x, 0.41, a.y), Vector3(b.x, 0.41, b.y), Vector3(a.x, 0.255, a.y), Vector3(b.x, 0.41, b.y), Vector3(b.x, 0.255, b.y)]:
-				bank.set_normal(Vector3(normal.x, 0, normal.y))
-				bank.add_vertex(p)
-		_mesh_instance(bank.commit(), _scene_material(scene_style.bank_color), Vector3(center.x, 0, center.y))
+		var rim := scene_style.reservoir_rim_height
+		var bevel := scene_style.bevel_width
+		var axes := region.axes(sim.plot_half)
+		var pool_inset := minf(0.89,1.0-1.7*bevel/minf(axes.x,axes.y))
+		var rim_points := PackedVector2Array()
 		var inside := PackedVector2Array()
-		for p in outline: inside.append(p*0.89)
-		_mesh_instance(_boundary_wall(inside,0.255,0.41,true),_scene_material(scene_style.bank_color.darkened(0.12)),Vector3(center.x,0,center.y))
+		for p in outline:
+			rim_points.append(p*(Vector2.ONE-Vector2.ONE*bevel/axes))
+			inside.append(p*pool_inset)
+		var origin := Vector3(center.x,0,center.y)
+		var bank_material := _scene_material(scene_style.bank_color)
+		_mesh_instance(_ring(outline,rim_points,rim-bevel,rim),bank_material,origin)
+		_mesh_instance(_ring(rim_points,inside,rim,rim),bank_material,origin)
+		_mesh_instance(_boundary_wall(outline,0.221,rim-bevel),_scene_material(scene_style.bank_color.darkened(0.08)),origin)
+		_mesh_instance(_boundary_wall(inside,0.255,rim,true),_scene_material(scene_style.bank_color.darkened(0.17)),origin)
 		var water_material := _scene_material(scene_style.water_color)
 		water_material.set_shader_parameter("water_surface",true)
 		water_material.set_shader_parameter("plot_center",center)
 		var surface := _mesh_instance(region.mesh(sim.plot_half), water_material, Vector3(center.x, 0.27, center.y))
-		surface.scale = Vector3(0.89, 1.0, 0.89)
+		surface.scale = Vector3(pool_inset,1,pool_inset)
 		surface.visible = false
 		reservoir_surfaces[target] = surface
 		return
-	_mesh_instance(_boundary_wall(region.outline(sim.plot_half),0.221,0.255),_scene_material(scene_style.soil_color.darkened(0.12)),Vector3(center.x,0,center.y))
+	var outline := region.outline(sim.plot_half)
+	var inset := Vector2.ONE-Vector2.ONE*scene_style.bevel_width/region.axes(sim.plot_half)
+	top.scale = Vector3(inset.x,1,inset.y)
+	var inner := PackedVector2Array()
+	for p in outline: inner.append(p*inset)
+	var side_material := _scene_material(scene_style.soil_color.darkened(0.10))
+	farm_side_materials[target] = side_material
+	var origin := Vector3(center.x,0,center.y)
+	_mesh_instance(_boundary_wall(outline,0.221,height-scene_style.bevel_width),side_material,origin)
+	_mesh_instance(_ring(outline,inner,height-scene_style.bevel_width,height),material,origin)
+	var ridge_material := _scene_material(scene_style.soil_color.lightened(0.04))
+	farm_ridge_materials[target] = ridge_material
+	_mesh_instance(_farm_ridges(region,inset),ridge_material,Vector3(center.x,height,center.y))
 	var seedling: bool = sim.plot_needs[target] != null and sim.plot_needs[target].appearance == "seedling"
+	var plant_mesh := _plant_mesh(seedling)
 	for row in 3:
 		for column in 3:
 			if seedling and (row + column) % 2 != 0: continue
-			var point := Vector3(center.x - 0.75 + column * 0.75, 0.29, center.y - 0.75 + row * 0.75)
+			var point := Vector3(center.x - 0.75 + column * 0.75,height+0.03,center.y - 0.75 + row * 0.75)
 			if not region.contains(Vector2(point.x, point.z) - center, sim.plot_half): continue
-			contact_positions.append(Vector3(point.x,0.258,point.z))
+			contact_positions.append(Vector3(point.x,height+0.033,point.z))
 			contact_radii.append(0.13 if seedling else 0.18)
-			var stem := CylinderMesh.new()
-			stem.top_radius = 0.024
-			stem.bottom_radius = 0.024
-			stem.height = 0.12 if seedling else 0.18
-			stem.radial_segments = 5
-			var stem_node := _mesh_instance(stem, plant_material, point + Vector3.UP * (stem.height * 0.5))
-			stem_node.reparent(group, true)
-			var leaf := SphereMesh.new()
-			leaf.radius = 0.07 if seedling else 0.10
-			leaf.height = 0.07 if seedling else 0.10
-			leaf.radial_segments = 8
-			leaf.rings = 3
-			var plant := _mesh_instance(leaf, plant_material, point + Vector3(0.06, 0.11 if seedling else 0.17, 0))
-			plant.scale = Vector3(1.0, 1.0, 0.5)
+			var plant := _mesh_instance(plant_mesh,plant_material,point)
 			plant.reparent(group, true)
 	group.scale.y = plant_growth[target]
 
@@ -547,7 +646,8 @@ func _ribbon(center: Vector2, velocity: Vector2, height: float, low: bool, color
 	for k in segments + 1:
 		var y := height
 		if low:
-			y += sim.terrain.height(p)
+			var ground: float = sim.terrain.height(p)
+			y = maxf(height+ground,display_surface_height(p,ground)+0.08)
 		elif height < sim.terrain.maximum_height + 0.10:
 			y = maxf(height, sim.terrain.height(p) + 0.10)
 		points[k] = Vector3(p.x, y, p.y)
@@ -925,10 +1025,12 @@ func update_weather(dt: float, moving: bool, pointer: Node = null) -> void:
 			surface.visible = water > 0.0
 			if moving: surface.position.y = lerpf(surface.position.y, 0.27 + water * 0.12, 1.0 - exp(-dt * 6.0))
 			continue
-		var soil := scene_style.soil_color.lerp(Color("8eaa78"),water)
+		var soil := scene_style.soil_color.lerp(Color("ae9772"),water)
 		if sim.plot_destroyed[target]:
 			soil = Color("718e95")
 		if plot_materials[target].get_shader_parameter("base_color") != soil: plot_materials[target].set_shader_parameter("base_color",soil)
+		if farm_side_materials[target].get_shader_parameter("base_color") != soil.darkened(0.10): farm_side_materials[target].set_shader_parameter("base_color",soil.darkened(0.10))
+		if farm_ridge_materials[target].get_shader_parameter("base_color") != soil.lightened(0.04): farm_ridge_materials[target].set_shader_parameter("base_color",soil.lightened(0.04))
 		if moving:
 			var growth := 0.65 + 0.35 * water if sim.plot_needs[target] != null else 1.0
 			var blend := 1.0 - exp(-dt * 6.0)

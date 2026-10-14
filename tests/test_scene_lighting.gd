@@ -155,7 +155,7 @@ func run() -> void:
 	view.update_weather(1.0,false)
 	await render()
 	check(view.elapsed==time and view.reservoir_surfaces[1].position.y==height,"Pause freezes water level and water animation")
-	check(view.reservoir_surfaces[1].position.y<0.41,"Water stays below existing pool rim, including full state")
+	check(view.reservoir_surfaces[1].position.y<=0.39 and view.scene_style.reservoir_rim_height-view.reservoir_surfaces[1].position.y>=0.07,"Full water retains a visible inner wall without changing the water-level mapping")
 	check(view.plot_materials[0] is ShaderMaterial and view.plant_materials[0] is ShaderMaterial,"Farm soil and leaves receive common direction instead of flat unlit colors")
 	good = Style.new()
 	good.cloud_shadow_strength = 0.10

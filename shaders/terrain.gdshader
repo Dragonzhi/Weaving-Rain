@@ -31,6 +31,6 @@ void fragment() {
 		float wave = abs(fract(length(p)*1.7-visual_time*0.08)-0.5);
 		color += vec3(0.015,0.018,0.017)*(1.0-smoothstep(0.010,0.030,wave));
 	}
-	color = receive_cloud_shadow(color,world_position,water_surface ? 0.5 : 1.0);
+	color = receive_ground_shadow(color,world_position,water_surface ? 0.5 : 1.0);
 	ALBEDO = color;
 }

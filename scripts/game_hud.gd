@@ -432,7 +432,7 @@ func _draw_world_feedback() -> void:
 		var p: Vector3 = center + Vector3(cos(angle), 0, sin(angle)) * sim.settings.brush_radius
 		ring.append(_project(p))
 	draw_polyline(ring, Color(0.95, 1, 0.91, 0.65 if wind_input.dragging else 0.35), 1.7, true)
-	var projected := Vector3(center.x, sim.terrain.height(Vector2(center.x, center.z)) + 0.05, center.z)
+	var projected := Vector3(center.x,view.display_surface_height(Vector2(center.x,center.z))+0.015,center.z)
 	if center.y - projected.y > 0.8:
 		draw_dashed_line(_project(center), _project(projected), Color(0.88, 0.98, 0.91, 0.45), 1.0, 4.0)
 		draw_circle(_project(projected), 3.0, Color(0.93, 1, 0.91, 0.7))
@@ -628,7 +628,8 @@ func _ground_region(target: int, padding: float = 0.0) -> PackedVector2Array:
 	var result := PackedVector2Array()
 	for offset in sim.plot_regions[target].outline(sim.plot_half, padding):
 		var p: Vector2 = sim.plot_centers[target] + offset
-		result.append(_project(Vector3(p.x, sim.terrain.height(p) + 0.06, p.y)))
+		var height: float = view.plot_display_height(target)+0.006 if is_zero_approx(padding) else sim.terrain.height(p)+0.06
+		result.append(_project(Vector3(p.x,height,p.y)))
 	ground_outlines[key] = result
 	return result
 

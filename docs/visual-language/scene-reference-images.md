@@ -2,6 +2,8 @@
 
 日期：2026-10-14。内置image_gen生成；用于本轮计划审阅，尚未获得用户对新图的认可。不是运行截图、正常通关或性能证据，也不作为游戏内云／地形／背景贴图。
 
+同日地面第二轮：用户重新附上此前游玩概念图，明确“按照之前的图来当做最后的实现目标风格”。该指定图另存为[最终风格目标](scene-references/final-style-target.png)，优先于本页后生成的细节提案。按圆润大色块、土边／池壁和贴地阴影实施，不复制固定云素材或示例布局。实施入口见[地面第二轮](../ground-volume-implementation-plan.md)。
+
 1. [整体场景](scene-references/scene-overview.png)：单层长云的迎光／侧面／底面，统一山体光向、岛岸厚度和地面投影。
 2. [云体明暗对照](scene-references/cloud-lighting.png)：薄云、厚云、雨云，说明背光和正在降雨是两种属性。只有雨云示例画雨线和雨区。
 3. [农田与水库细节](scene-references/farm-reservoir.png)：薄土侧边、叶片分面、小接触影、池沿与内壁和水面高差。

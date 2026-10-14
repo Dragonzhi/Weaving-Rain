@@ -59,7 +59,9 @@ func run() -> void:
 	main.weather_view.camera.size = original_zoom * 0.8
 	var zoomed_outline: PackedVector2Array = main.hud._ground_region(0)
 	var corner: Vector2 = main.sim.plot_centers[0] + main.sim.plot_regions[0].outline(main.sim.plot_half)[0]
-	var projected: Vector2 = main.weather_view.camera.unproject_position(Vector3(corner.x, main.sim.terrain.height(corner) + 0.06, corner.y))
+	# Feedback now follows the decorative target top. The camera/cache invariant
+	# remains the same; the old terrain+.06 constant would put it inside the soil.
+	var projected: Vector2 = main.weather_view.camera.unproject_position(Vector3(corner.x, main.weather_view.scene_style.farm_top_height + 0.006, corner.y))
 	check(zoomed_outline != original_outline and zoomed_outline[0].distance_to(projected) < 0.001, "Ground feedback contours follow changed camera projection")
 	main.weather_view.camera.size = original_zoom
 	check(main.hud.blocks_wind(main.hud.wind_toolbar_rect.get_center()), "Whole toolbar blocks wind")

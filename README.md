@@ -2,9 +2,13 @@
 
 开发进度与未完成事项：[任务看板](docs/task-board.md)。
 
-当前界面方向：[视觉规范](docs/visual-language/DESIGN.md)、[认可的参考图](docs/visual-language/reference-images.md)与[UI实施计划](docs/ui-implementation-plan.md)。雨滴、池水位、悬浮状态和风纹奖章已接入，验证记录见[UI实施记录](docs/ui-review.json)。场景立体感提升另属后续阶段。
+当前界面方向：[视觉规范](docs/visual-language/DESIGN.md)、[认可的参考图](docs/visual-language/reference-images.md)与[UI实施计划](docs/ui-implementation-plan.md)。雨滴、池水位、悬浮状态和风纹奖章已接入，验证记录见[UI实施记录](docs/ui-review.json)。
 
 [场景立体感计划](docs/scene-volume-implementation-plan.md)已在 `codex/scene-volume` 分支接入统一光向、云影、土侧面和池内壁，见[实施记录](docs/scene-volume-review.json)。[三张概念参考](docs/visual-language/scene-reference-images.md)说明方向，实际效果仍待试玩。
+
+[地面第二轮](docs/ground-volume-implementation-plan.md)以用户指定的原整体图为最终风格目标，强化田台／田垄、双叶植株、满池内壁和山影。[当前实机对比与检查](docs/ground-volume-review.json)区分显示夹具、正常鼠标路线和未通过的性能项；美术参数可在 `configs/scene_style.tres` 调整，保存后R重读。
+
+2026-10-14本轮获授权提交并并入 `main`；`codex/scene-volume` 保留为实施历史。
 
 《风织雨》是一款通过拨动空气组织云雨的天气操控游戏。你用鼠标推动湿空气，借山坡抬升成云，也可以借降雨产生的冷风，在新的位置组织下一场雨，把适量的雨送到需要水的土地上。
 
@@ -22,7 +26,7 @@
 
 使用 **Godot 4.7.2 stable 标准版**导入本目录的 `project.godot`，按 **F5** 运行。项目使用 GDScript，无需 .NET 或第三方插件。
 
-本地Windows试玩包位于 `.godot/WeavingRain-preview.zip`，当前为场景立体感分支版，也另存为 `.godot/WeavingRain-scene-volume.zip`。UI基线包保留为 `.godot/WeavingRain-ui-baseline-8f24ca7.zip`。解压后运行 `WeavingRain.exe`；`PlayReservoir.cmd`／`PlayStorm.cmd` 可直接进入两份新增小样。无需安装Godot，正式性能与新场景体验仍待验收。
+本地Windows试玩包位于 `.godot/WeavingRain-preview.zip`，当前为地面第二轮分支版，也另存为 `.godot/WeavingRain-ground-volume.zip`及场景分支通用包。首轮场景备份为 `.godot/WeavingRain-scene-first-fb97505.zip`，UI基线保留为 `.godot/WeavingRain-ui-baseline-8f24ca7.zip`。解压后运行 `WeavingRain.exe`；`PlayReservoir.cmd`／`PlayStorm.cmd` 可直接进入两份新增小样。无需安装Godot，正式性能与新场景体验仍待验收。
 
 ## 游玩
 

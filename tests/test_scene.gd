@@ -137,7 +137,9 @@ func run() -> void:
 		for child in main.weather_view.get_children():
 			if child is MeshInstance3D:
 				for target in 2:
-					if child.material_override == main.weather_view.plot_materials[target]:
+					# A target now has top/bevel/ridge surfaces sharing materials;
+					# compare its registered top, not its number of draw surfaces.
+					if child == main.weather_view.farm_top_meshes[target]:
 						var p: Vector2 = main.sim.plot_centers[target]
 						if is_equal_approx(child.position.x, p.x) and is_equal_approx(child.position.z, p.y):
 							geometry_matches += 1
