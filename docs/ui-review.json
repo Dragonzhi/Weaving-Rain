@@ -1,30 +1,459 @@
 {
   "date": "2026-10-14",
-  "status": "UI implementation saved; remaining verification deferred because user reported imminent battery shutdown",
+  "status": "UI implemented; interrupted rule/route coverage completed by continuation; exported package verified. Performance and player readability remain pending.",
   "baseline_commit": "5d208f8",
-  "implemented": ["Fixed-unit farm droplets with remainder and six-slot grouping", "Independent reservoir water gauge", "Real safety symbols and pass-through hover text", "Wind-medal rating and result rows", "Compact header and native tool/source controls", "Pause-aware UI animation and bounded vector geometry"],
+  "implemented": [
+    "Fixed-unit farm droplets with remainder and six-slot grouping",
+    "Independent reservoir water gauge",
+    "Real safety symbols and pass-through hover text",
+    "Wind-medal rating and result rows",
+    "Compact header and native tool/source controls",
+    "Pause-aware UI animation and bounded vector geometry"
+  ],
   "checks": {
     "ui_1920x1080": "24 checks, 0 failures",
     "ui_1280x720": "24 checks, 0 failures",
     "compact_feedback": "25 checks, 0 failures",
     "hud_layouts": "27 checks, 0 failures",
-    "full_coverage": "Earlier rule/scenario checks passed; continued from wind-tools-scene through needs viewport route. Full suite has NOT completed.",
+    "full_coverage": "Rules/scenes passed across ui-third-full-suite, ui-full-continued-final and ui-resumed-tail. The final tail ran from vortex-viewport-route through both tropical viewport orders and five route comparisons. Not a single uninterrupted full run.",
     "needs_mouse_route": "3-rating success; both fields intact; water error -0.00110978",
-    "wind_tools_mouse_route": "3-rating success; actual source creation/removal; water error -0.00149641"
+    "wind_tools_mouse_route": "3-rating success; actual source creation/removal; water error -0.00149641",
+    "latest_glyph_capture": "Eight GPU fixtures regenerated; latest buttons and clipped reservoir line reviewed; 24 checks per resolution passed again.",
+    "export_loader_regression": "Map resources 18/0, HUD layouts 27/0, UI visuals 24/0 after .tres.remap fix; standalone 10 startup/render cases verify actual layout, target count and tropical activation."
   },
-  "fixed_during_checks": ["Updated checks for compact timer and wind-medal wording", "Deduplicated clipped vertices and skipped non-triangulable subpixel display fills without rounding weather water", "Held-wind scene sampling now waits for an actual main-loop/render frame"],
+  "fixed_during_checks": [
+    "Updated checks for compact timer and wind-medal wording",
+    "Deduplicated clipped vertices and skipped non-triangulable subpixel display fills without rounding weather water",
+    "Held-wind scene sampling now waits for an actual main-loop/render frame",
+    "Standalone map enumeration now strips .remap; exported resources previously fell back to standard. Capture logs and smoke_export.ps1 check actual map and tropical state."
+  ],
   "remaining": [
-    "Vortex viewport route failed once: seedling water 55.0424 exceeded unchanged limit 55; keep route timing variability open. Do not change thresholds or declare it solved.",
-    "Repeat vortex route and continue remaining checks from vortex-viewport-route, then review the five route comparisons",
-    "Recheck latest primary-button styling and reservoir waterline clipping with capture_ui_review.gd",
-    "Run short UI-visible/hidden diagnostic; formal performance remains deferred until idle",
-    "Export and smoke-test a new standalone package; existing preview zip is from the prior rain-area version"
+    "Formal idle-time performance still pending; storm UI-on short drag exceeds frame gates.",
+    "Earlier fragile-field overflow and native signal 8 remain tracked as V6; rerun success does not resolve causes.",
+    "Player feedback on readable droplets, symbols, font sizes and hover information remains pending. Scene depth/art, sound and start/selection pages are later work."
   ],
   "screenshots": {
     "states": "previews/ui-states.png",
     "result": "previews/ui-result.png",
     "source": "GPU development display fixtures, not normal gameplay completion evidence"
   },
-  "logs": [".godot/ui-full-suite.log", ".godot/ui-second-full-suite.log", ".godot/ui-third-full-suite.log", ".godot/ui-full-continued-final.log", ".godot/ui-tiny-fill-failure.log", ".godot/ui-wind-hold-failure.log"],
-  "save_note": "All source and planning artifacts are on disk. No engine upgrade, weather-rule changes, save-format migration or platform upload performed."
+  "logs": [
+    ".godot/ui-full-suite.log",
+    ".godot/ui-second-full-suite.log",
+    ".godot/ui-third-full-suite.log",
+    ".godot/ui-full-continued-final.log",
+    ".godot/ui-tiny-fill-failure.log",
+    ".godot/ui-wind-hold-failure.log",
+    ".godot/ui-resumed-tail.log",
+    ".godot/ui-resumed-test_ui_visuals-1920x1080.log",
+    ".godot/ui-resumed-test_ui_visuals-1280x720.log",
+    ".godot/ui-before-resume-vortex-failure.log",
+    ".godot/ui-standalone-wrong-map.log",
+    ".godot/ui-export-fixed.log"
+  ],
+  "save_note": "UI and local package updated; weather thresholds, internal star fields and save format unchanged. No engine upgrade or platform upload.",
+  "checkpoint_commit": "ed4c454",
+  "resumed_routes": [
+    {
+      "kind": "VORTEX ROUTE",
+      "layout": "needs_lab",
+      "order": [
+        0,
+        1
+      ],
+      "stars": 3,
+      "seconds": 34.7999999999993,
+      "water": [
+        105.213724700398,
+        46.1385702547332
+      ],
+      "destroyed": [
+        false,
+        false
+      ],
+      "water_error": -0.000470129662744512,
+      "ending": null,
+      "pure_start": null
+    },
+    {
+      "kind": "VORTEX ROUTE",
+      "layout": "needs_lab",
+      "order": [
+        0,
+        1
+      ],
+      "stars": 3,
+      "seconds": 46.233333333332,
+      "water": [
+        106.285867521535,
+        42.4515792214853
+      ],
+      "destroyed": [
+        false,
+        false
+      ],
+      "water_error": -0.000706447817265143,
+      "ending": null,
+      "pure_start": null
+    },
+    {
+      "kind": "RESERVOIR ROUTE",
+      "layout": "reservoir_lab",
+      "order": [
+        1,
+        0
+      ],
+      "stars": 3,
+      "seconds": 30.6166666666662,
+      "water": [
+        102.44495597354,
+        250.0
+      ],
+      "destroyed": [
+        false,
+        false
+      ],
+      "water_error": -0.00108083082727717,
+      "ending": "full_countdown",
+      "pure_start": false
+    },
+    {
+      "kind": "RESERVOIR ROUTE",
+      "layout": "storm_coast",
+      "order": [
+        1,
+        0
+      ],
+      "stars": 3,
+      "seconds": 39.4166666666657,
+      "water": [
+        102.904129740397,
+        250.0
+      ],
+      "destroyed": [
+        false,
+        false
+      ],
+      "water_error": -0.00195212925291344,
+      "ending": "full_countdown",
+      "pure_start": false
+    },
+    {
+      "kind": "RESERVOIR ROUTE",
+      "layout": "storm_coast",
+      "order": [
+        0,
+        1
+      ],
+      "stars": 3,
+      "seconds": 44.9666666666654,
+      "water": [
+        135.2708747458,
+        250.0
+      ],
+      "destroyed": [
+        false,
+        false
+      ],
+      "water_error": -0.00204061519116294,
+      "ending": "full_countdown",
+      "pure_start": false
+    },
+    {
+      "kind": "RESERVOIR ROUTE",
+      "layout": "storm_coast",
+      "order": [
+        0,
+        1
+      ],
+      "stars": 1,
+      "seconds": 17.066666666667,
+      "water": [
+        401.166511334469,
+        250.0
+      ],
+      "destroyed": [
+        true,
+        false
+      ],
+      "water_error": -0.00018352005770339,
+      "ending": "loss_finish",
+      "pure_start": false
+    },
+    {
+      "kind": "RESERVOIR ROUTE",
+      "layout": "storm_coast",
+      "order": [
+        1,
+        0
+      ],
+      "stars": 3,
+      "seconds": 37.5499999999992,
+      "water": [
+        104.812722614517,
+        250.0
+      ],
+      "destroyed": [
+        false,
+        false
+      ],
+      "water_error": -0.00194385603049341,
+      "ending": "full_countdown",
+      "pure_start": true
+    },
+    {
+      "kind": "TROPICAL VIEWPORT",
+      "layout": "storm_coast",
+      "order": [
+        1,
+        0
+      ],
+      "stars": 3,
+      "seconds": 35.4499999999993,
+      "water": [
+        103.820915247113,
+        250.0
+      ],
+      "destroyed": [
+        false,
+        false
+      ],
+      "water_error": -0.00131352282528496,
+      "ending": null,
+      "pure_start": null
+    },
+    {
+      "kind": "TROPICAL VIEWPORT",
+      "layout": "storm_coast",
+      "order": [
+        0,
+        1
+      ],
+      "stars": 3,
+      "seconds": 63.0666666666644,
+      "water": [
+        111.140314442433,
+        250.0
+      ],
+      "destroyed": [
+        false,
+        false
+      ],
+      "water_error": -0.00466736487442176,
+      "ending": null,
+      "pure_start": null
+    }
+  ],
+  "short_performance": {
+    "seconds": 10,
+    "warmup_seconds": 3,
+    "kind": "cold (cloud/rain/cold combined)",
+    "wind_combination": "band+vortex",
+    "samples": [
+      {
+        "layout": "meadow",
+        "hud_visible": true,
+        "drag": false,
+        "frames": 1142,
+        "p95": 13.367,
+        "p99": 14.549,
+        "slow_33ms": 0,
+        "hud_draw_ms": 1.58490980735552,
+        "sim_ms": 2.76886317692371,
+        "view_ms": 2.51843283097088,
+        "gpu_ms": 2.2667826370266,
+        "simulation_seconds": 10.0,
+        "final_backlog_ms": 15.0174242424242,
+        "max_backlog_ms": 16.6426666666668,
+        "min_sources": 0,
+        "peak_arrows": 0,
+        "peak_source_lines": 0,
+        "rendered_size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "layout": "meadow",
+        "hud_visible": true,
+        "drag": true,
+        "frames": 874,
+        "p95": 15.938,
+        "p99": 17.079,
+        "slow_33ms": 0,
+        "hud_draw_ms": 1.90934210526316,
+        "sim_ms": 4.69802151119136,
+        "view_ms": 3.07027562750286,
+        "gpu_ms": 3.20584993340604,
+        "simulation_seconds": 9.98333333333333,
+        "final_backlog_ms": 5.00000000000012,
+        "max_backlog_ms": 16.66396969697,
+        "min_sources": 2,
+        "peak_arrows": 32,
+        "peak_source_lines": 36,
+        "rendered_size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "layout": "storm_coast",
+        "hud_visible": true,
+        "drag": false,
+        "frames": 819,
+        "p95": 16.718,
+        "p99": 17.909,
+        "slow_33ms": 0,
+        "hud_draw_ms": 0.960126984126985,
+        "sim_ms": 6.09289744543651,
+        "view_ms": 3.38867694263202,
+        "gpu_ms": 3.54933131105006,
+        "simulation_seconds": 10.0166666666667,
+        "final_backlog_ms": 5.05050505050532,
+        "max_backlog_ms": 16.6539696969702,
+        "min_sources": 0,
+        "peak_arrows": 8,
+        "peak_source_lines": 0,
+        "rendered_size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "layout": "storm_coast",
+        "hud_visible": true,
+        "drag": true,
+        "frames": 661,
+        "p95": 18.499,
+        "p99": 20.856,
+        "slow_33ms": 0,
+        "hud_draw_ms": 1.31947655068079,
+        "sim_ms": 8.00658108571293,
+        "view_ms": 4.06104143520707,
+        "gpu_ms": 4.03574647196483,
+        "simulation_seconds": 10.0,
+        "final_backlog_ms": 1.11839393939427,
+        "max_backlog_ms": 44.4623939393943,
+        "min_sources": 2,
+        "peak_arrows": 32,
+        "peak_source_lines": 36,
+        "rendered_size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "layout": "meadow",
+        "hud_visible": false,
+        "drag": false,
+        "frames": 1648,
+        "p95": 10.831,
+        "p99": 12.263,
+        "slow_33ms": 0,
+        "hud_draw_ms": 0.0,
+        "sim_ms": 1.99356790190762,
+        "view_ms": 2.25990576882964,
+        "gpu_ms": 1.98180811613509,
+        "simulation_seconds": 10.0333333333333,
+        "final_backlog_ms": 5.7126363636367,
+        "max_backlog_ms": 16.6616060606067,
+        "min_sources": 0,
+        "peak_arrows": 0,
+        "peak_source_lines": 0,
+        "rendered_size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "layout": "meadow",
+        "hud_visible": false,
+        "drag": true,
+        "frames": 1463,
+        "p95": 13.064,
+        "p99": 14.501,
+        "slow_33ms": 0,
+        "hud_draw_ms": 0.0,
+        "sim_ms": 3.03654433046394,
+        "view_ms": 2.68081575342832,
+        "gpu_ms": 1.92449029178059,
+        "simulation_seconds": 10.0166666666667,
+        "final_backlog_ms": 1.45416161616227,
+        "max_backlog_ms": 16.6520134680141,
+        "min_sources": 2,
+        "peak_arrows": 32,
+        "peak_source_lines": 35,
+        "rendered_size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "layout": "storm_coast",
+        "hud_visible": false,
+        "drag": false,
+        "frames": 893,
+        "p95": 16.715,
+        "p99": 17.728,
+        "slow_33ms": 0,
+        "hud_draw_ms": 0.0,
+        "sim_ms": 6.02338391482363,
+        "view_ms": 3.47557035405585,
+        "gpu_ms": 3.09262061038984,
+        "simulation_seconds": 9.98333333333333,
+        "final_backlog_ms": 14.7322222222224,
+        "max_backlog_ms": 16.6666666666667,
+        "min_sources": 0,
+        "peak_arrows": 8,
+        "peak_source_lines": 0,
+        "rendered_size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "layout": "storm_coast",
+        "hud_visible": false,
+        "drag": true,
+        "frames": 923,
+        "p95": 16.315,
+        "p99": 17.585,
+        "slow_33ms": 0,
+        "hud_draw_ms": 0.0,
+        "sim_ms": 5.98888538563109,
+        "view_ms": 3.54453754528372,
+        "gpu_ms": 3.06940920613827,
+        "simulation_seconds": 10.0,
+        "final_backlog_ms": 9.50877777777829,
+        "max_backlog_ms": 16.6288181818187,
+        "min_sources": 2,
+        "peak_arrows": 32,
+        "peak_source_lines": 35,
+        "rendered_size": [
+          1920,
+          1080
+        ]
+      }
+    ],
+    "csv_rows_match": true,
+    "verdict": "Meadow UI-on samples meet the numeric gates. Storm UI-on idle P95 16.718ms; drag P95 18.499ms/P99 20.856ms fail. All eight samples advance >=99% simulation time, end backlog <=100ms and have no >33ms frames. This is not formal acceptance.",
+    "limitation": "HUD-off hides drawing/controls but leaves update paths. Real event timing and evolving pressure fields differ across runs; subtraction does not isolate total UI/GPU cost. No previous performance failures closed.",
+    "formal_pending": "Meadow/valleys 12 and storm_coast 6 cases, 5s warmup/60s samples during user idle time."
+  },
+  "standalone": {
+    "template": "4.7.2.stable official",
+    "embedded_pck": true,
+    "actual_map_verified": true,
+    "startup_cases": 10,
+    "startup_capture_seconds": 1,
+    "no_project_path": true,
+    "exe_bytes": 109490232,
+    "exe_sha256": "0F0EFB6E4C8EFA66E53FC9D18616CD05E8FF1D7F917663BF573E24F28643DE84",
+    "archive": ".godot/WeavingRain-preview.zip",
+    "archive_bytes": 39440509,
+    "previous_archive": ".godot/WeavingRain-before-ui.zip",
+    "test": "tests/smoke_export.ps1",
+    "taptap_upload": "not performed",
+    "note": "Startup/render checks are not completion or player usability evidence. Earlier smoke only checked exit/log; actual map fallback was discovered by image review and fixed."
+  }
 }

@@ -294,7 +294,7 @@ func _capture(path: String) -> void:
 	await get_tree().create_timer(1.0).timeout
 	await RenderingServer.frame_post_draw
 	var result := get_viewport().get_texture().get_image().save_png(path)
-	print("CAPTURE ", path, " result=", result, " simulation_ms=", hud.simulation_ms, " frame_ms=", hud.frame_ms)
+	print("CAPTURE ", path, " result=", result, " layout=", sim.layout_id, " targets=", sim.plot_centers.size(), " tropical=", sim.tropical != null, " simulation_ms=", hud.simulation_ms, " frame_ms=", hud.frame_ms)
 	get_tree().quit(0 if result == OK else 1)
 
 func _tuning_feedback(message: String) -> void:

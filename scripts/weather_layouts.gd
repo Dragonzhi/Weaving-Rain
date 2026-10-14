@@ -15,7 +15,9 @@ static func get_layout(id: String) -> Dictionary:
 static func get_ids() -> Array:
 	var result: Array = IDS.duplicate()
 	for file in DirAccess.get_files_at("res://configs/maps"):
-		if file.ends_with(".tres") and not file.get_basename() in result:
-			var resource = load("res://configs/maps/" + file)
-			if resource is WRMapDefinition and resource.id == file.get_basename(): result.append(resource.id)
+		# Exported resources are listed as .tres.remap; load their original path.
+		var filename := file.trim_suffix(".remap")
+		if filename.ends_with(".tres") and not filename.get_basename() in result:
+			var resource = load("res://configs/maps/" + filename)
+			if resource is WRMapDefinition and resource.id == filename.get_basename(): result.append(resource.id)
 	return result
