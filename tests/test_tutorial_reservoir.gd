@@ -66,13 +66,13 @@ func run() -> void:
 	main.lesson_map_path="res://configs/tutorial.tres"
 	main.select_layout("level01")
 	main.set_process(false)
-	check(main.sim.layout_id=="level01" and main.sim.plot_centers.size()==1 and not main.sim.is_reservoir(0) and main.sim.star_level,"Authored level01 remains a separate timed single farm")
+	check(main.sim.layout_id=="level01" and main.sim.plot_centers.size()==1 and main.sim.is_reservoir(0) and main.sim.star_level,"Authored level01 is now a separate timed single reservoir")
 	main.switch_mode("lesson")
 	main.set_process(false)
 	check(main.sim.layout_id=="tutorial" and main.sim.is_reservoir(0) and main.sim.required_water(0)==100,"Revisit does not inherit selected level01 or temporary teaching changes")
 	main.enter_free_play()
 	main.set_process(false)
-	check(main.sim.layout_id=="level01" and not main.sim.is_reservoir(0),"Leaving revisited teaching preserves selected gameplay map")
+	check(main.sim.layout_id=="level01" and main.sim.is_reservoir(0) and main.sim.star_level,"Leaving revisited teaching preserves the selected timed reservoir map")
 	var report={"checks":checks,"failures":failures,"level01_title":main.sim.layout.title,"level01_time":main.sim.time_limit_seconds,"level01_initial_water":main.sim.initial_water}
 	FileAccess.open("res://.godot/tutorial-review/scene.json",FileAccess.WRITE).store_string(JSON.stringify(report,"\t"))
 	main.queue_free()

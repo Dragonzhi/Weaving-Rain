@@ -12,7 +12,11 @@ func _init() -> void:
 	var result := Loader.campaign("res://configs/campaign.tres",plot_half)
 	check(result.errors.is_empty(),"Published campaign validates: " + str(result.errors))
 	var campaign: WRCampaign = result.resource
-	check(campaign.ids() == ["level01"] and campaign.tutorial.id == "tutorial","Only authored level01 is in the formal sequence")
+	check(not campaign.levels.is_empty() and campaign.tutorial.id == "tutorial","Configured formal sequence and independent tutorial load")
+	# Single/multiple sequence edge cases use a fixture, not the current authored count.
+	campaign = WRCampaign.new()
+	campaign.tutorial = load("res://configs/tutorial.tres")
+	campaign.levels = [load("res://configs/maps/level01.tres")]
 	check(campaign.next_id("level01").is_empty() and campaign.next_id("unknown").is_empty(),"Single and unknown maps never wrap into a test map")
 	campaign.levels.append(load("res://configs/maps/storm_coast.tres"))
 	check(campaign.next_id("level01") == "storm_coast" and campaign.next_id("storm_coast").is_empty(),"Ordered references determine the next map")

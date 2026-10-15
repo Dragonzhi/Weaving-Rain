@@ -29,8 +29,8 @@ metadata/_custom_type_script = "uid://crq3171ywa7qk"
 [resource]
 script = ExtResource("5_jo47d")
 id = "level03"
-title = "需水差异小样"
-hint = "普通田需要更多雨 · 幼苗更怕过量，变黄时留意移云与断供"
+title = "田池之间"
+hint = "A田适量后移云收尾；B池可以承接余雨，蓄满后不怕溢出"
 island_center = Vector2(-0.111564755, 0.49977112)
 river_enabled = false
 mountains = Array[ExtResource("2_leu2n")]([SubResource("Resource_kq1d5")])

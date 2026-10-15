@@ -1,5 +1,5 @@
 extends "res://tests/replay_star_viewport.gd"
-## Complete teaching -> first formal map -> final selection via real mouse input.
+## Complete teaching -> configured first formal map -> next/selection via real mouse input.
 var route_time := 0.0
 func click(control: Button) -> void:
 	var point := control.get_global_rect().get_center()
@@ -15,7 +15,9 @@ func run() -> void:
 	await RenderingServer.frame_post_draw
 	process_frame.connect(func(): route_time += main.frame_steps*Sim.FIXED_STEP)
 	var reports: Array[Dictionary] = []
-	var passed: bool = main.play_mode == "lesson" and main.campaign.ids() == ["level01"]
+	var first: String = main.campaign.levels[0].id
+	var following: String = main.campaign.next_id(first)
+	var passed: bool = main.play_mode == "lesson"
 	for stage in 2:
 		var start := route_time
 		var controller := Route.new([0],"mountain")
@@ -42,14 +44,14 @@ func run() -> void:
 		if stage == 0:
 			passed = passed and phases == [0,1,2,3] and not main.sim.star_level
 			await click(main.hud.free_button)
-			passed = passed and main.sim.layout_id == "level01" and main.campaign_play and main.sim.plot_water == 0
+			passed = passed and main.sim.layout_id == first and main.campaign_play and main.sim.plot_water == 0
 		else:
-			passed = passed and main.sim.result_stars == 3 and not main.sim.timed_out and main.hud.next_button.text == "返回选关"
+			passed = passed and main.sim.result_stars == 3 and not main.sim.timed_out and main.hud.next_button.text == ("返回选关" if following.is_empty() else "下一关")
 			await click(main.hud.next_button)
-			passed = passed and main.selecting_levels and main.hud.selection_ids == ["level01"]
+			passed = passed and (main.selecting_levels if following.is_empty() else (main.sim.layout_id == following and main.sim.plot_water == 0))
 			root.get_texture().get_image().save_png("res://.godot/campaign-review/normal-final-selection.png")
 	passed = passed and failures == 0 and input_pick_error < 0.001
-	var result := {"passed":passed,"stages":reports,"mouse_events":events,"blocked":blocked,"input_failures":failures,"pick_error":input_pick_error,"selection":main.hud.selection_ids}
+	var result := {"passed":passed,"stages":reports,"mouse_events":events,"blocked":blocked,"input_failures":failures,"pick_error":input_pick_error,"selection":main.hud.selection_ids,"following":following}
 	FileAccess.open("res://.godot/campaign-review/normal-route.json",FileAccess.WRITE).store_string(JSON.stringify(result,"\t"))
 	print("CAMPAIGN VIEWPORT ",JSON.stringify(result))
 	quit(0 if passed else 1)

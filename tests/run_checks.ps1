@@ -16,6 +16,8 @@ $checks = @(
     @{ Name = 'cold-weather'; Script = 'res://tests/test_cold_weather.gd'; Headless = $true },
     @{ Name = 'onboarding'; Script = 'res://tests/test_onboarding.gd'; Headless = $true },
     @{ Name = 'campaign'; Script = 'res://tests/test_campaign.gd'; Headless = $true },
+    @{ Name = 'authored-levels'; Script = 'res://tests/test_authored_levels.gd'; Headless = $false; Args = @('--fresh-guide'); Resolution = '1920x1080' },
+    @{ Name = 'weather-polish'; Script = 'res://tests/test_weather_polish.gd'; Headless = $false; Args = @('--fresh-guide', '--layout=needs_lab'); Resolution = '1920x1080' },
     @{ Name = 'campaign-scene'; Script = 'res://tests/test_campaign_scene.gd'; Headless = $false; Args = @('--fresh-guide'); Resolution = '1920x1080' },
     @{ Name = 'tutorial-reservoir'; Script = 'res://tests/test_tutorial_reservoir.gd'; Headless = $false; Args = @('--fresh-guide'); Resolution = '1280x720' },
     @{ Name = 'layouts'; Script = 'res://tests/test_layouts.gd'; Headless = $true },

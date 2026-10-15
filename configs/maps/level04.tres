@@ -40,8 +40,8 @@ metadata/_custom_type_script = "uid://crq3171ywa7qk"
 [resource]
 script = ExtResource("7_vjmb3")
 id = "level04"
-title = "需水差异小样"
-hint = "普通田需要更多雨 · 幼苗更怕过量，变黄时留意移云与断供"
+title = "两山两路"
+hint = "比较两座山的造云与输雨路线；照顾A田的雨量，同时让B池蓄满"
 island_center = Vector2(-0.111564755, 0.49977112)
 island_axes = Vector2(8.098161, 5.2112274)
 river_enabled = false

@@ -37,8 +37,8 @@ metadata/_custom_type_script = "uid://crq3171ywa7qk"
 [resource]
 script = ExtResource("7_2tw1j")
 id = "level06"
-title = "需水差异小样"
-hint = "普通田需要更多雨 · 幼苗更怕过量，变黄时留意移云与断供"
+title = "借雨接力"
+hint = "可借B池降雨后的冷风前沿接力造云；A幼苗更怕过量，适量后及时移云收尾"
 island_center = Vector2(-0.111564755, 0.49977112)
 island_axes = Vector2(8.098161, 5.2112274)
 river_enabled = false

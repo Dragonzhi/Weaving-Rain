@@ -479,7 +479,7 @@ func _draw_world_feedback() -> void:
 		_text(label + Vector2(-8, 5), String.chr(65 + target), 16, INK)
 	if not wind_input.hover_valid:
 		return
-	if wind_input.tool == "source" and wind_input.dragging: return
+	if wind_input.tool in ["source","vortex"] and wind_input.dragging: return
 	var center: Vector3 = wind_input.brush_point
 	var ring := PackedVector2Array()
 	for i in 65:
@@ -573,22 +573,29 @@ func _draw_wind_tools() -> void:
 		_draw_wind_meter(_project(wind_input.brush_point))
 	if wind_input.tool == "vortex" and wind_input.dragging:
 		var gesture: Dictionary = wind_input.vortex_preview()
-		_draw_vortex_marker(gesture.center, gesture.radius, gesture.spin, 1.0, 0.8, true, true)
+		_draw_vortex_marker(gesture.center, gesture.radius, gesture.spin, 1.0, 0.8, true, true, gesture.ok)
 		var tip := _project(wind_input.brush_point)
 		_draw_wind_meter(tip, gesture.tier, "滚轮")
 		var text: String = gesture.reason
 		var label := strength_meter_rect.position + Vector2(-88, -13)
 		label.x = clampf(label.x, 8, size.x - 150)
 		label.y = maxf(17, label.y)
-		_text(label, text, 12, INK)
+		if not gesture.ok:
+			var hint_width := font.get_string_size(text,HORIZONTAL_ALIGNMENT_LEFT,-1,12).x+16
+			label.x = clampf(label.x,8,size.x-hint_width)
+			_rounded(Rect2(label+Vector2(-7,-17),Vector2(hint_width,24)),PANEL,5)
+		_text(label, text, 12, INK if gesture.ok else Visuals.DAMAGE)
 
-func _draw_vortex_marker(point: Vector2, radius: float, spin: int, fraction: float, alpha: float, preview: bool, show_range: bool) -> void:
+func _draw_vortex_marker(point: Vector2, radius: float, spin: int, fraction: float, alpha: float, preview: bool, show_range: bool, valid := true) -> void:
 	var h: float = wind_input.reference_height if preview else sim.terrain.height(point) + 0.35
 	var center := _project(Vector3(point.x, h, point.y))
-	var color := GOLD
+	var color := GOLD if valid else Visuals.DAMAGE
 	color.a = alpha
 	draw_circle(center, 3.0, color)
 	draw_arc(center, 11.0, -PI * 0.5, -PI * 0.5 + TAU * fraction, 32, color, 1.5, true)
+	if not valid:
+		draw_line(center+Vector2(-4,-4),center+Vector2(4,4),color,2.0,true)
+		draw_line(center+Vector2(-4,4),center+Vector2(4,-4),color,2.0,true)
 	if radius < 0.25: return # Avoid degenerate antialiased polylines at initial press.
 	var p := point + Vector2(radius * 0.2, 0)
 	var direction := _project(Vector3(p.x, h, p.y + spin * radius * 0.12)) - _project(Vector3(p.x, h, p.y))
@@ -603,8 +610,8 @@ func _draw_vortex_marker(point: Vector2, radius: float, spin: int, fraction: flo
 		var q := point + Vector2(cos(angle), sin(angle)) * radius
 		var height: float = h if preview else sim.terrain.height(q) + 0.15
 		ring.append(_project(Vector3(q.x, height, q.y)))
-	color.a *= 0.35
-	draw_polyline(ring, color, 1.2, true)
+	color.a *= 0.35 if valid else 0.95
+	draw_polyline(ring, color, 1.2 if valid else 2.2, true)
 	if preview and radius >= 0.25:
 		# Preview intent; after release, white ribbons read actual simulated velocity.
 		for segment in 3:
@@ -613,7 +620,7 @@ func _draw_vortex_marker(point: Vector2, radius: float, spin: int, fraction: flo
 				var angle: float = view.elapsed * spin + segment * TAU / 3.0 + n * 0.1 * spin
 				var q := point + Vector2(cos(angle), sin(angle)) * radius * 0.72
 				curve.append(_project(Vector3(q.x, h, q.y)))
-			var white := Color(0.93, 1.0, 0.95, 0.65)
+			var white := Color(0.93, 1.0, 0.95, 0.65) if valid else Color(Visuals.DAMAGE,0.8)
 			draw_polyline(curve, white, 1.6, true)
 			var curve_direction := (curve[-1] - curve[-2]).normalized()
 			draw_polyline(PackedVector2Array([curve[-1] - curve_direction.rotated(0.6) * 5, curve[-1], curve[-1] - curve_direction.rotated(-0.6) * 5]), white, 1.6, true)

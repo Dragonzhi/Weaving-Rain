@@ -23,8 +23,8 @@ shape = "circle"
 [resource]
 script = ExtResource("5_ranpp")
 id = "level01"
-title = "山与两处土地"
-hint = "先借山坡造雨，再尝试把冷风用于接力"
+title = "山外一池"
+hint = "把湿空气推向山坡，再把雨云送到远处水池；蓄满后可继续承雨"
 river_enabled = false
 mountains = Array[ExtResource("2_53ud5")]([SubResource("Resource_53ud5")])
 plots = PackedVector2Array(2.8, 1.2)

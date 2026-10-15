@@ -50,8 +50,8 @@ shape = "ellipse"
 [resource]
 script = ExtResource("7_ulvy2")
 id = "level07"
-title = "需水差异小样"
-hint = "普通田需要更多雨 · 幼苗更怕过量，变黄时留意移云与断供"
+title = "三池汇雨"
+hint = "可借漩涡收拢湿空气，再撤掉漩涡、借山造云并分送三池；蓄满的池无需停雨"
 island_center = Vector2(0.82010543, 1.448425)
 island_axes = Vector2(8.098161, 5.1981297)
 river_enabled = false

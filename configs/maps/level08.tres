@@ -35,8 +35,8 @@ seed_position = Vector2(8.466992, -3.5493617)
 [resource]
 script = ExtResource("7_qkyq4")
 id = "level08"
-title = "海上风暴 · 借雨蓄水"
-hint = "从风暴外围引导雨带 · 蓄水区满后可溢流，农田够水后移云收尾"
+title = "海上借雨"
+hint = "从外围引导自然雨带；A田适量后移云收尾，B池可以承接持续的强雨"
 river_enabled = false
 mountains = Array[ExtResource("2_4v610")]([SubResource("Resource_qx6ew")])
 plots = PackedVector2Array(1.7, -3.4, 5.4, 1.2)

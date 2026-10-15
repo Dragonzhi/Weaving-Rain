@@ -34,8 +34,8 @@ metadata/_custom_type_script = "uid://crq3171ywa7qk"
 [resource]
 script = ExtResource("7_2b1vl")
 id = "level02"
-title = "需水差异小样"
-hint = "普通田需要更多雨 · 幼苗更怕过量，变黄时留意移云与断供"
+title = "两池分雨"
+hint = "用两团湿空气组织云雨，依次或轮流填满两座水池；池满后不怕溢出"
 river_enabled = false
 mountains = Array[ExtResource("2_og4a7")]([SubResource("Resource_og4a7")])
 plots = PackedVector2Array(2.8, 1.2, -4.3, 2.6)

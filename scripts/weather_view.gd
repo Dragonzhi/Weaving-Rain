@@ -44,6 +44,7 @@ var plant_groups: Array[Node3D] = []
 var plant_materials: Array[ShaderMaterial] = []
 var plant_growth := PackedFloat32Array()
 var plant_wilt := PackedFloat32Array()
+var plot_wetness := PackedFloat32Array()
 var reservoir_surfaces: Array[MeshInstance3D] = []
 var air_image: Image
 var air_texture: ImageTexture
@@ -421,6 +422,7 @@ func _create_plot(target: int) -> void:
 	plant_materials.append(plant_material)
 	plant_growth.append(0.65 if sim.plot_needs[target] != null else 1.0)
 	plant_wilt.append(0.0)
+	plot_wetness.append(0.0)
 	reservoir_surfaces.append(null)
 	if sim.is_reservoir(target):
 		material.set_shader_parameter("base_color",Color("779997"))
@@ -1025,19 +1027,18 @@ func update_weather(dt: float, moving: bool, pointer: Node = null) -> void:
 			surface.visible = water > 0.0
 			if moving: surface.position.y = lerpf(surface.position.y, 0.27 + water * 0.12, 1.0 - exp(-dt * 6.0))
 			continue
-		var soil := scene_style.soil_color.lerp(Color("ae9772"),water)
-		if sim.plot_destroyed[target]:
-			soil = Color("718e95")
+		if moving: plot_wetness[target] = lerpf(plot_wetness[target],water,1.0-exp(-dt*6.0))
+		var soil := scene_style.soil_color.lerp(scene_style.soil_wet_color,plot_wetness[target])
 		if plot_materials[target].get_shader_parameter("base_color") != soil: plot_materials[target].set_shader_parameter("base_color",soil)
 		if farm_side_materials[target].get_shader_parameter("base_color") != soil.darkened(0.10): farm_side_materials[target].set_shader_parameter("base_color",soil.darkened(0.10))
 		if farm_ridge_materials[target].get_shader_parameter("base_color") != soil.lightened(0.04): farm_ridge_materials[target].set_shader_parameter("base_color",soil.lightened(0.04))
 		if moving:
 			var growth := 0.65 + 0.35 * water if sim.plot_needs[target] != null else 1.0
+			if sim.plot_destroyed[target]: growth = 0.55
 			var blend := 1.0 - exp(-dt * 6.0)
 			plant_growth[target] = lerpf(plant_growth[target], growth, blend)
 			plant_wilt[target] = lerpf(plant_wilt[target], 1.0 if sim.plot_destroyed[target] else 0.0, blend)
 		plant_groups[target].scale.y = plant_growth[target]
-		plant_groups[target].rotation.z = plant_wilt[target] * -0.35
 		var leaves := Color("578563").lerp(Color("946856"),plant_wilt[target])
 		if plant_materials[target].get_shader_parameter("base_color") != leaves: plant_materials[target].set_shader_parameter("base_color",leaves)
 

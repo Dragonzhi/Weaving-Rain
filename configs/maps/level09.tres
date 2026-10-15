@@ -86,8 +86,8 @@ seed_position = Vector2(0.8405374, -3.8397894)
 [resource]
 script = ExtResource("7_pcrwf")
 id = "level09"
-title = "海上风暴 · 借雨蓄水"
-hint = "从风暴外围引导雨带 · 蓄水区满后可溢流，农田够水后移云收尾"
+title = "群山风雨"
+hint = "跨越群山分配云雨：A普通田与C幼苗需安全收尾，B池可持续承雨；留意幼苗雨量"
 shape = "split"
 island_center = Vector2(-0.084610224, 0.728333)
 island_axes = Vector2(7.88, 5.440202)

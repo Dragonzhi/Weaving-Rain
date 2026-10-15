@@ -35,6 +35,9 @@ extends Resource
 @export var land_color := Color("9bbb83")
 @export var shore_color := Color("e5d6a4")
 @export var soil_color := Color("bf936e")
+## 农田接足需求水量时的湿土颜色。与soil_color按接水进度平滑过渡，暂停冻结；不改变需水或损坏规则。
+## 选更暗的暖棕色可强化被滋润的感觉；不建议纯黑，以免盖住田垄与秧苗。R／切图生效。
+@export var soil_wet_color := Color("87684f")
 @export var bank_color := Color("c9c6a1")
 @export var water_color := Color("79bac5")
 
@@ -55,7 +58,7 @@ func validation_errors() -> PackedStringArray:
 	var colors := cloud_colors.duplicate()
 	var names := PackedStringArray()
 	for index in cloud_colors.size(): names.append("cloud_colors[%d]" % index)
-	for field in ["land_color", "shore_color", "soil_color", "bank_color", "water_color"]:
+	for field in ["land_color", "shore_color", "soil_color", "soil_wet_color", "bank_color", "water_color"]:
 		colors.append(get(field))
 		names.append(field)
 	for index in colors.size():

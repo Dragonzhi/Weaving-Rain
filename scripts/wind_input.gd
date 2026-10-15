@@ -116,8 +116,10 @@ func select_tool(value: String) -> void:
 func vortex_preview() -> Dictionary:
 	var radius := gesture_start.distance_to(Vector2(brush_point.x, brush_point.z))
 	var valid := radius >= vortex_radius_limits.x and radius <= vortex_radius_limits.y
-	return {"center": gesture_start, "radius": radius, "spin": vortex_spin, "tier": source_tier, "ok": valid,
-		"reason": ("顺时针" if vortex_spin > 0 else "逆时针") + " · 半径 %.2f" % radius if valid else "半径须在 %.2f–%.1f" % [vortex_radius_limits.x, vortex_radius_limits.y]}
+	var reason := ("顺时针" if vortex_spin > 0 else "逆时针") + " · 半径 %.2f" % radius
+	if radius < vortex_radius_limits.x: reason = "范围过小 · 半径 %.2f，至少 %.2f" % [radius,vortex_radius_limits.x]
+	elif radius > vortex_radius_limits.y: reason = "范围过大 · 半径 %.2f，最多 %.1f" % [radius,vortex_radius_limits.y]
+	return {"center": gesture_start, "radius": radius, "spin": vortex_spin, "tier": source_tier, "ok": valid, "reason": reason}
 
 func update_held(now_seconds: float = -1.0) -> void:
 	var now := Time.get_ticks_usec() / 1000000.0 if now_seconds < 0.0 else now_seconds

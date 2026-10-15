@@ -4,7 +4,7 @@
 
 自己制作关卡：[新建关卡与编辑器指南](docs/level-editor-guide.md)，从现有模板另存、配置目标／水汽到试玩；已确认的[教学与关卡流程安排](docs/level-flow-plan.md)为教学 → 单田 → 双目标 → 风暴＋蓄水区。
 
-正式关序在`configs/campaign.tres`的`Levels`数组中调整，当前先收录`level01`。新图保存后拖进数组、排序并保存，游戏里打开“菜单 → 选关”即可重读；教学单独引用，旧测试图从开发地图入口独立试玩。
+正式关序在`configs/campaign.tres`的`Levels`数组中调整，当前收录用户制作的`level01`至`level09`。九关从单池、双池逐步加入农田、多山与风暴，名称、提示和逐关建议见[九关内容核对](docs/level-content-review.md)。新图保存后拖进数组、排序并保存，游戏里打开“菜单 → 选关”即可重读；教学单独引用，旧测试图从开发地图入口独立试玩。
 
 当前界面方向：[视觉规范](docs/visual-language/DESIGN.md)、[认可的参考图](docs/visual-language/reference-images.md)与[UI实施计划](docs/ui-implementation-plan.md)。雨滴、池水位、悬浮状态和风纹奖章已接入，验证记录见[UI实施记录](docs/ui-review.json)。
 

@@ -1,0 +1,460 @@
+{
+  "date": "2026-10-15",
+  "checkpoint": "4d015a1",
+  "checkpoint_includes": "User-authored nine levels and the previous campaign feature before this round of edits.",
+  "maps": [
+    {
+      "geometry_errors": [],
+      "hint": "把湿空气推向山坡，再把雨云送到远处水池；蓄满后可继续承雨",
+      "id": "level01",
+      "initial_water": 310.209811781436,
+      "kinds": [
+        "reservoir"
+      ],
+      "minimum_for_all": 32.7249234748937,
+      "title": "山外一池"
+    },
+    {
+      "geometry_errors": [],
+      "hint": "用两团湿空气组织云雨，依次或轮流填满两座水池；池满后不怕溢出",
+      "id": "level02",
+      "initial_water": 591.46674871601,
+      "kinds": [
+        "reservoir",
+        "reservoir"
+      ],
+      "minimum_for_all": 74.3915901415603,
+      "title": "两池分雨"
+    },
+    {
+      "geometry_errors": [],
+      "hint": "A田适量后移云收尾；B池可以承接余雨，蓄满后不怕溢出",
+      "id": "level03",
+      "initial_water": 310.209648449035,
+      "kinds": [
+        "farm",
+        "reservoir"
+      ],
+      "minimum_for_all": 49.3915901415603,
+      "title": "田池之间"
+    },
+    {
+      "geometry_errors": [],
+      "hint": "比较两座山的造云与输雨路线；照顾A田的雨量，同时让B池蓄满",
+      "id": "level04",
+      "initial_water": 383.741045826924,
+      "kinds": [
+        "farm",
+        "reservoir"
+      ],
+      "minimum_for_all": 49.3915901415603,
+      "title": "两山两路"
+    },
+    {
+      "geometry_errors": [],
+      "hint": "可留一条风带持续送汽，腾手处理另一处云雨；A田够水后留意撤源与移云",
+      "id": "level05",
+      "initial_water": 620.416084582024,
+      "kinds": [
+        "farm",
+        "reservoir"
+      ],
+      "minimum_for_all": 49.3915901415603,
+      "title": "留风送雨"
+    },
+    {
+      "geometry_errors": [],
+      "hint": "可借B池降雨后的冷风前沿接力造云；A幼苗更怕过量，适量后及时移云收尾",
+      "id": "level06",
+      "initial_water": 651.429721278578,
+      "kinds": [
+        "farm",
+        "reservoir"
+      ],
+      "minimum_for_all": 39.3915901415603,
+      "title": "借雨接力"
+    },
+    {
+      "geometry_errors": [],
+      "hint": "可借漩涡收拢湿空气，再撤掉漩涡、借山造云并分送三池；蓄满的池无需停雨",
+      "id": "level07",
+      "initial_water": 961.638933626529,
+      "kinds": [
+        "reservoir",
+        "reservoir",
+        "reservoir"
+      ],
+      "minimum_for_all": 107.116513616454,
+      "title": "三池汇雨"
+    },
+    {
+      "geometry_errors": [],
+      "hint": "从外围引导自然雨带；A田适量后移云收尾，B池可以承接持续的强雨",
+      "id": "level08",
+      "initial_water": 914.718836375818,
+      "kinds": [
+        "farm",
+        "reservoir"
+      ],
+      "minimum_for_all": 54.3657800077723,
+      "title": "海上借雨"
+    },
+    {
+      "geometry_errors": [],
+      "hint": "跨越群山分配云雨：A普通田与C幼苗需安全收尾，B池可持续承雨；留意幼苗雨量",
+      "id": "level09",
+      "initial_water": 916.546228375808,
+      "kinds": [
+        "farm",
+        "reservoir",
+        "farm"
+      ],
+      "minimum_for_all": 59.6017677637553,
+      "title": "群山风雨"
+    }
+  ],
+  "preservation": [
+    {
+      "map": "configs/maps/level01.tres",
+      "all_except_title_hint_unchanged": true,
+      "preserved_payload_sha256": "e66280e2079771fcc697dea36fe5c14e25ad3998310323d89b510e1ad3b6339d"
+    },
+    {
+      "map": "configs/maps/level02.tres",
+      "all_except_title_hint_unchanged": true,
+      "preserved_payload_sha256": "44ebe6786528673bc642d4740f30aac3d0811f49f27b2f0c1dcfdafa0c45e7d7"
+    },
+    {
+      "map": "configs/maps/level03.tres",
+      "all_except_title_hint_unchanged": true,
+      "preserved_payload_sha256": "bd2feefdbb9f97bd3d52f313bc0a42e5e8da92a666371c6d4177e33bb94ae195"
+    },
+    {
+      "map": "configs/maps/level04.tres",
+      "all_except_title_hint_unchanged": true,
+      "preserved_payload_sha256": "4139dd1297aa92eea7e33d08238e5c0aa83a8e9d0b9fc24b47c8c5ba865d8bab"
+    },
+    {
+      "map": "configs/maps/level05.tres",
+      "all_except_title_hint_unchanged": true,
+      "preserved_payload_sha256": "e55072e2cc10ed20b280a8e795888604d8a1b989c7c6d3c27014f2707defc6dd"
+    },
+    {
+      "map": "configs/maps/level06.tres",
+      "all_except_title_hint_unchanged": true,
+      "preserved_payload_sha256": "283167595fd78f4128f18340ea10574bfa0865ce6b5d267a26eff55e8c5a341b"
+    },
+    {
+      "map": "configs/maps/level07.tres",
+      "all_except_title_hint_unchanged": true,
+      "preserved_payload_sha256": "c4a09fa422dff6ff1bf9853e16aef0a72ed8757a1218f7ec202b013dace68f6e"
+    },
+    {
+      "map": "configs/maps/level08.tres",
+      "all_except_title_hint_unchanged": true,
+      "preserved_payload_sha256": "8b07b692d940851abbc5642f6d72534a045adeca1438d1cf5e5a05241ccf003e"
+    },
+    {
+      "map": "configs/maps/level09.tres",
+      "all_except_title_hint_unchanged": true,
+      "preserved_payload_sha256": "5ce7621e4e88f91f1adcb8ff6d44123c18ba41bb0795d9698fe94036621c7692"
+    }
+  ],
+  "authored_1920": {
+    "checks": 46,
+    "failures": 0,
+    "scope": "Configuration, initial budget and GPU readability only; not nine successful gameplay routes.",
+    "size": "(1920, 1080)"
+  },
+  "authored_1280": {
+    "checks": 46,
+    "failures": 0,
+    "scope": "Configuration, initial budget and GPU readability only; not nine successful gameplay routes.",
+    "size": "(1280, 720)"
+  },
+  "new_polish": [
+    {
+      "checks": 19,
+      "dry_luminance": 0.614160060882568,
+      "failures": 0,
+      "ring_red_invalid": 537,
+      "ring_red_valid": 0,
+      "size": "(1920, 1080)",
+      "wet_luminance": 0.434170216321945
+    },
+    {
+      "checks": 19,
+      "dry_luminance": 0.614160060882568,
+      "failures": 0,
+      "ring_red_invalid": 365,
+      "ring_red_valid": 0,
+      "size": "(1280, 720)",
+      "wet_luminance": 0.434170216321945
+    }
+  ],
+  "related_regressions": {
+    "campaign": {
+      "checks": 12,
+      "failures": 0,
+      "log": ".godot/level-review/campaign.log"
+    },
+    "vortex": {
+      "checks": 64,
+      "failures": 0,
+      "log": ".godot/level-review/vortex.log"
+    },
+    "plot_needs": {
+      "checks": 16,
+      "failures": 0,
+      "log": ".godot/level-review/plot-needs.log"
+    },
+    "ground_volume": {
+      "checks": 83,
+      "failures": 0,
+      "log": ".godot/level-review/ground-volume.log"
+    },
+    "scene_lighting": {
+      "checks": 29,
+      "failures": 0,
+      "log": ".godot/level-review/scene-lighting.log"
+    },
+    "tutorial": {
+      "checks": 17,
+      "failures": 0,
+      "log": ".godot/level-review/tutorial.log"
+    },
+    "campaign_scene": {
+      "checks": 41,
+      "failures": 0,
+      "log": ".godot/level-review/campaign-scene.log"
+    }
+  },
+  "normal_mouse_flow": {
+    "blocked": 0,
+    "following": "level02",
+    "input_failures": 0,
+    "mouse_events": 2528,
+    "passed": true,
+    "pick_error": 0.0,
+    "selection": [],
+    "stages": [
+      {
+        "campaign_play": true,
+        "cold_lift": 10.5356159479776,
+        "destroyed": [
+          false
+        ],
+        "elapsed": 0.0,
+        "front_strokes": 0,
+        "layout": "tutorial",
+        "limit": 180.0,
+        "order": [
+          0
+        ],
+        "outcome": "success",
+        "per_target": [
+          {
+            "distance": 12.2999992370605,
+            "front": 0,
+            "strokes": 18,
+            "transport": 5
+          },
+          {
+            "distance": 0.0,
+            "front": 0,
+            "strokes": 0,
+            "transport": 0
+          },
+          {
+            "distance": 0.0,
+            "front": 0,
+            "strokes": 0,
+            "transport": 0
+          }
+        ],
+        "phases": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "route": "mountain",
+        "route_seconds": 9.15000000000003,
+        "stars": 0,
+        "strokes": 18,
+        "transport_distance": 12.2999992370605,
+        "transport_strokes": 5,
+        "water": [
+          100.0
+        ],
+        "water_error": -9.41677688501841e-05
+      },
+      {
+        "campaign_play": true,
+        "cold_lift": 4.68778452717526,
+        "destroyed": [
+          false
+        ],
+        "elapsed": 35.5499999999993,
+        "front_strokes": 0,
+        "layout": "level01",
+        "limit": 180.0,
+        "order": [
+          0
+        ],
+        "outcome": "success",
+        "per_target": [
+          {
+            "distance": 40.4999985694885,
+            "front": 0,
+            "strokes": 65,
+            "transport": 18
+          },
+          {
+            "distance": 0.0,
+            "front": 0,
+            "strokes": 0,
+            "transport": 0
+          },
+          {
+            "distance": 0.0,
+            "front": 0,
+            "strokes": 0,
+            "transport": 0
+          }
+        ],
+        "phases": [
+          0
+        ],
+        "route": "mountain",
+        "route_seconds": 35.5499999999987,
+        "stars": 3,
+        "strokes": 65,
+        "transport_distance": 40.4999985694885,
+        "transport_strokes": 18,
+        "water": [
+          250.0
+        ],
+        "water_error": -0.00145771363264657
+      }
+    ]
+  },
+  "normal_mouse_scope": "Teaching fills its reservoir, native button enters actual authored 250-capacity first reservoir level, full wind-medal countdown completes, native next button starts level02. No injected water or threshold changes. Not nine full routes.",
+  "short_performance": [
+    {
+      "arrows_enabled": true,
+      "audio_enabled": false,
+      "audio_ms": 0.027613545816733,
+      "audio_peak_ms": 0.047,
+      "drag": false,
+      "final_backlog_ms": 1044.04437037037,
+      "frames": 251,
+      "gpu_ms": 4.23558159938371,
+      "hud_draw_ms": 1.43170119521912,
+      "hud_visible": true,
+      "input_ms": 0.259617529880478,
+      "kind": "rain",
+      "layout": "level09",
+      "max_backlog_ms": 1044.04437037037,
+      "min_sources": 0,
+      "natural_organization": 0.812648968078041,
+      "natural_weather": true,
+      "p50": 19.774,
+      "p95": 22.329,
+      "p99": 23.121,
+      "peak_arrows": 8,
+      "peak_rain_area_cells": 3584,
+      "peak_rain_focus": 0.0,
+      "peak_source_lines": 0,
+      "pick_ms": 0.261864529187936,
+      "rain_area_group_builds": 77,
+      "rain_area_visible": true,
+      "rendered_size": [
+        1920,
+        1080
+      ],
+      "sample_seconds": 5.0,
+      "sim_ms": 9.43295762263446,
+      "simulation_seconds": 4.2,
+      "slow_33ms": 0,
+      "source_kinds": [],
+      "steps_per_frame": 1.0,
+      "view_ms": 6.47403987565364,
+      "wind_combination": "mixed"
+    },
+    {
+      "arrows_enabled": true,
+      "audio_enabled": false,
+      "audio_ms": 0.0272142857142857,
+      "audio_peak_ms": 0.043,
+      "drag": true,
+      "final_backlog_ms": 1303.65,
+      "frames": 238,
+      "gpu_ms": 4.91665828929228,
+      "hud_draw_ms": 1.8044243697479,
+      "hud_visible": true,
+      "input_ms": 0.11831512605042,
+      "kind": "rain",
+      "layout": "level09",
+      "max_backlog_ms": 1303.65,
+      "min_sources": 2,
+      "natural_organization": 0.81164709328315,
+      "natural_weather": true,
+      "p50": 20.76,
+      "p95": 23.875,
+      "p99": 24.986,
+      "peak_arrows": 32,
+      "peak_rain_area_cells": 3584,
+      "peak_rain_focus": 1.0,
+      "peak_source_lines": 34,
+      "pick_ms": 0.00342857687413192,
+      "rain_area_group_builds": 77,
+      "rain_area_visible": true,
+      "rendered_size": [
+        1920,
+        1080
+      ],
+      "sample_seconds": 5.0,
+      "sim_ms": 10.0221952550551,
+      "simulation_seconds": 3.98333333333333,
+      "slow_33ms": 0,
+      "source_kinds": [
+        "band",
+        "vortex"
+      ],
+      "steps_per_frame": 1.0,
+      "view_ms": 6.8305551224396,
+      "wind_combination": "mixed"
+    }
+  ],
+  "performance_scope": "Two 5-second rain stress samples after 1-second warm-up, 1920x1080, audio off. Synthetic field replenishment and two mixed sources when dragging. Both fail frame/advance thresholds; not formal acceptance, not ordinary opening FPS, no causal before/after comparison.",
+  "visual_review": {
+    "inspected": [
+      "vortex-over-1920.png",
+      "farm-wet-1920.png",
+      "farm-wilt-1920.png",
+      "level03-1920.png",
+      "level06-1920.png",
+      "level09-1920.png"
+    ],
+    "directory": ".godot/level-review/",
+    "fixtures": "Vortex and farm states are display/input fixtures. Nine map shots show real initial configurations, not completed routes. No new image copied into docs/previews."
+  },
+  "deferred_by_user": "Discuss lightweight ordinary-ground grass patches, fine grass marks and wet tint first. No changes to ordinary ground shader or terrain height/slope/picking. Actual relief needs a later decision.",
+  "scope": {
+    "new_export": false,
+    "simulation_changed": false,
+    "rating_changed": false,
+    "level_geometry_changed": false,
+    "level_numbers_changed": false,
+    "tool_gating_implemented": false,
+    "all_nine_routes_proven": false,
+    "full_suite_rerun": false
+  },
+  "remaining": [
+    "V1 formal idle long performance",
+    "V6 historical seedling-route failure and native exception",
+    "Fresh-player difficulty of levels 01/06/08/09",
+    "Optional per-map tool availability needs its own implementation decision"
+  ]
+}
