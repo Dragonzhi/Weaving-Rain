@@ -15,6 +15,12 @@ var custom_map: WRMapDefinition
 var custom_map_path := ""
 var lesson_map_path := "res://configs/tutorial.tres"
 var lesson_map: WRMapDefinition
+var campaign_path := "res://configs/campaign.tres"
+var campaign: WRCampaign
+var campaign_play := true
+var has_free_session := false
+var selecting_levels := false
+var selection_was_paused := false
 var pending_settings: WRWeatherSettings
 var tuning_message := ""
 var tuning_message_until := 0
@@ -49,19 +55,28 @@ func _ready() -> void:
 	if not weather_settings.resource_path.is_empty(): settings_path = weather_settings.resource_path
 	development = OS.has_feature("editor") or "--dev" in args
 	play_mode = initial_mode(args)
+	if "--free-play" in args or "--single-plot" in args or not custom_map_path.is_empty(): campaign_play = false
 	for arg in args:
 		if arg.begins_with("--layout="):
 			free_layout = Layouts.get_layout(arg.trim_prefix("--layout=")).id
 			play_mode = "free"
+			campaign_play = false
 		if arg.begins_with("--settings="): settings_path = arg.trim_prefix("--settings=")
 		if arg.begins_with("--map="):
 			custom_map_path = arg.trim_prefix("--map=")
 			play_mode = "free"
+			campaign_play = false
 	var loaded := ConfigLoader.settings(settings_path)
 	if loaded.errors.is_empty(): weather_settings = loaded.resource
 	else:
 		weather_settings = WRWeatherSettings.new()
 		_tuning_feedback("使用默认配置：" + "；".join(loaded.errors))
+	reload_campaign()
+	if campaign == null and campaign_play: play_mode = "lesson"
+	if play_mode == "free" and campaign_play and campaign != null:
+		free_layout = campaign.levels[0].id
+		custom_map_path = campaign.levels[0].resource_path
+	has_free_session = play_mode == "free"
 	if not custom_map_path.is_empty():
 		var loaded_map := ConfigLoader.map(custom_map_path, weather_settings.plot_half)
 		if loaded_map.errors.is_empty(): custom_map = loaded_map.resource
@@ -97,11 +112,14 @@ func _ready() -> void:
 	hud.free_play_requested.connect(enter_free_play)
 	hud.lesson_requested.connect(func(): switch_mode("lesson"))
 	hud.layout_requested.connect(select_layout)
+	hud.campaign_layout_requested.connect(select_campaign_level)
 	hud.finish_requested.connect(finish_level)
 	hud.next_requested.connect(next_level)
-	hud.levels_requested.connect(func(): select_layout(Layouts.LEVELS[0]))
+	hud.levels_requested.connect(open_level_selection)
+	hud.selection_closed.connect(close_level_selection)
+	hud.development_requested.connect(func(): open_level_selection(true))
 	hud.best_stars = progress.best
-	hud.refresh_layouts()
+	_sync_campaign_hud()
 	weather_audio = WeatherAudio.new()
 	add_child(weather_audio)
 	if "--fresh-guide" in args: weather_audio.preferences_path = ""
@@ -169,6 +187,7 @@ func _new_simulation() -> RefCounted:
 
 func select_layout(id: String) -> void:
 	if custom_map != null and custom_map.id == id and not id in Layouts.get_ids():
+		campaign_play = false
 		switch_mode("free")
 		return
 	var definition := Layouts.get_definition(id)
@@ -177,16 +196,21 @@ func select_layout(id: String) -> void:
 		_tuning_feedback("地图未切换：" + "；".join(loaded.errors))
 		return
 	custom_map = loaded.resource
+	campaign_play = false
 	custom_map_path = definition.resource_path if not id in Layouts.IDS else ""
 	free_layout = definition.id
 	switch_mode("free")
 
 func switch_mode(mode: String) -> void:
+	selecting_levels = false
+	hud.selection_panel.hide()
+	hud.menu_open = false
 	_apply_pending_restart()
 	wind_input.cancel()
 	paused = false
 	accumulator = 0.0
 	play_mode = mode
+	if mode == "free": has_free_session = true
 	sim = _new_simulation()
 	result_recorded = false
 	guide.reset(mode == "lesson")
@@ -208,7 +232,7 @@ func switch_mode(mode: String) -> void:
 	hud.reset_feedback()
 	hud.view = weather_view
 	hud.play_mode = mode
-	hud.refresh_layouts()
+	_sync_campaign_hud()
 	hud.queue_redraw()
 	_bind_audio()
 
@@ -235,14 +259,72 @@ func record_result() -> void:
 
 func next_level() -> void:
 	if not sim.star_level or sim.sandbox or sim.outcome != "success": return
-	var index := Layouts.LEVELS.find(sim.layout_id)
-	select_layout(Layouts.LEVELS[index + 1] if index >= 0 and index + 1 < Layouts.LEVELS.size() else Layouts.LEVELS[0])
+	var next := campaign.next_id(sim.layout_id) if campaign_play and campaign != null else ""
+	if not next.is_empty(): select_campaign_level(next)
+	else: open_level_selection()
+
+func reload_campaign() -> bool:
+	var loaded := ConfigLoader.campaign(campaign_path, weather_settings.plot_half)
+	if not loaded.errors.is_empty():
+		_tuning_feedback(("关卡编排不可用：" if campaign == null else "关卡编排未应用，保留上次有效列表：") + "；".join(loaded.errors))
+		return false
+	campaign = loaded.resource
+	lesson_map_path = campaign.tutorial.resource_path
+	return true
+
+func _sync_campaign_hud() -> void:
+	hud.campaign = campaign
+	hud.campaign_play = campaign_play
+	hud.development = development or not persist_progress
+	hud.return_to_game = has_free_session
+	hud.refresh_layouts()
+
+func select_campaign_level(id: String) -> void:
+	var definition := campaign.find_map(id) if campaign != null else null
+	if definition == null:
+		_tuning_feedback("地图未切换：正式关序中没有 " + id)
+		return
+	var loaded := ConfigLoader.map(definition.resource_path, weather_settings.plot_half)
+	var errors: PackedStringArray = loaded.errors
+	if errors.is_empty():
+		if loaded.resource.id != id: errors.append("地图id已变化，请修正地图或重新编排：" + definition.resource_path)
+		if not loaded.resource.star_level: errors.append("star_level：正式地图须启用风纹评价：" + definition.resource_path)
+	if not errors.is_empty():
+		_tuning_feedback("地图未切换：" + "；".join(errors))
+		return
+	custom_map = loaded.resource
+	custom_map_path = definition.resource_path
+	free_layout = id
+	campaign_play = true
+	switch_mode("free")
+
+func open_level_selection(developer_maps := false) -> void:
+	if developer_maps and not (development or not persist_progress): return
+	if not developer_maps: reload_campaign()
+	_sync_campaign_hud()
+	if not selecting_levels: selection_was_paused = paused
+	selecting_levels = true
+	paused = true
+	wind_input.cancel()
+	wind_input.enabled = false
+	hud.show_level_selection(developer_maps)
+
+func close_level_selection() -> void:
+	if not selecting_levels: return
+	selecting_levels = false
+	paused = selection_was_paused
+	hud.selection_panel.hide()
+	wind_input.enabled = not paused and sim.outcome == "playing"
 
 func enter_free_play() -> void:
-	switch_mode("free")
+	if has_free_session: switch_mode("free")
+	elif campaign != null: select_campaign_level(campaign.levels[0].id)
+	else:
+		open_level_selection()
+		return
 	# Tests and explicit development starts do not modify the player's preference.
 	var args := OS.get_cmdline_user_args()
-	if "--fresh-guide" in args or "--single-plot" in args or "--free-play" in args:
+	if not persist_progress or "--fresh-guide" in args or "--single-plot" in args or "--free-play" in args or Array(args).any(func(arg): return arg.begins_with("--layout=") or arg.begins_with("--map=")):
 		return
 	var preferences := ConfigFile.new()
 	preferences.set_value("onboarding", "visited_free_play", true)
@@ -315,6 +397,9 @@ func _process(delta: float) -> void:
 
 func _unhandled_key_input(event: InputEvent) -> void:
 	if not event is InputEventKey or not event.pressed or event.echo:
+		return
+	if selecting_levels:
+		if event.keycode == KEY_ESCAPE: close_level_selection()
 		return
 	match event.keycode:
 		KEY_R:

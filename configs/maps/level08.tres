@@ -1,0 +1,47 @@
+[gd_resource type="Resource" script_class="WRMapDefinition" format=3 uid="uid://bn8iyxjb0muly"]
+
+[ext_resource type="Script" uid="uid://cld12h4px3yir" path="res://scripts/map_humidity.gd" id="1_tdxge"]
+[ext_resource type="Script" uid="uid://de5at2q6fqxq" path="res://scripts/map_mountain.gd" id="2_4v610"]
+[ext_resource type="Script" uid="uid://wlifphtr8f8j" path="res://scripts/plot_needs.gd" id="3_qx6ew"]
+[ext_resource type="Resource" path="res://configs/plots/ordinary.tres" id="4_4v610"]
+[ext_resource type="Resource" path="res://configs/plots/reservoir.tres" id="5_i0gx4"]
+[ext_resource type="Script" uid="uid://crq3171ywa7qk" path="res://scripts/plot_region.gd" id="6_ocfk4"]
+[ext_resource type="Script" uid="uid://dp2dfiaoj2cor" path="res://scripts/map_definition.gd" id="7_qkyq4"]
+[ext_resource type="Script" uid="uid://d1kl6ooa3facq" path="res://scripts/map_warm_sea.gd" id="8_qx6ew"]
+
+[sub_resource type="Resource" id="Resource_4v610"]
+script = ExtResource("1_tdxge")
+position = Vector2(8.340491, -3.8466678)
+spread = Vector2(3.8, 4)
+concentration = 1.5
+falloff = 1.0
+
+[sub_resource type="Resource" id="Resource_qx6ew"]
+script = ExtResource("2_4v610")
+position = Vector2(-2, 0.4)
+height = 2.0
+
+[sub_resource type="Resource" id="Resource_d1vay"]
+script = ExtResource("6_ocfk4")
+shape = "ellipse"
+half_axes = Vector2(1.5, 1.2)
+
+[sub_resource type="Resource" id="Resource_i0gx4"]
+script = ExtResource("8_qx6ew")
+position = Vector2(7.776017, -4.934241)
+half_axes = Vector2(2.7890263, 2.9342585)
+seed_position = Vector2(8.466992, -3.5493617)
+
+[resource]
+script = ExtResource("7_qkyq4")
+id = "level08"
+title = "海上风暴 · 借雨蓄水"
+hint = "从风暴外围引导雨带 · 蓄水区满后可溢流，农田够水后移云收尾"
+river_enabled = false
+mountains = Array[ExtResource("2_4v610")]([SubResource("Resource_qx6ew")])
+plots = PackedVector2Array(1.7, -3.4, 5.4, 1.2)
+plot_regions = Array[ExtResource("6_ocfk4")]([null, SubResource("Resource_d1vay")])
+plot_needs = Array[ExtResource("3_qx6ew")]([ExtResource("4_4v610"), ExtResource("5_i0gx4")])
+star_level = true
+humidity_sources = Array[ExtResource("1_tdxge")]([SubResource("Resource_4v610")])
+warm_sea = SubResource("Resource_i0gx4")

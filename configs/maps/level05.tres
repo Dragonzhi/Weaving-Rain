@@ -1,0 +1,52 @@
+[gd_resource type="Resource" script_class="WRMapDefinition" format=3 uid="uid://j7fhd53cvyjl"]
+
+[ext_resource type="Script" uid="uid://cld12h4px3yir" path="res://scripts/map_humidity.gd" id="1_i1rys"]
+[ext_resource type="Script" uid="uid://de5at2q6fqxq" path="res://scripts/map_mountain.gd" id="2_7dekk"]
+[ext_resource type="Script" uid="uid://wlifphtr8f8j" path="res://scripts/plot_needs.gd" id="3_cg5b4"]
+[ext_resource type="Resource" path="res://configs/plots/ordinary.tres" id="4_6uy8w"]
+[ext_resource type="Resource" path="res://configs/plots/reservoir.tres" id="5_1ebux"]
+[ext_resource type="Script" uid="uid://crq3171ywa7qk" path="res://scripts/plot_region.gd" id="6_2q2gi"]
+[ext_resource type="Script" uid="uid://dp2dfiaoj2cor" path="res://scripts/map_definition.gd" id="7_32es6"]
+
+[sub_resource type="Resource" id="Resource_7dttd"]
+script = ExtResource("1_i1rys")
+position = Vector2(-0.12453967, 1.0096321)
+
+[sub_resource type="Resource" id="Resource_nusl7"]
+script = ExtResource("1_i1rys")
+position = Vector2(-8.433891, 2.026422)
+
+[sub_resource type="Resource" id="Resource_jdbdi"]
+script = ExtResource("2_7dekk")
+position = Vector2(-4.1044526, 1.6150675)
+radius = 2.0629122
+
+[sub_resource type="Resource" id="Resource_tq8pb"]
+script = ExtResource("2_7dekk")
+position = Vector2(2.7851758, 0.79195166)
+radius = 1.7504612
+height = 2.0818584
+
+[sub_resource type="Resource" id="Resource_675qh"]
+script = ExtResource("6_2q2gi")
+metadata/_custom_type_script = "uid://crq3171ywa7qk"
+
+[sub_resource type="Resource" id="Resource_cnat2"]
+script = ExtResource("6_2q2gi")
+shape = "circle"
+metadata/_custom_type_script = "uid://crq3171ywa7qk"
+
+[resource]
+script = ExtResource("7_32es6")
+id = "level05"
+title = "需水差异小样"
+hint = "普通田需要更多雨 · 幼苗更怕过量，变黄时留意移云与断供"
+island_center = Vector2(-0.111564755, 0.49977112)
+island_axes = Vector2(8.098161, 5.2112274)
+river_enabled = false
+mountains = Array[ExtResource("2_7dekk")]([SubResource("Resource_jdbdi"), SubResource("Resource_tq8pb")])
+plots = PackedVector2Array(-0.58815646, 1.190239, 5.963127, 0.86966133)
+plot_regions = Array[ExtResource("6_2q2gi")]([SubResource("Resource_675qh"), SubResource("Resource_cnat2")])
+plot_needs = Array[ExtResource("3_cg5b4")]([ExtResource("4_6uy8w"), ExtResource("5_1ebux")])
+star_level = true
+humidity_sources = Array[ExtResource("1_i1rys")]([SubResource("Resource_7dttd"), SubResource("Resource_nusl7")])

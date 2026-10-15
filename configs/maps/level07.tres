@@ -1,0 +1,63 @@
+[gd_resource type="Resource" script_class="WRMapDefinition" format=3 uid="uid://1bbfkuf8hi83"]
+
+[ext_resource type="Script" uid="uid://cld12h4px3yir" path="res://scripts/map_humidity.gd" id="1_6pesp"]
+[ext_resource type="Script" uid="uid://de5at2q6fqxq" path="res://scripts/map_mountain.gd" id="2_fb8p3"]
+[ext_resource type="Script" uid="uid://wlifphtr8f8j" path="res://scripts/plot_needs.gd" id="3_40u65"]
+[ext_resource type="Resource" path="res://configs/plots/reservoir.tres" id="5_6pesp"]
+[ext_resource type="Resource" path="res://configs/plots/reservoir.tres" id="5_fb8p3"]
+[ext_resource type="Script" uid="uid://crq3171ywa7qk" path="res://scripts/plot_region.gd" id="6_7nqn7"]
+[ext_resource type="Script" uid="uid://dp2dfiaoj2cor" path="res://scripts/map_definition.gd" id="7_ulvy2"]
+
+[sub_resource type="Resource" id="Resource_40u65"]
+script = ExtResource("1_6pesp")
+position = Vector2(-6.1031065, 0.93342495)
+concentration = 1.2
+falloff = 0.7999999999999999
+
+[sub_resource type="Resource" id="Resource_dh5lf"]
+script = ExtResource("1_6pesp")
+position = Vector2(7.7580085, -1.5725739)
+
+[sub_resource type="Resource" id="Resource_37fy6"]
+script = ExtResource("2_fb8p3")
+position = Vector2(0.7477826, 0.6645827)
+radius = 2.1472917
+
+[sub_resource type="Resource" id="Resource_7nqn7"]
+script = ExtResource("2_fb8p3")
+position = Vector2(2.6533604, 1.4719825)
+radius = 1.7344987
+height = 2.100588
+
+[sub_resource type="Resource" id="Resource_ulvy2"]
+script = ExtResource("2_fb8p3")
+position = Vector2(0.3289443, 1.9593163)
+radius = 1.5
+
+[sub_resource type="Resource" id="Resource_0xtul"]
+script = ExtResource("6_7nqn7")
+metadata/_custom_type_script = "uid://crq3171ywa7qk"
+
+[sub_resource type="Resource" id="Resource_m86u4"]
+script = ExtResource("6_7nqn7")
+shape = "circle"
+metadata/_custom_type_script = "uid://crq3171ywa7qk"
+
+[sub_resource type="Resource" id="Resource_2ql4i"]
+script = ExtResource("6_7nqn7")
+shape = "ellipse"
+
+[resource]
+script = ExtResource("7_ulvy2")
+id = "level07"
+title = "需水差异小样"
+hint = "普通田需要更多雨 · 幼苗更怕过量，变黄时留意移云与断供"
+island_center = Vector2(0.82010543, 1.448425)
+island_axes = Vector2(8.098161, 5.1981297)
+river_enabled = false
+mountains = Array[ExtResource("2_fb8p3")]([SubResource("Resource_37fy6"), SubResource("Resource_7nqn7"), SubResource("Resource_ulvy2")])
+plots = PackedVector2Array(6.029124, 2.0418525, -2.2261462, -1.0613012, -0.7229872, 4.5916123)
+plot_regions = Array[ExtResource("6_7nqn7")]([SubResource("Resource_0xtul"), SubResource("Resource_m86u4"), SubResource("Resource_2ql4i")])
+plot_needs = Array[ExtResource("3_40u65")]([ExtResource("5_6pesp"), ExtResource("5_fb8p3"), ExtResource("5_6pesp")])
+star_level = true
+humidity_sources = Array[ExtResource("1_6pesp")]([SubResource("Resource_40u65"), SubResource("Resource_dh5lf")])

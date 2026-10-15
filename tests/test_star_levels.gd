@@ -18,7 +18,8 @@ func nearest(sim: RefCounted, point: Vector2) -> int:
 	return cell
 
 func _init() -> void:
-	for id in Layouts.LEVELS:
+	# Historical rule samples, independent of the editable formal campaign.
+	for id in ["meadow", "valleys", "reservoir_lab", "storm_coast"]:
 		var definition := Layouts.get_definition(id)
 		check(definition.validation_errors().is_empty(), "Star map validates: " + id + " " + str(definition.validation_errors()))
 		var sim := Sim.new(null, true, false, id)

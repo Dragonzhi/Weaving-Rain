@@ -1,0 +1,50 @@
+[gd_resource type="Resource" script_class="WRMapDefinition" format=3 uid="uid://c4h8qplm0n2e8"]
+
+[ext_resource type="Script" uid="uid://cld12h4px3yir" path="res://scripts/map_humidity.gd" id="1_ke0g1"]
+[ext_resource type="Script" uid="uid://de5at2q6fqxq" path="res://scripts/map_mountain.gd" id="2_mbxx8"]
+[ext_resource type="Script" uid="uid://wlifphtr8f8j" path="res://scripts/plot_needs.gd" id="3_raj1l"]
+[ext_resource type="Resource" path="res://configs/plots/seedling.tres" id="4_ke0g1"]
+[ext_resource type="Resource" path="res://configs/plots/reservoir.tres" id="5_xy7i1"]
+[ext_resource type="Script" uid="uid://crq3171ywa7qk" path="res://scripts/plot_region.gd" id="6_itugx"]
+[ext_resource type="Script" uid="uid://dp2dfiaoj2cor" path="res://scripts/map_definition.gd" id="7_2tw1j"]
+
+[sub_resource type="Resource" id="Resource_ke0g1"]
+script = ExtResource("1_ke0g1")
+position = Vector2(-6.1031065, 0.93342495)
+concentration = 1.2
+falloff = 0.7999999999999999
+
+[sub_resource type="Resource" id="Resource_mbxx8"]
+script = ExtResource("2_mbxx8")
+position = Vector2(2.8306875, -1.2706523)
+radius = 2.0629122
+
+[sub_resource type="Resource" id="Resource_raj1l"]
+script = ExtResource("2_mbxx8")
+position = Vector2(2.7851758, 0.79195166)
+radius = 1.7504612
+height = 2.0818584
+
+[sub_resource type="Resource" id="Resource_d5gy2"]
+script = ExtResource("6_itugx")
+metadata/_custom_type_script = "uid://crq3171ywa7qk"
+
+[sub_resource type="Resource" id="Resource_xy7i1"]
+script = ExtResource("6_itugx")
+shape = "circle"
+metadata/_custom_type_script = "uid://crq3171ywa7qk"
+
+[resource]
+script = ExtResource("7_2tw1j")
+id = "level06"
+title = "需水差异小样"
+hint = "普通田需要更多雨 · 幼苗更怕过量，变黄时留意移云与断供"
+island_center = Vector2(-0.111564755, 0.49977112)
+island_axes = Vector2(8.098161, 5.2112274)
+river_enabled = false
+mountains = Array[ExtResource("2_mbxx8")]([SubResource("Resource_mbxx8"), SubResource("Resource_raj1l")])
+plots = PackedVector2Array(5.9596176, 1.235527, -1.2160115, 1.0428762)
+plot_regions = Array[ExtResource("6_itugx")]([SubResource("Resource_d5gy2"), SubResource("Resource_xy7i1")])
+plot_needs = Array[ExtResource("3_raj1l")]([ExtResource("4_ke0g1"), ExtResource("5_xy7i1")])
+star_level = true
+humidity_sources = Array[ExtResource("1_ke0g1")]([SubResource("Resource_ke0g1")])

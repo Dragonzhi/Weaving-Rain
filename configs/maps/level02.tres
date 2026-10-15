@@ -1,0 +1,45 @@
+[gd_resource type="Resource" script_class="WRMapDefinition" format=3 uid="uid://csfyoli2usnun"]
+
+[ext_resource type="Script" uid="uid://cld12h4px3yir" path="res://scripts/map_humidity.gd" id="1_3hrti"]
+[ext_resource type="Script" uid="uid://de5at2q6fqxq" path="res://scripts/map_mountain.gd" id="2_og4a7"]
+[ext_resource type="Script" uid="uid://wlifphtr8f8j" path="res://scripts/plot_needs.gd" id="3_ywu06"]
+[ext_resource type="Resource" path="res://configs/plots/reservoir.tres" id="4_jv4sh"]
+[ext_resource type="Script" uid="uid://crq3171ywa7qk" path="res://scripts/plot_region.gd" id="6_jks3n"]
+[ext_resource type="Script" uid="uid://dp2dfiaoj2cor" path="res://scripts/map_definition.gd" id="7_2b1vl"]
+
+[sub_resource type="Resource" id="Resource_jv4sh"]
+script = ExtResource("1_3hrti")
+position = Vector2(-5.0015063, 0.9201627)
+
+[sub_resource type="Resource" id="Resource_3hrti"]
+script = ExtResource("1_3hrti")
+position = Vector2(5.6, 1)
+spread = Vector2(3.2, 3.4)
+concentration = 0.9
+
+[sub_resource type="Resource" id="Resource_og4a7"]
+script = ExtResource("2_og4a7")
+position = Vector2(-1.071266, -0.09975386)
+radius = 2.3
+
+[sub_resource type="Resource" id="Resource_ywu06"]
+script = ExtResource("6_jks3n")
+shape = "circle"
+metadata/_custom_type_script = "uid://crq3171ywa7qk"
+
+[sub_resource type="Resource" id="Resource_rpocg"]
+script = ExtResource("6_jks3n")
+metadata/_custom_type_script = "uid://crq3171ywa7qk"
+
+[resource]
+script = ExtResource("7_2b1vl")
+id = "level02"
+title = "需水差异小样"
+hint = "普通田需要更多雨 · 幼苗更怕过量，变黄时留意移云与断供"
+river_enabled = false
+mountains = Array[ExtResource("2_og4a7")]([SubResource("Resource_og4a7")])
+plots = PackedVector2Array(2.8, 1.2, -4.3, 2.6)
+plot_regions = Array[ExtResource("6_jks3n")]([SubResource("Resource_ywu06"), SubResource("Resource_rpocg")])
+plot_needs = Array[ExtResource("3_ywu06")]([ExtResource("4_jv4sh"), ExtResource("4_jv4sh")])
+star_level = true
+humidity_sources = Array[ExtResource("1_3hrti")]([SubResource("Resource_jv4sh"), SubResource("Resource_3hrti")])

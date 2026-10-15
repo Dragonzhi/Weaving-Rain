@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="WRCampaign" format=3 uid="uid://dke3pmweiv2v6"]
+
+[ext_resource type="Script" uid="uid://cugc1emktlduo" path="res://scripts/campaign.gd" id="1"]
+[ext_resource type="Script" uid="uid://dp2dfiaoj2cor" path="res://scripts/map_definition.gd" id="2"]
+[ext_resource type="Resource" uid="uid://d24y23a5qbmde" path="res://configs/tutorial.tres" id="3"]
+[ext_resource type="Resource" uid="uid://csfyoli2usnun" path="res://configs/maps/level02.tres" id="3_3adkb"]
+[ext_resource type="Resource" uid="uid://dsbhvh2rt1xym" path="res://configs/maps/level01.tres" id="4"]
+[ext_resource type="Resource" uid="uid://dgxrled77trcg" path="res://configs/maps/level03.tres" id="4_8ng55"]
+[ext_resource type="Resource" uid="uid://clskwi8go3jkq" path="res://configs/maps/level04.tres" id="5_3rvuj"]
+[ext_resource type="Resource" uid="uid://j7fhd53cvyjl" path="res://configs/maps/level05.tres" id="6_w3fd8"]
+[ext_resource type="Resource" uid="uid://c4h8qplm0n2e8" path="res://configs/maps/level06.tres" id="7_ybiqj"]
+[ext_resource type="Resource" uid="uid://1bbfkuf8hi83" path="res://configs/maps/level07.tres" id="8_ginjt"]
+[ext_resource type="Resource" uid="uid://bn8iyxjb0muly" path="res://configs/maps/level08.tres" id="9_peeap"]
+[ext_resource type="Resource" uid="uid://gpgseeqab1f0" path="res://configs/maps/level09.tres" id="10_qoeh4"]
+
+[resource]
+script = ExtResource("1")
+tutorial = ExtResource("3")
+levels = Array[ExtResource("2")]([ExtResource("4"), ExtResource("3_3adkb"), ExtResource("4_8ng55"), ExtResource("5_3rvuj"), ExtResource("6_w3fd8"), ExtResource("7_ybiqj"), ExtResource("8_ginjt"), ExtResource("9_peeap"), ExtResource("10_qoeh4")])

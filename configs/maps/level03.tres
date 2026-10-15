@@ -1,0 +1,41 @@
+[gd_resource type="Resource" script_class="WRMapDefinition" format=3 uid="uid://dgxrled77trcg"]
+
+[ext_resource type="Script" uid="uid://cld12h4px3yir" path="res://scripts/map_humidity.gd" id="1_suin5"]
+[ext_resource type="Script" uid="uid://de5at2q6fqxq" path="res://scripts/map_mountain.gd" id="2_leu2n"]
+[ext_resource type="Script" uid="uid://wlifphtr8f8j" path="res://scripts/plot_needs.gd" id="3_k5v0k"]
+[ext_resource type="Resource" path="res://configs/plots/ordinary.tres" id="4_k5v0k"]
+[ext_resource type="Script" uid="uid://crq3171ywa7qk" path="res://scripts/plot_region.gd" id="4_kq1d5"]
+[ext_resource type="Resource" path="res://configs/plots/reservoir.tres" id="4_leu2n"]
+[ext_resource type="Script" uid="uid://dp2dfiaoj2cor" path="res://scripts/map_definition.gd" id="5_jo47d"]
+
+[sub_resource type="Resource" id="Resource_k5v0k"]
+script = ExtResource("1_suin5")
+position = Vector2(0.67958236, 3.5534372)
+
+[sub_resource type="Resource" id="Resource_kq1d5"]
+script = ExtResource("2_leu2n")
+position = Vector2(-1.23777, -0.46639013)
+radius = 2.0629122
+
+[sub_resource type="Resource" id="Resource_jo47d"]
+script = ExtResource("4_kq1d5")
+metadata/_custom_type_script = "uid://crq3171ywa7qk"
+
+[sub_resource type="Resource" id="Resource_hwtyk"]
+script = ExtResource("4_kq1d5")
+shape = "circle"
+metadata/_custom_type_script = "uid://crq3171ywa7qk"
+
+[resource]
+script = ExtResource("5_jo47d")
+id = "level03"
+title = "需水差异小样"
+hint = "普通田需要更多雨 · 幼苗更怕过量，变黄时留意移云与断供"
+island_center = Vector2(-0.111564755, 0.49977112)
+river_enabled = false
+mountains = Array[ExtResource("2_leu2n")]([SubResource("Resource_kq1d5")])
+plots = PackedVector2Array(1.9394782, 2.1305518, -1.1738412, 3.7385721)
+plot_regions = Array[ExtResource("4_kq1d5")]([SubResource("Resource_jo47d"), SubResource("Resource_hwtyk")])
+plot_needs = Array[ExtResource("3_k5v0k")]([ExtResource("4_k5v0k"), ExtResource("4_leu2n")])
+star_level = true
+humidity_sources = Array[ExtResource("1_suin5")]([SubResource("Resource_k5v0k")])

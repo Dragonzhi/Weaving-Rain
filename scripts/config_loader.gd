@@ -3,6 +3,12 @@ extends RefCounted
 static var last_scene_style: WRSceneStyle
 static var last_audio: WRAudioSettings
 
+static func campaign(path: String, plot_half: float) -> Dictionary:
+	if not ResourceLoader.exists(path): return {"errors": PackedStringArray(["campaign：配置文件不存在：" + path])}
+	var resource = ResourceLoader.load(path, "", ResourceLoader.CACHE_MODE_IGNORE_DEEP)
+	if not resource is WRCampaign: return {"errors": PackedStringArray(["campaign：资源类型须为WRCampaign：" + path])}
+	return {"errors": resource.validation_errors(plot_half), "resource": resource}
+
 static func audio(path := "res://configs/audio.tres") -> Dictionary:
 	var candidate = ResourceLoader.load(path, "", ResourceLoader.CACHE_MODE_IGNORE_DEEP) if ResourceLoader.exists(path) else null
 	var errors: PackedStringArray = candidate.validation_errors() if candidate is WRAudioSettings else PackedStringArray(["audio：资源不存在或类型错误："+path])

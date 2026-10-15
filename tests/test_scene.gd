@@ -46,7 +46,10 @@ func run() -> void:
 	mouse_button(skip_point, false)
 	await process_frame
 	await RenderingServer.frame_post_draw
-	check(main.play_mode == "free" and main.sim.plot_centers.size() == 2 and main.sim.peak_density == 0.0, "Skip button starts a fresh humidity-only dual-target game")
+	check(main.play_mode == "free" and main.sim.layout_id == "level01" and main.sim.peak_density == 0.0, "Skip button starts the first configured formal level")
+	# The remaining checks deliberately use the historical dual-target baseline.
+	main.select_layout("standard")
+	await RenderingServer.frame_post_draw
 	check(main.wind_input.sim == main.sim and main.wind_input.camera == main.weather_view.camera, "Mode change reconnects picking to the active weather and camera")
 	main.restart(false)
 	check(main.play_mode == "free" and main.sim.plot_centers.size() == 2, "Retry keeps the current free-play mode")

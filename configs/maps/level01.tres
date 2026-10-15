@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://cld12h4px3yir" path="res://scripts/map_humidity.gd" id="1_fl4vp"]
 [ext_resource type="Script" uid="uid://de5at2q6fqxq" path="res://scripts/map_mountain.gd" id="2_53ud5"]
 [ext_resource type="Script" uid="uid://wlifphtr8f8j" path="res://scripts/plot_needs.gd" id="3_nm4cx"]
+[ext_resource type="Resource" path="res://configs/plots/reservoir.tres" id="4_53ud5"]
 [ext_resource type="Script" uid="uid://crq3171ywa7qk" path="res://scripts/plot_region.gd" id="4_uuden"]
 [ext_resource type="Script" uid="uid://dp2dfiaoj2cor" path="res://scripts/map_definition.gd" id="5_ranpp"]
 
@@ -15,8 +16,9 @@ script = ExtResource("2_53ud5")
 position = Vector2(-1.7, -0.6)
 radius = 3.0
 
-[sub_resource type="Resource" id="Resource_nm4cx"]
+[sub_resource type="Resource" id="Resource_uuden"]
 script = ExtResource("4_uuden")
+shape = "circle"
 
 [resource]
 script = ExtResource("5_ranpp")
@@ -26,7 +28,7 @@ hint = "先借山坡造雨，再尝试把冷风用于接力"
 river_enabled = false
 mountains = Array[ExtResource("2_53ud5")]([SubResource("Resource_53ud5")])
 plots = PackedVector2Array(2.8, 1.2)
-plot_regions = Array[ExtResource("4_uuden")]([SubResource("Resource_nm4cx")])
-plot_needs = Array[ExtResource("3_nm4cx")]([null])
+plot_regions = Array[ExtResource("4_uuden")]([SubResource("Resource_uuden")])
+plot_needs = Array[ExtResource("3_nm4cx")]([ExtResource("4_53ud5")])
 star_level = true
 humidity_sources = Array[ExtResource("1_fl4vp")]([SubResource("Resource_fl4vp")])

@@ -2,7 +2,6 @@
 extends RefCounted
 ## The runtime and editor load exactly the same authored resource.
 const IDS := ["standard", "far", "close", "ridges"]
-const LEVELS := ["meadow", "valleys", "reservoir_lab", "storm_coast"]
 
 static func get_definition(id: String) -> WRMapDefinition:
 	var filename := id if id in get_ids() else "standard"

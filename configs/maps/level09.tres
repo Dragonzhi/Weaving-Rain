@@ -1,0 +1,101 @@
+[gd_resource type="Resource" script_class="WRMapDefinition" format=3 uid="uid://gpgseeqab1f0"]
+
+[ext_resource type="Script" uid="uid://cld12h4px3yir" path="res://scripts/map_humidity.gd" id="1_a0svp"]
+[ext_resource type="Script" uid="uid://de5at2q6fqxq" path="res://scripts/map_mountain.gd" id="2_d553q"]
+[ext_resource type="Script" uid="uid://wlifphtr8f8j" path="res://scripts/plot_needs.gd" id="3_560ab"]
+[ext_resource type="Resource" path="res://configs/plots/ordinary.tres" id="4_bn6h7"]
+[ext_resource type="Resource" path="res://configs/plots/reservoir.tres" id="5_pasb7"]
+[ext_resource type="Script" uid="uid://crq3171ywa7qk" path="res://scripts/plot_region.gd" id="6_1flf3"]
+[ext_resource type="Resource" path="res://configs/plots/seedling.tres" id="6_d553q"]
+[ext_resource type="Script" uid="uid://dp2dfiaoj2cor" path="res://scripts/map_definition.gd" id="7_pcrwf"]
+[ext_resource type="Script" uid="uid://d1kl6ooa3facq" path="res://scripts/map_warm_sea.gd" id="8_0eb35"]
+
+[sub_resource type="Resource" id="Resource_560ab"]
+script = ExtResource("1_a0svp")
+position = Vector2(1.2006838, -4.3632774)
+spread = Vector2(3.8, 4)
+concentration = 1.5
+falloff = 1.0
+
+[sub_resource type="Resource" id="Resource_bn6h7"]
+script = ExtResource("2_d553q")
+position = Vector2(-2, 0.4)
+radius = 1.929713
+height = 2.0
+
+[sub_resource type="Resource" id="Resource_pasb7"]
+script = ExtResource("2_d553q")
+position = Vector2(2.1516442, 0.49321032)
+radius = 1.5
+height = 2.2354598
+
+[sub_resource type="Resource" id="Resource_1flf3"]
+script = ExtResource("2_d553q")
+position = Vector2(-4.559553, 0.064279556)
+radius = 1.5
+height = 1.2861056
+
+[sub_resource type="Resource" id="Resource_pcrwf"]
+script = ExtResource("2_d553q")
+position = Vector2(-7.2840233, -0.80456305)
+radius = 1.5
+height = 1.8
+
+[sub_resource type="Resource" id="Resource_0eb35"]
+script = ExtResource("2_d553q")
+position = Vector2(4.2697644, 0.15890741)
+radius = 1.5
+height = 1.8
+
+[sub_resource type="Resource" id="Resource_m6r3j"]
+script = ExtResource("2_d553q")
+position = Vector2(6.6620655, -0.06477404)
+radius = 1.5554022
+height = 1.8
+
+[sub_resource type="Resource" id="Resource_jq3mw"]
+script = ExtResource("2_d553q")
+position = Vector2(8.578537, 0.1679697)
+radius = 1.5
+height = 0.85061467
+
+[sub_resource type="Resource" id="Resource_c3tsd"]
+script = ExtResource("2_d553q")
+position = Vector2(0.39267254, 0.60935974)
+radius = 1.5
+
+[sub_resource type="Resource" id="Resource_2s8vh"]
+script = ExtResource("6_1flf3")
+metadata/_custom_type_script = "uid://crq3171ywa7qk"
+
+[sub_resource type="Resource" id="Resource_w8pqg"]
+script = ExtResource("6_1flf3")
+shape = "ellipse"
+half_axes = Vector2(1.5, 1.2)
+
+[sub_resource type="Resource" id="Resource_3f6rw"]
+script = ExtResource("6_1flf3")
+shape = "circle"
+
+[sub_resource type="Resource" id="Resource_42yjl"]
+script = ExtResource("8_0eb35")
+position = Vector2(0.83071697, -5.0237827)
+half_axes = Vector2(2.7890263, 2.9342585)
+seed_position = Vector2(0.8405374, -3.8397894)
+
+[resource]
+script = ExtResource("7_pcrwf")
+id = "level09"
+title = "海上风暴 · 借雨蓄水"
+hint = "从风暴外围引导雨带 · 蓄水区满后可溢流，农田够水后移云收尾"
+shape = "split"
+island_center = Vector2(-0.084610224, 0.728333)
+island_axes = Vector2(7.88, 5.440202)
+river_enabled = false
+mountains = Array[ExtResource("2_d553q")]([SubResource("Resource_bn6h7"), SubResource("Resource_pasb7"), SubResource("Resource_1flf3"), SubResource("Resource_pcrwf"), SubResource("Resource_0eb35"), SubResource("Resource_m6r3j"), SubResource("Resource_jq3mw"), SubResource("Resource_c3tsd")])
+plots = PackedVector2Array(-9.5915, 1.6496964, 6.8450336, 2.8309975, -6.160712, 2.8471622)
+plot_regions = Array[ExtResource("6_1flf3")]([SubResource("Resource_2s8vh"), SubResource("Resource_w8pqg"), SubResource("Resource_3f6rw")])
+plot_needs = Array[ExtResource("3_560ab")]([ExtResource("4_bn6h7"), ExtResource("5_pasb7"), ExtResource("6_d553q")])
+star_level = true
+humidity_sources = Array[ExtResource("1_a0svp")]([SubResource("Resource_560ab")])
+warm_sea = SubResource("Resource_42yjl")

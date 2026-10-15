@@ -1,5 +1,6 @@
 extends SceneTree
 const Layouts = preload("res://scripts/weather_layouts.gd")
+const TEST_LEVELS := ["meadow", "valleys", "reservoir_lab", "storm_coast"]
 var checks := 0
 var failures := 0
 
@@ -23,6 +24,12 @@ func _init() -> void:
 
 func run() -> void:
 	var main: Node3D = load("res://scenes/main.tscn").instantiate()
+	# Regression maps form a temporary campaign; they are not the published sequence.
+	var campaign := WRCampaign.new()
+	campaign.tutorial = load("res://configs/tutorial.tres")
+	for id in TEST_LEVELS: campaign.levels.append(Layouts.get_definition(id))
+	main.campaign_path = "res://.godot/star-scene-campaign.tres"
+	ResourceSaver.save(campaign,main.campaign_path)
 	root.add_child(main)
 	await process_frame
 	await RenderingServer.frame_post_draw
@@ -32,6 +39,9 @@ func run() -> void:
 	check(main.hud.levels_button.visible, "Practice exposes star-level entry")
 	click(main.hud.levels_button)
 	await process_frame
+	await RenderingServer.frame_post_draw
+	check(main.selecting_levels and main.paused, "Actual entry opens a paused campaign selection")
+	click(main.hud.selection_start)
 	await RenderingServer.frame_post_draw
 	check(main.sim.layout_id == "meadow" and main.sim.star_level and main.sim.plot_centers.size() == 3, "Actual entry button starts a normal three-field level")
 	check(not main.hud.finish_button.visible and main.hud.finish_button.disabled, "No stars keeps unusable finish out of the scene")
@@ -180,7 +190,7 @@ func run() -> void:
 	check(main.sim.layout_id == "reservoir_lab", "Valleys flows into the new reservoir test")
 	# The last entry is now a mixed tropical map. Isolate its normal finish rule
 	# before checking the wrap, rather than assuming the old two-entry list.
-	main.select_layout(Layouts.LEVELS.back())
+	main.select_campaign_level(TEST_LEVELS.back())
 	main.sim.humidity.fill(0)
 	main.sim.cloud.fill(0)
 	main.sim.rain.fill(0)
@@ -191,7 +201,10 @@ func run() -> void:
 	main.finish_level()
 	check(main.sim.result_stars == 3, "Last mixed level uses each target's completion rule")
 	main.next_level()
-	check(main.sim.layout_id == "meadow", "Actual last level returns to the first level")
+	check(main.selecting_levels and main.sim.layout_id == "storm_coast", "Last configured level returns to selection without replacing the result")
+	main.hud.selection_list.select(0)
+	click(main.hud.selection_start)
+	check(main.sim.layout_id == "meadow", "Selecting the first entry starts that map explicitly")
 	main.sim.humidity.fill(0)
 	main.sim.cloud.fill(0)
 	main.sim.rain.fill(0)
