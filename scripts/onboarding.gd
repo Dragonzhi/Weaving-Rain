@@ -22,10 +22,11 @@ func update(sim: RefCounted, delta: float) -> void:
 			phase = maxi(phase, 1)
 		if saw_rain or sim.plot_water > 0.01:
 			phase = maxi(phase, 2)
-		if sim.plot_water >= sim.required_water(0):
-			phase = maxi(phase, 3)
-		if sim.outcome == "success":
-			phase = 4
+		if sim.is_reservoir(0):
+			if sim.outcome == "success": phase = 3
+		else:
+			if sim.plot_water >= sim.required_water(0): phase = maxi(phase, 3)
+			if sim.outcome == "success": phase = 4
 	else:
 		cold_hint_left = maxf(0.0, cold_hint_left - delta)
 		if not cold_hint_seen:
@@ -36,11 +37,20 @@ func update(sim: RefCounted, delta: float) -> void:
 					break
 
 func title(sim: RefCounted) -> String:
+	if sim.is_reservoir(0):
+		return ["1 / 3  把水汽送上山", "2 / 3  成云降雨", "3 / 3  填满水库", "入门完成"][mini(phase,3)]
 	if sim.outcome == "flood":
 		return "雨水过量 · 可以重试这一步"
 	return ["1 / 4  借山成云", "2 / 4  收厚成雨", "3 / 4  把雨送到土地", "4 / 4  安全收尾", "入门完成"][phase]
 
 func instruction(sim: RefCounted) -> String:
+	if sim.is_reservoir(0):
+		if phase >= 3: return "水库已蓄满，你已经学会借山造雨。"
+		if phase > 0 and sim.peak_density < 0.15 and sim.total_rain_rate < 0.01:
+			return "云已散薄：再把浅色湿空气推向山坡，补给云水。"
+		if phase == 2: return "让雨云覆盖水库，观察水位逐渐升高。"
+		if phase == 1: return "继续补给云水，让云变厚并保持片刻，等待降雨。"
+		return "拖出方向后按住续吹，把浅色湿空气推向山坡。"
 	if sim.outcome == "flood":
 		return "按 R 重试；接近适量前就开始移云。"
 	if phase == 4:
@@ -58,6 +68,11 @@ func instruction(sim: RefCounted) -> String:
 	return "拖出方向后按住续吹，把浅色湿空气送向山坡。"
 
 func detail(sim: RefCounted) -> String:
+	if sim.is_reservoir(0):
+		if phase >= 3: return "蓄满即完成；后面的农田关再学习控制雨量和安全收尾。"
+		if phase == 2: return "水库满后可溢流，不会损坏；淡蓝轮廓表示实际落雨。"
+		if phase == 1: return "金色上升箭头表示真实抬升，雨线出现才开始降雨。"
+		return "鼠标拖动拨风，停住按住可以续吹；先试着推动一团水汽。"
 	if sim.outcome == "flood":
 		return "切断补给不会立即停雨，已积存的云水仍会释放。"
 	if phase == 3:

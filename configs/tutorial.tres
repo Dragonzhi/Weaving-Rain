@@ -1,0 +1,34 @@
+[gd_resource type="Resource" script_class="WRMapDefinition" format=3 uid="uid://d24y23a5qbmde"]
+
+[ext_resource type="Script" uid="uid://dp2dfiaoj2cor" path="res://scripts/map_definition.gd" id="1"]
+[ext_resource type="Script" uid="uid://de5at2q6fqxq" path="res://scripts/map_mountain.gd" id="2"]
+[ext_resource type="Script" uid="uid://cld12h4px3yir" path="res://scripts/map_humidity.gd" id="3"]
+[ext_resource type="Script" uid="uid://crq3171ywa7qk" path="res://scripts/plot_region.gd" id="4"]
+[ext_resource type="Resource" path="res://configs/plots/tutorial_reservoir.tres" id="5"]
+[ext_resource type="Script" uid="uid://wlifphtr8f8j" path="res://scripts/plot_needs.gd" id="6"]
+
+[sub_resource type="Resource" id="Resource_xvy0d"]
+script = ExtResource("3")
+position = Vector2(-6.4, 1.4)
+
+[sub_resource type="Resource" id="Resource_pkwav"]
+script = ExtResource("2")
+position = Vector2(-1.7, -0.6)
+radius = 3.0
+
+[sub_resource type="Resource" id="Resource_t68h1"]
+script = ExtResource("4")
+shape = "ellipse"
+half_axes = Vector2(1.25, 1.25)
+
+[resource]
+script = ExtResource("1")
+id = "tutorial"
+title = "入门 · 借雨蓄水"
+hint = "把湿空气推向山坡，让云雨填满水库"
+river_enabled = false
+mountains = Array[ExtResource("2")]([SubResource("Resource_pkwav")])
+plots = PackedVector2Array(-3.3375697, 3.3899055)
+plot_regions = Array[ExtResource("4")]([SubResource("Resource_t68h1")])
+plot_needs = Array[ExtResource("6")]([ExtResource("5")])
+humidity_sources = Array[ExtResource("3")]([SubResource("Resource_xvy0d")])

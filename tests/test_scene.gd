@@ -149,7 +149,7 @@ func run() -> void:
 		main.restart(false)
 		check(main.sim.layout_id == id and not main.paused and not wind_input.dragging, "Retry preserves selected layout and clears paused drag state")
 	main.switch_mode("lesson")
-	check(main.sim.plot_centers.size() == 1 and main.sim.layout_id == "standard", "Revisiting lesson preserves its independent layout")
+	check(main.sim.plot_centers.size() == 1 and main.sim.layout_id == "tutorial" and main.sim.is_reservoir(0), "Revisiting lesson restores its independent reservoir map")
 	main.enter_free_play()
 	check(main.sim.layout_id == "close", "Returning from lesson preserves the selected free-play layout")
 	main.select_layout("standard")

@@ -1,0 +1,209 @@
+{
+  "date": "2026-10-14",
+  "base_commit": "1f69476",
+  "status": "Reservoir tutorial implemented; level01 reviewed and normal-start routes passed; new tutorial player feedback pending",
+  "level01": {
+    "resource": "configs/maps/level01.tres",
+    "unchanged": true,
+    "user_reports_playable": true,
+    "map_validation_errors": [],
+    "star_level": true,
+    "time_limit_seconds": 180,
+    "goal_kind": "farm",
+    "plot_count": 1,
+    "needs": "Null entry inherits global100-150",
+    "initial_water": 310.209811781436,
+    "findings": [
+      "Title still says two plots though map has one",
+      "Hint mentions cold relay; suggest matching this single-farm lesson",
+      "Not in LEVELS; next button still returns to old test list, formal order remains D12"
+    ]
+  },
+  "tutorial": {
+    "map": "configs/tutorial.tres",
+    "needs": "configs/plots/tutorial_reservoir.tres",
+    "capacity": 100,
+    "star_level": false,
+    "timer": false,
+    "phases": [
+      "uphill cloud",
+      "rain",
+      "fill reservoir"
+    ],
+    "completion": "Full immediately, even under ongoing rain; no farm safety interval",
+    "rules": "Existing reservoir behavior reused; weather_simulation unchanged",
+    "editable": "Map editor loads configs/tutorial.tres; temporary play is free mode; review teaching via main/revisit",
+    "reload": "R reads saved geometry/capacity; invalid map keeps last valid; F6 weather feel only"
+  },
+  "checks": {
+    "new_scene_720": 17,
+    "new_scene_1080": 17,
+    "legacy_onboarding": 19,
+    "native_routes": {
+      "tutorial": {
+        "blocked": 0,
+        "cold_lift": 1.79443741830751,
+        "destroyed": [
+          false
+        ],
+        "elapsed": 0.0,
+        "events": 393,
+        "front_strokes": 0,
+        "input_pick_error": 0.0,
+        "layout": "tutorial",
+        "limit": 180.0,
+        "map_errors": [],
+        "order": [
+          0
+        ],
+        "outcome": "success",
+        "per_target": [
+          {
+            "distance": 18.5999994277954,
+            "front": 0,
+            "strokes": 22,
+            "transport": 8
+          },
+          {
+            "distance": 0.0,
+            "front": 0,
+            "strokes": 0,
+            "transport": 0
+          },
+          {
+            "distance": 0.0,
+            "front": 0,
+            "strokes": 0,
+            "transport": 0
+          }
+        ],
+        "phases": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "rain_at_finish": 2.23032403981173,
+        "route": "mountain",
+        "route_seconds": 11.2333333333335,
+        "safe_time_at_finish": 0.0,
+        "stars": 0,
+        "strokes": 22,
+        "transport_distance": 18.5999994277954,
+        "transport_strokes": 8,
+        "water": [
+          100.0
+        ],
+        "water_error": -0.00022769576725068
+      },
+      "level01": {
+        "blocked": 0,
+        "cold_lift": 4.69701548489406,
+        "destroyed": [
+          false
+        ],
+        "elapsed": 22.5,
+        "events": 646,
+        "front_strokes": 0,
+        "input_pick_error": 0.0,
+        "layout": "level01",
+        "limit": 180.0,
+        "map_errors": [],
+        "order": [
+          0
+        ],
+        "outcome": "success",
+        "per_target": [
+          {
+            "distance": 22.8000001907349,
+            "front": 0,
+            "strokes": 39,
+            "transport": 10
+          },
+          {
+            "distance": 0.0,
+            "front": 0,
+            "strokes": 0,
+            "transport": 0
+          },
+          {
+            "distance": 0.0,
+            "front": 0,
+            "strokes": 0,
+            "transport": 0
+          }
+        ],
+        "phases": [
+          0
+        ],
+        "rain_at_finish": 0.108658562463167,
+        "route": "mountain",
+        "route_seconds": 22.5,
+        "safe_time_at_finish": 5.016676902771,
+        "stars": 3,
+        "strokes": 39,
+        "transport_distance": 22.8000001907349,
+        "transport_strokes": 10,
+        "water": [
+          105.96690956788
+        ],
+        "water_error": -0.00074418217263883
+      }
+    },
+    "full_suite": {
+      "covered": true,
+      "uninterrupted": false,
+      "segments": [
+        ".godot/tutorial-review/full-suite-first-fixture.log: beginning through prior successful items; stops at rain-area-scene3failures",
+        ".godot/tutorial-review/full-suite-before-tutorial-clock.log: rain-area-scene through lesson-replay passed; next new viewport replay stopped for clock fix",
+        ".godot/tutorial-review/full-suite-before-needs-repeat.log: tutorial-viewport through earlier routes passed; old needs-viewport then failed from seedling55.7259over55",
+        ".godot/tutorial-review/full-suite-final.log: repeated needs-viewport-route failed again at seedling55.7129",
+        ".godot/tutorial-review/full-suite-tail.log: vortex-viewport-route onward and five route comparisons passed"
+      ],
+      "note": "Later test-only directory creation lines verified by final1080scene run. No production code changes after suite began.",
+      "all_passed": false,
+      "unresolved_failures": [
+        "needs-viewport-route: repeated seedling overwatering; V6 remains open"
+      ]
+    }
+  },
+  "preserved_failures": [
+    {
+      "log": ".godot/tutorial-review/full-suite-first-fixture.log",
+      "cause": "Old paired rain-area test copied previous free map while live scene was now independent tutorial. Fixed fixture to copy active lesson_map; resumed checks."
+    },
+    {
+      "log": ".godot/tutorial-review/full-suite-before-tutorial-clock.log",
+      "cause": "New viewport route incorrectly used gameplay elapsed_seconds which remains0 for untimed teaching; no commands were submitted. Verified and stopped only our spawned Godot replay, then fixed test clock to count all real fixed steps, including frames inside strokes."
+    },
+    {
+      "log": ".godot/tutorial-review/full-suite-before-needs-repeat.log",
+      "first_data": ".godot/tutorial-review/needs-viewport-first-failure.json (extracted from original log)",
+      "second_data": ".godot/tutorial-review/needs-viewport-second-failure.json",
+      "cause": "Existing narrow seedling viewport route overshot55to55.7259187, then55.7128775 on unchanged repeat. No threshold, weather or replay strategy changed. Known V6 family, root cause not resolved; remaining independent checks continued without weakening pass criteria."
+    }
+  ],
+  "user_files_unchanged": {
+    "configs/maps/level01.tres": "45f5814405d10a4f53d5257a3d726463244124ab8bdc098931f9dc64a3c48606",
+    "configs/maps/standard.tres": "e4eeca2f5c3d693b2f039d43062f37db25f54de7e64383eafe375de7866e883a",
+    "configs/maps/ridges.tres": "435ebc1496eb62ae613a73569375c124234d254ec5ade50adc57dc07f5bc5848",
+    "scenes/map_editor.tscn": "eace474796bfe8b0f7e60f28e52c7b7b1ddb8e94ab137339ea05f65351319729"
+  },
+  "visual_review": [
+    "1280x720 rule-completion.png: rule fixture only",
+    "1920x1080 tutorial-rain.png and tutorial-result.png: actual mouse route",
+    "1920x1080 level01-result.png: actual mouse route"
+  ],
+  "delivery": {
+    "export": false,
+    "new_zip": false,
+    "automatic_commit": false,
+    "formal_level_order_changed": false,
+    "performance_long_run": false
+  },
+  "limitations": [
+    "V1 formal performance and V6 historic native issues remain open",
+    "Technical route does not establish new-player difficulty; user level01 play is separate feedback",
+    "Current teaching Continue button still uses existing free-play entry"
+  ]
+}

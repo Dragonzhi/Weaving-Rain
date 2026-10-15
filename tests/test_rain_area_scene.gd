@@ -98,7 +98,8 @@ func run() -> void:
 	check(not main.weather_view.hints_enabled, "Mode switch preserves session toggle")
 	# Paired ordinary simulations show that visual hints consume no weather state.
 	main.restart(false)
-	var control := Sim.new(main.sim.settings, main.sim.relay_mode, main.sim.cold_capable, main.free_layout, main.custom_map)
+	var definition: WRMapDefinition = main.lesson_map if main.play_mode == "lesson" else main.custom_map
+	var control := Sim.new(main.sim.settings, main.sim.relay_mode, main.sim.cold_capable, main.sim.layout_id, definition)
 	main.sim.stroke(Vector2(-4.0, 0.0), Vector2(-3.4, 0.2), 2.5)
 	control.stroke(Vector2(-4.0, 0.0), Vector2(-3.4, 0.2), 2.5)
 	for i in 30:

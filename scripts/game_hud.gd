@@ -410,7 +410,7 @@ func _draw_guide() -> void:
 					var slope_point: Vector2 = mountain + (p - mountain).normalized() * 1.8
 					_guide_marker(slope_point, "送向这侧山坡")
 		elif guide.phase == 2:
-			_guide_marker(Sim.PLOT, "雨线落进 A 才加水")
+			_guide_marker(sim.plot_centers[0], "雨线落进水库才蓄水" if sim.is_reservoir(0) else "雨线落进 A 才加水")
 		elif guide.phase == 3:
 			var square := _ground_square(sim.safe_half)
 			for i in 4:
@@ -771,6 +771,8 @@ func _draw() -> void:
 		status = "B 水量已够 · 提早移云，借残留冷风照顾 A"
 	elif sim.plot_water >= sim.required_water(0):
 		status = "蓄水已满 · 可继续承雨" if sim.is_reservoir(0) else "水量已够 · 移开危险雨云，或切断补给后等储水耗尽"
+	if play_mode == "lesson" and sim.is_reservoir(0):
+		status = "把水汽送向山坡，让云雨填满水库" if sim.total_rain_rate <= 0.01 else "已经开始下雨 · 让雨线覆盖水库，观察水位"
 	if sim.sandbox:
 		status = "交互小样 · 试拨云边或迎向冷风前沿；R 回正式开局"
 	elif sim.star_level:
@@ -848,6 +850,9 @@ func _draw_reserve() -> void:
 func _draw_legacy_result(w: float, h: float) -> void:
 	var result := "这场雨，刚刚好。" if sim.outcome == "success" else "雨水过量了。"
 	var detail := "目标已得到适量雨水，危险天气已经解除。" if sim.outcome == "success" else "储水仍会继续落下；下次提早移云，或切断补给。"
+	if play_mode == "lesson" and sim.outcome == "success" and sim.is_reservoir(0):
+		result = "水库蓄满了。"
+		detail = "你已经学会借山造雨；水库可以继续承雨，不怕溢出。"
 	_rounded(Rect2(w * 0.5 - 265, h * 0.5 - 65, 530, 130), PANEL)
 	_text(Vector2(w * 0.5 - 230, h * 0.5 - 20), result, 26)
 	_text(Vector2(w * 0.5 - 230, h * 0.5 + 14), detail, 16)

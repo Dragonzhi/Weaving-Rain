@@ -8,6 +8,14 @@ func _init() -> void:
 func run() -> void:
 	var lesson := "--lesson" in OS.get_cmdline_user_args()
 	var sim := Sim.new(null, false, lesson)
+	if lesson:
+		var settings = preload("res://scripts/config_loader.gd").settings("res://configs/weather.tres")
+		var map = preload("res://scripts/config_loader.gd").map("res://configs/tutorial.tres",settings.resource.plot_half)
+		if not settings.errors.is_empty() or not map.errors.is_empty():
+			push_error("Invalid tutorial configuration")
+			quit(1)
+			return
+		sim = Sim.new(settings.resource,true,false,map.resource.id,map.resource)
 	var guide := Onboarding.new()
 	var phases := PackedInt32Array([0])
 	var strokes := 0
@@ -21,7 +29,7 @@ func run() -> void:
 				if sim.display_cloud[i] > peak:
 					peak = sim.display_cloud[i]
 					center = sim.positions[i]
-			if (mass < 25.0 or (sim.peak_density < 1.1 and sim.total_rain_rate < 0.2 and (tick / 30) % 3 == 0)) and sim.plot_water < 95.0:
+			if (mass < 25.0 or (sim.peak_density < 1.1 and sim.total_rain_rate < 0.2 and (tick / 30) % 3 == 0)) and sim.plot_water < sim.required_water(0)*0.95:
 				var source := Vector2(-7, 0.5)
 				var wettest := 0.0
 				for i in Sim.COUNT:
@@ -31,15 +39,16 @@ func run() -> void:
 						source = p
 				var direction := (Vector2(-2.5, -0.6) - source).normalized()
 				sim.stroke(source - direction * 0.8, source + direction * 2.3, 9.0)
-			elif sim.plot_water < 100.0:
+			elif sim.plot_water < sim.required_water(0):
 				var p := center
-				var direction := (Sim.PLOT - p).normalized()
-				if p.distance_to(Sim.PLOT) > 0.7:
+				var goal: Vector2 = sim.plot_centers[0]
+				var direction := (goal - p).normalized()
+				if p.distance_to(goal) > 0.7:
 					sim.stroke(p - direction * 0.8, p + direction * 1.4, 9.0)
 				else:
 					var angle := float(tick / 30) * 2.4
 					var edge := Vector2(cos(angle), sin(angle))
-					sim.stroke(Sim.PLOT + edge * 2.0, Sim.PLOT + edge * 0.2, 8.0)
+					sim.stroke(goal + edge * 2.0, goal + edge * 0.2, 8.0)
 			else:
 				sim.stroke(center - Vector2(0, 0.7), center + Vector2(0, 1.5), 14.0)
 			strokes += 1
@@ -60,4 +69,4 @@ func run() -> void:
 	print("REPLAY RESULT: ", sim.outcome, " plot=", sim.plot_water, " strokes=", strokes, " water_error=", sim.water_total() - sim.initial_water)
 	if lesson:
 		print("LESSON PHASES: ", phases, " cold_peak=", Array(sim.cold).max())
-	quit(0 if sim.outcome == "success" and (not lesson or phases.size() == 5) else 1)
+	quit(0 if sim.outcome == "success" and (not lesson or phases.size() == (4 if sim.is_reservoir(0) else 5)) else 1)

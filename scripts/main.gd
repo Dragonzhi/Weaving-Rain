@@ -13,6 +13,8 @@ const SIMULATION_BUDGET_US := 8000
 var settings_path := "res://configs/weather.tres"
 var custom_map: WRMapDefinition
 var custom_map_path := ""
+var lesson_map_path := "res://configs/tutorial.tres"
+var lesson_map: WRMapDefinition
 var pending_settings: WRWeatherSettings
 var tuning_message := ""
 var tuning_message_until := 0
@@ -139,7 +141,7 @@ func restart(test_cloud: bool) -> void:
 	accumulator = 0.0
 	var loaded := ConfigLoader.settings(settings_path)
 	if loaded.errors.is_empty():
-		var map_path := custom_map_path if not custom_map_path.is_empty() else "res://configs/maps/" + (free_layout if play_mode == "free" else "standard") + ".tres"
+		var map_path := lesson_map_path if play_mode == "lesson" else (custom_map_path if not custom_map_path.is_empty() else "res://configs/maps/" + (free_layout if play_mode == "free" else "standard") + ".tres")
 		var loaded_map := ConfigLoader.map(map_path, loaded.resource.plot_half)
 		if loaded_map.errors.is_empty():
 			pending_settings = loaded.resource
@@ -154,6 +156,15 @@ func restart(test_cloud: bool) -> void:
 	weather_audio.bind(sim,weather_view.camera)
 
 func _new_simulation() -> RefCounted:
+	if play_mode == "lesson":
+		var loaded := ConfigLoader.map(lesson_map_path, weather_settings.plot_half)
+		if loaded.errors.is_empty():
+			lesson_map = loaded.resource
+			# Teaching never records a rating or uses a map timer, even if accidentally checked.
+			lesson_map.star_level = false
+		else: _tuning_feedback("教学地图未应用：" + "；".join(loaded.errors))
+		if lesson_map != null:
+			return Simulation.new(weather_settings, true, false, lesson_map.id, lesson_map)
 	return Simulation.new(weather_settings, play_mode == "free", play_mode == "lesson", free_layout, custom_map)
 
 func select_layout(id: String) -> void:
@@ -341,6 +352,7 @@ func reload_tuning() -> bool:
 		return false
 	var candidate: WRWeatherSettings = loaded.resource
 	var definition := custom_map if custom_map != null else Layouts.get_definition(free_layout if play_mode == "free" else "standard")
+	if play_mode == "lesson" and lesson_map != null: definition = lesson_map
 	var map_errors := definition.validation_errors(candidate.plot_half)
 	if not map_errors.is_empty():
 		_tuning_feedback("配置未应用：" + "；".join(map_errors))
