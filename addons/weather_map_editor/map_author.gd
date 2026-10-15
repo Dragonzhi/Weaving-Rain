@@ -23,7 +23,7 @@ func _process(delta: float) -> void:
 
 func signature() -> int:
 	if map_definition == null: return 0
-	var values: Array = [map_definition.id, map_definition.title, map_definition.shape, map_definition.island_center,
+	var values: Array = [map_definition.id, map_definition.title, map_definition.available_wind_tools, map_definition.shape, map_definition.island_center,
 		map_definition.island_axes, map_definition.coast_variation, map_definition.plots, map_definition.river_enabled,
 		map_definition.star_level, map_definition.time_limit_seconds, FileAccess.get_modified_time("res://configs/weather.tres")]
 	for region in map_definition.plot_regions:

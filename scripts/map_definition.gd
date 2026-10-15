@@ -1,9 +1,13 @@
 @tool
 class_name WRMapDefinition
 extends Resource
+const WIND_TOOLS := {"brush": 1, "source": 2, "vortex": 4}
 @export var id := "custom"
 @export var title := "新地图"
 @export_multiline var hint := "借山坡造云，把雨送到两处土地"
+## 本关可使用的风工具；勾选即可开放，不消耗使用次数，也不改变风源数量或寿命。
+## 拨风必须保留。未配置的旧地图默认全开；保存后R／切图生效，F6不修改本关工具。
+@export_flags("拨风", "风带", "漩涡") var available_wind_tools: int = 7
 @export_group("岛形")
 @export_enum("standard", "long", "split") var shape := "standard"
 @export var island_center := Vector2(-0.6, 0.3)
@@ -30,7 +34,7 @@ func to_layout() -> Dictionary:
 	var first := mountains[0] if not mountains.is_empty() and mountains[0] != null else WRMountain.new()
 	var west := humidity_sources[0].position if not humidity_sources.is_empty() and humidity_sources[0] != null else Vector2.ZERO
 	var east := humidity_sources[1].position if humidity_sources.size() > 1 and humidity_sources[1] != null else west
-	return {"id": id, "title": title, "hint": hint, "shape": shape, "island_center": island_center,
+	return {"id": id, "title": title, "hint": hint, "available_wind_tools": available_wind_tools, "shape": shape, "island_center": island_center,
 		"island_axes": island_axes, "coast_variation": coast_variation, "river_enabled": river_enabled,
 		"mountain": first.position, "mountain_radius": first.radius, "mountains": mountains,
 		"plots": plots, "plot_regions": plot_regions, "plot_needs": plot_needs, "star_level": star_level, "time_limit_seconds": time_limit_seconds,
@@ -45,6 +49,8 @@ func validation_errors(plot_half: float = 1.25) -> PackedStringArray:
 		for error in warm_sea.validation_errors(): errors.append("warm_sea：" + error)
 	if id.strip_edges().is_empty(): errors.append("id：不能为空")
 	if title.strip_edges().is_empty(): errors.append("title：不能为空")
+	if available_wind_tools < 1 or available_wind_tools > 7 or (available_wind_tools & 1) == 0:
+		errors.append("available_wind_tools：须保留拨风，且只能勾选拨风／风带／漩涡")
 	if not is_finite(time_limit_seconds) or time_limit_seconds < 1.0 or time_limit_seconds > 3600.0:
 		errors.append("time_limit_seconds：须为 1–3600 秒的有限数值")
 	if not island_center.is_finite() or not island_axes.is_finite() or island_axes.x <= 0 or island_axes.y <= 0:

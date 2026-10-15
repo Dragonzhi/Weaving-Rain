@@ -97,6 +97,9 @@ var audio_label: Label
 var plot_label_rects: Array[Rect2] = []
 var compact_model: RefCounted
 var tool_hint_until := 4.0
+var introduced_wind_tools := 1 # Session-only explanations; does not change save data or unlock tools.
+var tool_introduction := PackedStringArray()
+var tool_introduction_until := 0.0
 var last_tool := ""
 var last_status := ""
 var status_until := 0.0
@@ -504,9 +507,9 @@ func _draw_world_feedback() -> void:
 func _draw_wind_tools() -> void:
 	strength_meter_rect = Rect2()
 	var active := sim.outcome == "playing"
-	brush_button.visible = active
-	source_button.visible = active
-	vortex_button.visible = active
+	brush_button.visible = active and wind_input.tool_available("brush")
+	source_button.visible = active and wind_input.tool_available("source")
+	vortex_button.visible = active and wind_input.tool_available("vortex")
 	arrows_button.visible = active
 	# Keep a live button visible across redraws; hiding cancels a held click.
 	for index in source_remove.size(): source_remove[index].visible = active and index < sim.wind_sources.size()
@@ -517,18 +520,20 @@ func _draw_wind_tools() -> void:
 		last_tool = wind_input.tool
 		tool_hint_until = view.elapsed + 4.0
 	var rows := ceili(sim.wind_sources.size() / 2.0)
-	var width := 424.0
+	var buttons: Array = [[brush_button,78.0],[source_button,105.0],[vortex_button,85.0],[arrows_button,130.0]]
+	var width := 10.0
+	for entry in buttons:
+		if entry[0].visible: width += entry[1]+4.0
+	if rows > 0: width = maxf(width,384.0)
 	wind_toolbar_rect = Rect2(Vector2((size.x - width) * 0.5, size.y - 58 - rows * 27), Vector2(width, 42 + rows * 27))
 	_rounded(wind_toolbar_rect, PANEL, 9)
 	var at := wind_toolbar_rect.position
-	brush_button.position = at + Vector2(7, 5)
-	brush_button.size = Vector2(78, 30)
-	source_button.position = at + Vector2(89, 5)
-	source_button.size = Vector2(105, 30)
-	vortex_button.position = at + Vector2(198, 5)
-	vortex_button.size = Vector2(85, 30)
-	arrows_button.position = at + Vector2(287, 5)
-	arrows_button.size = Vector2(130, 30)
+	var x := 7.0
+	for entry in buttons:
+		if not entry[0].visible: continue
+		entry[0].position = at+Vector2(x,5)
+		entry[0].size = Vector2(entry[1],30)
+		x += entry[1]+4.0
 	brush_button.set_pressed_no_signal(wind_input.tool == "brush")
 	source_button.set_pressed_no_signal(wind_input.tool == "source")
 	vortex_button.set_pressed_no_signal(wind_input.tool == "vortex")
@@ -548,17 +553,22 @@ func _draw_wind_tools() -> void:
 		remove.position = p + Vector2(146, 0)
 		remove.size = Vector2(24, 22)
 	var message_active: bool = Time.get_ticks_msec() < wind_input.message_until
-	if view.elapsed < tool_hint_until or message_active:
+	var introduction_active: bool = not tool_introduction.is_empty() and view.elapsed < tool_introduction_until
+	if view.elapsed < tool_hint_until or message_active or introduction_active:
 		var text := "拖出方向，停住按住续吹；再拖动可调整" if wind_input.tool == "brush" else "拖出风带 · 滚轮调力度 · 松手吹 %.0f 秒" % sim.settings.source_lifetime
 		if wind_input.tool == "vortex": text = "拖出范围 · 左顺右逆 · 滚轮三档 · 松手聚集"
 		if message_active: text = wind_input.message
-		var hint := Rect2(at + Vector2(-15, -61), Vector2(380, 54))
+		var hint := Rect2(Vector2((size.x-380)*0.5,at.y-61), Vector2(380, 54))
 		_rounded(hint, PANEL, 7)
-		_text(hint.position + Vector2(10, 19), text, 12)
-		var legend := ["湿空气", "冷空气", "云移动", "抬升"]
-		var colors := [view.WET_ARROW, view.COLD_ARROW, view.CLOUD_ARROW, view.LIFT_ARROW]
-		for index in 4:
-			_text(hint.position + Vector2(10 + index * 94, 42), "➜ " + legend[index], 12, colors[index].lerp(INK, 0.42))
+		if introduction_active and not message_active:
+			_text(hint.position+Vector2(10,19),tool_introduction[0],12,GOLD)
+			_text(hint.position+Vector2(10,42),tool_introduction[1],12)
+		else:
+			_text(hint.position + Vector2(10, 19), text, 12)
+			var legend := ["湿空气", "冷空气", "云移动", "抬升"]
+			var colors := [view.WET_ARROW, view.COLD_ARROW, view.CLOUD_ARROW, view.LIFT_ARROW]
+			for index in 4:
+				_text(hint.position + Vector2(10 + index * 94, 42), "➜ " + legend[index], 12, colors[index].lerp(INK, 0.42))
 	for source in sim.wind_sources:
 		var point: Vector2 = source.position
 		if source.get("kind", "band") == "vortex":
@@ -706,6 +716,19 @@ func _draw() -> void:
 		compact_model = sim
 		last_tool = ""
 		last_status = ""
+		tool_introduction.clear()
+		tool_introduction_until = 0.0
+		if campaign_play and play_mode == "free" and not sim.sandbox:
+			var available: int = sim.layout.get("available_wind_tools",7)
+			var fresh := available & ~introduced_wind_tools
+			introduced_wind_tools |= available
+			if (fresh & 6) == 6:
+				tool_introduction = PackedStringArray(["新工具 · 风带与漩涡","风带留风输送；漩涡收拢水汽，撤源后再运送"])
+			elif (fresh & 2) != 0:
+				tool_introduction = PackedStringArray(["新工具 · 风带","拖出风带，滚轮调力度；松手后持续吹 %.0f 秒" % sim.settings.source_lifetime])
+			elif (fresh & 4) != 0:
+				tool_introduction = PackedStringArray(["新工具 · 漩涡","拖出半径，左顺右逆；聚集后撤源，再输送"])
+			if not tool_introduction.is_empty(): tool_introduction_until = view.elapsed+8.0
 	result_rect = Rect2()
 	plot_label_rects.clear()
 	var menu_base := 147 if development else 112

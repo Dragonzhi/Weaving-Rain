@@ -6,6 +6,8 @@
 
 正式关序在`configs/campaign.tres`的`Levels`数组中调整，当前收录用户制作的`level01`至`level09`。九关从单池、双池逐步加入农田、多山与风暴，名称、提示和逐关建议见[九关内容核对](docs/level-content-review.md)。新图保存后拖进数组、排序并保存，游戏里打开“菜单 → 选关”即可重读；教学单独引用，旧测试图从开发地图入口独立试玩。
 
+工具按关开放：教学和1–4关只有拨风，5–6关加入风带，7–9关加入漩涡。地图资源中的`Available Wind Tools`勾选项可直接调整，保存后R／切图生效；旧测试图默认全开。首次开放新工具会简短说明，详见[工具配置指南](docs/tool-availability.md)。
+
 当前界面方向：[视觉规范](docs/visual-language/DESIGN.md)、[认可的参考图](docs/visual-language/reference-images.md)与[UI实施计划](docs/ui-implementation-plan.md)。雨滴、池水位、悬浮状态和风纹奖章已接入，验证记录见[UI实施记录](docs/ui-review.json)。
 
 [场景立体感计划](docs/scene-volume-implementation-plan.md)已在 `codex/scene-volume` 分支接入统一光向、云影、土侧面和池内壁，见[实施记录](docs/scene-volume-review.json)。[三张概念参考](docs/visual-language/scene-reference-images.md)说明方向，实际效果仍待试玩。

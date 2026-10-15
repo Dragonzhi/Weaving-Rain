@@ -1,0 +1,723 @@
+{
+  "date": "2026-10-15",
+  "base_commit": "8297ce5",
+  "engine": "Godot 4.7.2 stable Steam / Forward+ D3D12",
+  "feature": "Per-map wind tools, compact native toolbar and session-only first-opening instruction",
+  "field": "WRMapDefinition.available_wind_tools",
+  "bits": {
+    "brush": 1,
+    "source": 2,
+    "vortex": 4
+  },
+  "legacy_default": 7,
+  "brush_required": true,
+  "schedule": [
+    {
+      "id": "level01",
+      "mask": 1,
+      "toolbar_width": 226.0,
+      "introduction": []
+    },
+    {
+      "id": "level02",
+      "mask": 1,
+      "toolbar_width": 226.0,
+      "introduction": []
+    },
+    {
+      "id": "level03",
+      "mask": 1,
+      "toolbar_width": 226.0,
+      "introduction": []
+    },
+    {
+      "id": "level04",
+      "mask": 1,
+      "toolbar_width": 226.0,
+      "introduction": []
+    },
+    {
+      "id": "level05",
+      "mask": 3,
+      "toolbar_width": 335.0,
+      "introduction": [
+        "新工具 · 风带",
+        "拖出风带，滚轮调力度；松手后持续吹 30 秒"
+      ]
+    },
+    {
+      "id": "level06",
+      "mask": 3,
+      "toolbar_width": 335.0,
+      "introduction": []
+    },
+    {
+      "id": "level07",
+      "mask": 7,
+      "toolbar_width": 424.0,
+      "introduction": [
+        "新工具 · 漩涡",
+        "拖出半径，左顺右逆；聚集后撤源，再输送"
+      ]
+    },
+    {
+      "id": "level08",
+      "mask": 7,
+      "toolbar_width": 424.0,
+      "introduction": []
+    },
+    {
+      "id": "level09",
+      "mask": 7,
+      "toolbar_width": 424.0,
+      "introduction": []
+    }
+  ],
+  "new_gpu_checks": [
+    {
+      "size": "(1920, 1080)",
+      "checks": 65,
+      "failures": 0
+    },
+    {
+      "size": "(1280, 720)",
+      "checks": 65,
+      "failures": 0
+    }
+  ],
+  "map_preservation": [
+    {
+      "path": "configs/maps/level01.tres",
+      "only_tool_field_added": true,
+      "setting": "available_wind_tools = 1"
+    },
+    {
+      "path": "configs/maps/level02.tres",
+      "only_tool_field_added": true,
+      "setting": "available_wind_tools = 1"
+    },
+    {
+      "path": "configs/maps/level03.tres",
+      "only_tool_field_added": true,
+      "setting": "available_wind_tools = 1"
+    },
+    {
+      "path": "configs/maps/level04.tres",
+      "only_tool_field_added": true,
+      "setting": "available_wind_tools = 1"
+    },
+    {
+      "path": "configs/maps/level05.tres",
+      "only_tool_field_added": true,
+      "setting": "available_wind_tools = 3"
+    },
+    {
+      "path": "configs/maps/level06.tres",
+      "only_tool_field_added": true,
+      "setting": "available_wind_tools = 3"
+    },
+    {
+      "path": "configs/maps/level07.tres",
+      "only_tool_field_added": true,
+      "setting": "available_wind_tools = 7"
+    },
+    {
+      "path": "configs/maps/level08.tres",
+      "only_tool_field_added": true,
+      "setting": "available_wind_tools = 7"
+    },
+    {
+      "path": "configs/maps/level09.tres",
+      "only_tool_field_added": true,
+      "setting": "available_wind_tools = 7"
+    },
+    {
+      "path": "configs/tutorial.tres",
+      "only_tool_field_added": true,
+      "setting": "available_wind_tools = 1"
+    }
+  ],
+  "protected_runtime_rules_style_campaign_and_editor_selection_unchanged": true,
+  "regression": {
+    "single_uninterrupted_all_pass": false,
+    "initial_log": ".godot/tool-availability/full-checks.log",
+    "initial_passed_check_names": [
+      "weather",
+      "cold-weather",
+      "onboarding",
+      "campaign",
+      "tool-availability",
+      "authored-levels",
+      "weather-polish",
+      "campaign-scene",
+      "tutorial-reservoir",
+      "layouts",
+      "wind-path",
+      "audio-scene",
+      "audio-gestures",
+      "rain-audio",
+      "compact-feedback",
+      "hud-layouts",
+      "ui-visuals",
+      "scene-lighting",
+      "ground-volume",
+      "wind-tools",
+      "wind-tools-scene",
+      "open-boundary",
+      "map-resources",
+      "plot-needs",
+      "reservoir-tropical",
+      "ground-rain",
+      "rain-area-scene",
+      "rain-layers",
+      "tropical-scene",
+      "plot-needs-scene",
+      "star-levels",
+      "water-reserve",
+      "three-star-finish",
+      "rating",
+      "vortex-wind",
+      "vortex-scene",
+      "vortex-gather",
+      "editor-map",
+      "tuning",
+      "scene",
+      "star-scene",
+      "plot-feedback",
+      "render-fields",
+      "moisture-surface",
+      "cloud-surface",
+      "replay",
+      "lesson-replay",
+      "tutorial-viewport",
+      "level01-viewport",
+      "campaign-viewport",
+      "dual-mountain",
+      "dual-relay",
+      "far-mountain",
+      "far-relay",
+      "close-mountain",
+      "close-reverse",
+      "ridges-mountain",
+      "meadow-level",
+      "valleys-level",
+      "meadow-three-abc",
+      "meadow-three-cab",
+      "valleys-three-mountain",
+      "valleys-three-relay",
+      "valleys-late-clear",
+      "wind-tools-route",
+      "needs-ordinary-first",
+      "needs-seedling-first",
+      "needs-partial-loss",
+      "needs-viewport-route",
+      "vortex-viewport-route"
+    ],
+    "failed_check": "vortex-control-route",
+    "failed_result": {
+      "band_closed": true,
+      "band_placed": true,
+      "blocked": 0,
+      "cold_lift": 71.4928788701048,
+      "destroyed": [
+        false,
+        true
+      ],
+      "elapsed": 40.2666666666657,
+      "events": 2202,
+      "front_strokes": 0,
+      "gesture_count": 88,
+      "input_pick_error": 0.0,
+      "layout": "needs_lab",
+      "limit": 180.0,
+      "order": [
+        0,
+        1
+      ],
+      "outcome": "playing",
+      "per_target": [
+        {
+          "distance": 44.7000007629395,
+          "front": 0,
+          "strokes": 26,
+          "transport": 19
+        },
+        {
+          "distance": 68.7000019550323,
+          "front": 0,
+          "strokes": 62,
+          "transport": 29
+        },
+        {
+          "distance": 0.0,
+          "front": 0,
+          "strokes": 0,
+          "transport": 0
+        }
+      ],
+      "placement_path_length": 0.0,
+      "route": "mountain",
+      "saved_count": 0,
+      "stars": 0,
+      "strokes": 88,
+      "total_path_length": 193.300000905991,
+      "transport_distance": 113.400002717972,
+      "transport_strokes": 48,
+      "vortex": {},
+      "vortex_closed": false,
+      "water": [
+        105.941030532137,
+        55.4719114503686
+      ],
+      "water_error": -0.000517638538440224
+    },
+    "failure_reason": "Seedling water 55.4719114503686 exceeds 55; damaged with outcome still playing. Cause unconfirmed; retain as V6, no thresholds modified.",
+    "continued_log": ".godot/tool-availability/continued-checks.log",
+    "continued_passed_check_names": [
+      "reservoir-route",
+      "tropical-pool-first",
+      "tropical-farm-first",
+      "tropical-partial-loss",
+      "tropical-pure",
+      "tropical-viewport-pool",
+      "tropical-viewport-farm",
+      "tropical-viewport-pure"
+    ],
+    "five_route_comparisons": "passed",
+    "check_summaries": [
+      {
+        "check": "WEATHER TESTS",
+        "checks": 32,
+        "failures": 0
+      },
+      {
+        "check": "COLD WEATHER TESTS",
+        "checks": 22,
+        "failures": 0
+      },
+      {
+        "check": "ONBOARDING TESTS",
+        "checks": 19,
+        "failures": 0
+      },
+      {
+        "check": "CAMPAIGN",
+        "checks": 12,
+        "failures": 0
+      },
+      {
+        "check": "CAMPAIGN SCENE",
+        "checks": 41,
+        "failures": 0
+      },
+      {
+        "check": "TUTORIAL RESERVOIR",
+        "checks": 17,
+        "failures": 0
+      },
+      {
+        "check": "LAYOUT TESTS",
+        "checks": 33,
+        "failures": 0
+      },
+      {
+        "check": "WIND PATH",
+        "checks": 6,
+        "failures": 0
+      },
+      {
+        "check": "AUDIO",
+        "checks": 53,
+        "failures": 0
+      },
+      {
+        "check": "AUDIO GESTURES",
+        "checks": 24,
+        "failures": 0
+      },
+      {
+        "check": "RAIN AUDIO",
+        "checks": 11,
+        "failures": 0
+      },
+      {
+        "check": "COMPACT FEEDBACK",
+        "checks": 25,
+        "failures": 0
+      },
+      {
+        "check": "HUD LAYOUTS",
+        "checks": 27,
+        "failures": 0
+      },
+      {
+        "check": "UI VISUALS",
+        "checks": 24,
+        "failures": 0
+      },
+      {
+        "check": "SCENE LIGHTING",
+        "checks": 29,
+        "failures": 0
+      },
+      {
+        "check": "GROUND VOLUME",
+        "checks": 83,
+        "failures": 0
+      },
+      {
+        "check": "WIND TOOLS",
+        "checks": 44,
+        "failures": 0
+      },
+      {
+        "check": "WIND TOOLS SCENE",
+        "checks": 36,
+        "failures": 0
+      },
+      {
+        "check": "OPEN BOUNDARY",
+        "checks": 35,
+        "failures": 0
+      },
+      {
+        "check": "MAP RESOURCES",
+        "checks": 18,
+        "failures": 0
+      },
+      {
+        "check": "PLOT NEEDS",
+        "checks": 24,
+        "failures": 0
+      },
+      {
+        "check": "RESERVOIR TROPICAL",
+        "checks": 29,
+        "failures": 0
+      },
+      {
+        "check": "GROUND RAIN",
+        "checks": 12,
+        "failures": 0
+      },
+      {
+        "check": "RAIN AREA SCENE",
+        "checks": 22,
+        "failures": 0
+      },
+      {
+        "check": "RAIN LAYERS",
+        "checks": 5,
+        "failures": 0
+      },
+      {
+        "check": "TROPICAL SCENE",
+        "checks": 13,
+        "failures": 0
+      },
+      {
+        "check": "PLOT NEEDS SCENE",
+        "checks": 16,
+        "failures": 0
+      },
+      {
+        "check": "STAR LEVELS",
+        "checks": 64,
+        "failures": 0
+      },
+      {
+        "check": "WATER RESERVE",
+        "checks": 22,
+        "failures": 0
+      },
+      {
+        "check": "THREE STAR FINISH",
+        "checks": 22,
+        "failures": 0
+      },
+      {
+        "check": "RATING",
+        "checks": 39,
+        "failures": 0
+      },
+      {
+        "check": "VORTEX WIND",
+        "checks": 10,
+        "failures": 0
+      },
+      {
+        "check": "VORTEX SCENE",
+        "checks": 64,
+        "failures": 0
+      },
+      {
+        "check": "EDITOR MAP",
+        "checks": 29,
+        "failures": 0
+      },
+      {
+        "check": "TUNING",
+        "checks": 11,
+        "failures": 0
+      },
+      {
+        "check": "SCENE TESTS",
+        "checks": 37,
+        "failures": 0
+      },
+      {
+        "check": "STAR SCENE",
+        "checks": 47,
+        "failures": 0
+      },
+      {
+        "check": "PLOT FEEDBACK",
+        "checks": 18,
+        "failures": 0
+      },
+      {
+        "check": "RENDER FIELD TESTS",
+        "checks": 11,
+        "failures": 0
+      },
+      {
+        "check": "MOISTURE SURFACE",
+        "checks": 3,
+        "failures": 0
+      },
+      {
+        "check": "CLOUD SURFACE",
+        "checks": 8,
+        "failures": 0
+      }
+    ],
+    "ordinary_seedling_viewport_this_run": {
+      "outcome": "success",
+      "seconds": 43.0166666666655,
+      "seedling_water": 42.6674502797426
+    }
+  },
+  "normal_start_real_mouse_campaign": {
+    "blocked": 0,
+    "following": "level02",
+    "input_failures": 0,
+    "mouse_events": 2594,
+    "passed": true,
+    "pick_error": 0.0,
+    "selection": [],
+    "stages": [
+      {
+        "campaign_play": true,
+        "cold_lift": 10.5521392940344,
+        "destroyed": [
+          false
+        ],
+        "elapsed": 0.0,
+        "front_strokes": 0,
+        "layout": "tutorial",
+        "limit": 180.0,
+        "order": [
+          0
+        ],
+        "outcome": "success",
+        "per_target": [
+          {
+            "distance": 12.2999992370605,
+            "front": 0,
+            "strokes": 18,
+            "transport": 5
+          },
+          {
+            "distance": 0.0,
+            "front": 0,
+            "strokes": 0,
+            "transport": 0
+          },
+          {
+            "distance": 0.0,
+            "front": 0,
+            "strokes": 0,
+            "transport": 0
+          }
+        ],
+        "phases": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "route": "mountain",
+        "route_seconds": 9.13333333333337,
+        "stars": 0,
+        "strokes": 18,
+        "transport_distance": 12.2999992370605,
+        "transport_strokes": 5,
+        "water": [
+          100.0
+        ],
+        "water_error": -9.81036350822251e-05
+      },
+      {
+        "campaign_play": true,
+        "cold_lift": 4.92260000484731,
+        "destroyed": [
+          false
+        ],
+        "elapsed": 35.8166666666659,
+        "front_strokes": 0,
+        "layout": "level01",
+        "limit": 180.0,
+        "order": [
+          0
+        ],
+        "outcome": "success",
+        "per_target": [
+          {
+            "distance": 31.1999998092651,
+            "front": 0,
+            "strokes": 65,
+            "transport": 14
+          },
+          {
+            "distance": 0.0,
+            "front": 0,
+            "strokes": 0,
+            "transport": 0
+          },
+          {
+            "distance": 0.0,
+            "front": 0,
+            "strokes": 0,
+            "transport": 0
+          }
+        ],
+        "phases": [
+          0
+        ],
+        "route": "mountain",
+        "route_seconds": 35.8166666666654,
+        "stars": 3,
+        "strokes": 65,
+        "transport_distance": 31.1999998092651,
+        "transport_strokes": 14,
+        "water": [
+          250.0
+        ],
+        "water_error": -0.00136754489540181
+      }
+    ]
+  },
+  "short_runtime": {
+    "settings": "1920x1080, level09 rain stress, mixed two sources during drag, audio off, warmup1s/sample5s per case",
+    "results": [
+      {
+        "arrows_enabled": true,
+        "audio_enabled": false,
+        "audio_ms": 0.0236736842105263,
+        "audio_peak_ms": 0.083,
+        "drag": false,
+        "final_backlog_ms": 379.669777777778,
+        "frames": 285,
+        "gpu_ms": 4.21987261855811,
+        "hud_draw_ms": 1.29921403508772,
+        "hud_visible": true,
+        "input_ms": 0.120294736842105,
+        "kind": "rain",
+        "layout": "level09",
+        "max_backlog_ms": 379.669777777778,
+        "min_sources": 0,
+        "natural_organization": 0.814389442859128,
+        "natural_weather": true,
+        "p50": 17.12,
+        "p95": 19.521,
+        "p99": 21.004,
+        "peak_arrows": 8,
+        "peak_rain_area_cells": 2628,
+        "peak_rain_focus": 1.0,
+        "peak_source_lines": 0,
+        "pick_ms": 0.120024537203605,
+        "rain_area_group_builds": 86,
+        "rain_area_visible": true,
+        "rendered_size": [
+          1920,
+          1080
+        ],
+        "sample_seconds": 5.0,
+        "sim_ms": 8.33009097450658,
+        "simulation_seconds": 4.76666666666667,
+        "slow_33ms": 1,
+        "source_kinds": [],
+        "steps_per_frame": 1.0,
+        "view_ms": 5.82219495271382,
+        "wind_combination": "mixed"
+      },
+      {
+        "arrows_enabled": true,
+        "audio_enabled": false,
+        "audio_ms": 0.0240988593155893,
+        "audio_peak_ms": 0.038,
+        "drag": true,
+        "final_backlog_ms": 804.30266666666,
+        "frames": 263,
+        "gpu_ms": 4.22935433623455,
+        "hud_draw_ms": 1.63774904942966,
+        "hud_visible": true,
+        "input_ms": 0.102095057034221,
+        "kind": "rain",
+        "layout": "level09",
+        "max_backlog_ms": 804.30266666666,
+        "min_sources": 2,
+        "natural_organization": 0.81364551376428,
+        "natural_weather": true,
+        "p50": 18.502,
+        "p95": 21.568,
+        "p99": 23.371,
+        "peak_arrows": 32,
+        "peak_rain_area_cells": 2628,
+        "peak_rain_focus": 1.0,
+        "peak_source_lines": 34,
+        "pick_ms": 0.00266920137768009,
+        "rain_area_group_builds": 80,
+        "rain_area_visible": true,
+        "rendered_size": [
+          1920,
+          1080
+        ],
+        "sample_seconds": 5.0,
+        "sim_ms": 9.09985815708175,
+        "simulation_seconds": 4.4,
+        "slow_33ms": 0,
+        "source_kinds": [
+          "band",
+          "vortex"
+        ],
+        "steps_per_frame": 1.0,
+        "view_ms": 6.22511018818322,
+        "wind_combination": "mixed"
+      }
+    ],
+    "meets_formal_thresholds": false,
+    "caveat": "Short diagnostic only. Frame time and simulation backlog remain over thresholds, one >33ms frame in idle. Formal idle-time long performance V1 remains open; no before/after isolation or improvement claim."
+  },
+  "screenshots": {
+    "directory": ".godot/tool-availability/",
+    "reviewed": [
+      "level01-1920.png",
+      "level05-1920.png",
+      "level07-1280.png"
+    ],
+    "scope": "normal initial map/UI screenshots, not successful gameplay route evidence",
+    "added_to_repo": false
+  },
+  "configuration_reload": "R/map switch reads tool flags; F6 retains flags; invalid maps retain the last valid configuration",
+  "first_opening": "8 seconds of existing view time, pauses freeze it, session memory only; legacy development maps skip it",
+  "final_import": "passed",
+  "open_items": [
+    "V1 formal long performance",
+    "V6 native/replay variability including this control route failure",
+    "V15 all nine routes and new-player difficulty",
+    "V18 playtest acceptance of tool pacing"
+  ],
+  "exports_created": false,
+  "remote_push": false
+}

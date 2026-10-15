@@ -35,8 +35,10 @@ var message := ""
 var message_until := 0
 
 func setup(model: RefCounted, view_camera: Camera3D) -> void:
+	cancel()
 	sim = model
 	camera = view_camera
+	tool = "brush"
 	if not get_viewport().mouse_exited.is_connected(_on_viewport_exit):
 		get_viewport().mouse_exited.connect(_on_viewport_exit)
 
@@ -109,9 +111,14 @@ func apply_segment(a: Vector2, b: Vector2, from_time: float, to_time: float) -> 
 		gesture_direction = (b - a).normalized()
 		gesture_strength = last_force
 
-func select_tool(value: String) -> void:
+func tool_available(value: String) -> bool:
+	return value in WRMapDefinition.WIND_TOOLS and (int(sim.layout.get("available_wind_tools",7)) & int(WRMapDefinition.WIND_TOOLS[value])) != 0
+
+func select_tool(value: String) -> bool:
+	if not tool_available(value): return false
 	cancel()
 	tool = value
+	return true
 
 func vortex_preview() -> Dictionary:
 	var radius := gesture_start.distance_to(Vector2(brush_point.x, brush_point.z))
@@ -129,7 +136,7 @@ func update_held(now_seconds: float = -1.0) -> void:
 
 func release_at(screen: Vector2) -> void:
 	if not dragging: return
-	var valid: bool = get_viewport().get_visible_rect().has_point(screen) and (hud == null or not hud.blocks_wind(screen))
+	var valid: bool = tool_available(tool) and get_viewport().get_visible_rect().has_point(screen) and (hud == null or not hud.blocks_wind(screen))
 	if tool == "source" and valid and enabled:
 		var hit: Variant = _on_plane(screen, reference_height)
 		if hit != null and Sim.contains(Vector2(hit.x, hit.z)) and gesture_start.distance_to(Vector2(hit.x, hit.z)) >= 0.25:
@@ -224,6 +231,10 @@ func update_hover() -> void:
 	hover_valid = Sim.contains(Vector2(brush_point.x, brush_point.z))
 
 func _unhandled_input(event: InputEvent) -> void:
+	if not tool_available(tool):
+		cancel()
+		tool = "brush"
+		return
 	if event is InputEventMouseButton and event.pressed and event.button_index in [MOUSE_BUTTON_WHEEL_UP, MOUSE_BUTTON_WHEEL_DOWN]:
 		if enabled and dragging and tool in ["source", "vortex"] and sim.outcome == "playing" and (hud == null or not hud.blocks_wind(event.position)):
 			source_tier = clampi(source_tier + (1 if event.button_index == MOUSE_BUTTON_WHEEL_UP else -1), 0, 2)

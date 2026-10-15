@@ -41,6 +41,7 @@ script = ExtResource("7_32es6")
 id = "level05"
 title = "留风送雨"
 hint = "可留一条风带持续送汽，腾手处理另一处云雨；A田够水后留意撤源与移云"
+available_wind_tools = 3
 island_center = Vector2(-0.111564755, 0.49977112)
 island_axes = Vector2(8.098161, 5.2112274)
 river_enabled = false

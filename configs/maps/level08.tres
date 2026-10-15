@@ -37,6 +37,7 @@ script = ExtResource("7_qkyq4")
 id = "level08"
 title = "海上借雨"
 hint = "从外围引导自然雨带；A田适量后移云收尾，B池可以承接持续的强雨"
+available_wind_tools = 7
 river_enabled = false
 mountains = Array[ExtResource("2_4v610")]([SubResource("Resource_qx6ew")])
 plots = PackedVector2Array(1.7, -3.4, 5.4, 1.2)

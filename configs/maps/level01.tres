@@ -25,6 +25,7 @@ script = ExtResource("5_ranpp")
 id = "level01"
 title = "山外一池"
 hint = "把湿空气推向山坡，再把雨云送到远处水池；蓄满后可继续承雨"
+available_wind_tools = 1
 river_enabled = false
 mountains = Array[ExtResource("2_53ud5")]([SubResource("Resource_53ud5")])
 plots = PackedVector2Array(2.8, 1.2)

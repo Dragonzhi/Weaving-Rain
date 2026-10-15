@@ -36,6 +36,7 @@ script = ExtResource("7_2b1vl")
 id = "level02"
 title = "两池分雨"
 hint = "用两团湿空气组织云雨，依次或轮流填满两座水池；池满后不怕溢出"
+available_wind_tools = 1
 river_enabled = false
 mountains = Array[ExtResource("2_og4a7")]([SubResource("Resource_og4a7")])
 plots = PackedVector2Array(2.8, 1.2, -4.3, 2.6)

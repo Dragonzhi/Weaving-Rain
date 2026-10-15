@@ -31,6 +31,7 @@ script = ExtResource("5_jo47d")
 id = "level03"
 title = "田池之间"
 hint = "A田适量后移云收尾；B池可以承接余雨，蓄满后不怕溢出"
+available_wind_tools = 1
 island_center = Vector2(-0.111564755, 0.49977112)
 river_enabled = false
 mountains = Array[ExtResource("2_leu2n")]([SubResource("Resource_kq1d5")])

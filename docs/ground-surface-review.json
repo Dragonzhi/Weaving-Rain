@@ -1,0 +1,429 @@
+{
+  "date": "2026-10-15",
+  "checkpoint_before_ground_changes": "8297ce5",
+  "engine": "Godot 4.7.2 stable Steam / Forward+ D3D12",
+  "scope": "ordinary-ground display only; no geometric relief",
+  "configuration": "res://configs/scene_style.tres; R/map switch applies, F6 retains style",
+  "defaults": {
+    "grass_patch_strength": 0.1,
+    "grass_mark_strength": 0.14,
+    "grass_mark_density": 0.18,
+    "ground_wet_darkening": 0.1,
+    "ground_wet_gain": 2.0,
+    "ground_dry_seconds": 30.0
+  },
+  "display_grid": {
+    "size": [
+      64,
+      56
+    ],
+    "format": "RGF",
+    "channels": [
+      "wetness",
+      "static grass clearance"
+    ],
+    "upload_hz_limit": 15,
+    "time": "each actual fixed simulation step, not rendering time"
+  },
+  "new_gpu_checks": [
+    {
+      "checks": 26,
+      "failures": 0,
+      "grass_pixels": 500,
+      "patch_pixels": 63993,
+      "size": "(1920, 1080)",
+      "wet_step_ms": 0.0366083333333333
+    },
+    {
+      "checks": 26,
+      "failures": 0,
+      "grass_pixels": 297,
+      "patch_pixels": 28434,
+      "size": "(1280, 720)",
+      "wet_step_ms": 0.0386
+    }
+  ],
+  "related_checks": {
+    "ground-volume": {
+      "checks": 83,
+      "failures": 0
+    },
+    "scene-lighting": {
+      "checks": 29,
+      "failures": 0
+    },
+    "weather-polish": {
+      "checks": 19,
+      "dry_luminance": 0.614160060882568,
+      "failures": 0,
+      "ring_red_invalid": 540,
+      "ring_red_valid": 0,
+      "size": "(1920, 1080)",
+      "wet_luminance": 0.434170216321945
+    },
+    "rain-area": {
+      "checks": 22,
+      "failures": 0
+    },
+    "rain-layers": {
+      "checks": 5,
+      "failures": 0
+    },
+    "ground-rain": {
+      "checks": 12,
+      "failures": 0
+    }
+  },
+  "normal_start_real_mouse_campaign_route": {
+    "blocked": 0,
+    "following": "level02",
+    "input_failures": 0,
+    "mouse_events": 2414,
+    "passed": true,
+    "pick_error": 0.0,
+    "selection": [],
+    "stages": [
+      {
+        "campaign_play": true,
+        "cold_lift": 10.3417449729065,
+        "destroyed": [
+          false
+        ],
+        "elapsed": 0.0,
+        "front_strokes": 0,
+        "layout": "tutorial",
+        "limit": 180.0,
+        "order": [
+          0
+        ],
+        "outcome": "success",
+        "per_target": [
+          {
+            "distance": 12.2999992370605,
+            "front": 0,
+            "strokes": 18,
+            "transport": 5
+          },
+          {
+            "distance": 0.0,
+            "front": 0,
+            "strokes": 0,
+            "transport": 0
+          },
+          {
+            "distance": 0.0,
+            "front": 0,
+            "strokes": 0,
+            "transport": 0
+          }
+        ],
+        "phases": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "route": "mountain",
+        "route_seconds": 9.1666666666667,
+        "stars": 0,
+        "strokes": 18,
+        "transport_distance": 12.2999992370605,
+        "transport_strokes": 5,
+        "water": [
+          100.0
+        ],
+        "water_error": -0.000150036720981461
+      },
+      {
+        "campaign_play": true,
+        "cold_lift": 4.86014944189017,
+        "destroyed": [
+          false
+        ],
+        "elapsed": 35.7833333333326,
+        "front_strokes": 0,
+        "layout": "level01",
+        "limit": 180.0,
+        "order": [
+          0
+        ],
+        "outcome": "success",
+        "per_target": [
+          {
+            "distance": 31.1999998092651,
+            "front": 0,
+            "strokes": 65,
+            "transport": 14
+          },
+          {
+            "distance": 0.0,
+            "front": 0,
+            "strokes": 0,
+            "transport": 0
+          },
+          {
+            "distance": 0.0,
+            "front": 0,
+            "strokes": 0,
+            "transport": 0
+          }
+        ],
+        "phases": [
+          0
+        ],
+        "route": "mountain",
+        "route_seconds": 35.783333333332,
+        "stars": 3,
+        "strokes": 65,
+        "transport_distance": 31.1999998092651,
+        "transport_strokes": 14,
+        "water": [
+          250.0
+        ],
+        "water_error": -0.00137066913129047
+      }
+    ]
+  },
+  "protected_maps_rules_input_and_ui_unchanged": true,
+  "short_runtime": {
+    "settings": "1920x1080, level09, rain stress, mixed two sources in drag, audio off, 1 second warmup + 5 seconds sampling per case",
+    "before": [
+      {
+        "arrows_enabled": true,
+        "audio_enabled": false,
+        "audio_ms": 0.0266884057971014,
+        "audio_peak_ms": 0.052,
+        "drag": false,
+        "final_backlog_ms": 617.676767676765,
+        "frames": 276,
+        "gpu_ms": 2.98227945963542,
+        "hud_draw_ms": 1.25242391304348,
+        "hud_visible": true,
+        "input_ms": 0.0490724637681159,
+        "kind": "rain",
+        "layout": "level09",
+        "max_backlog_ms": 617.676767676765,
+        "min_sources": 0,
+        "natural_organization": 0.813396875393887,
+        "natural_weather": true,
+        "p50": 17.956,
+        "p95": 20.63,
+        "p99": 21.775,
+        "peak_arrows": 8,
+        "peak_rain_area_cells": 2625,
+        "peak_rain_focus": 0.0,
+        "peak_source_lines": 0,
+        "pick_ms": 0.0606847845989725,
+        "rain_area_group_builds": 82,
+        "rain_area_visible": true,
+        "rendered_size": [
+          1920,
+          1080
+        ],
+        "sample_seconds": 5.0,
+        "sim_ms": 8.78131988083107,
+        "simulation_seconds": 4.61666666666667,
+        "slow_33ms": 0,
+        "source_kinds": [],
+        "steps_per_frame": 1.0,
+        "view_ms": 6.01510531660439,
+        "wind_combination": "mixed"
+      },
+      {
+        "arrows_enabled": true,
+        "audio_enabled": false,
+        "audio_ms": 0.0256987951807229,
+        "audio_peak_ms": 0.04,
+        "drag": true,
+        "final_backlog_ms": 1072.6293030303,
+        "frames": 249,
+        "gpu_ms": 4.24036870136797,
+        "hud_draw_ms": 1.72461847389558,
+        "hud_visible": true,
+        "input_ms": 0.109024096385542,
+        "kind": "rain",
+        "layout": "level09",
+        "max_backlog_ms": 1072.6293030303,
+        "min_sources": 2,
+        "natural_organization": 0.812648968078041,
+        "natural_weather": true,
+        "p50": 19.819,
+        "p95": 22.464,
+        "p99": 23.729,
+        "peak_arrows": 32,
+        "peak_rain_area_cells": 2625,
+        "peak_rain_focus": 1.0,
+        "peak_source_lines": 34,
+        "pick_ms": 0.0026827303760023,
+        "rain_area_group_builds": 76,
+        "rain_area_visible": true,
+        "rendered_size": [
+          1920,
+          1080
+        ],
+        "sample_seconds": 5.0,
+        "sim_ms": 9.59806707297942,
+        "simulation_seconds": 4.16666666666667,
+        "slow_33ms": 0,
+        "source_kinds": [
+          "band",
+          "vortex"
+        ],
+        "steps_per_frame": 1.0,
+        "view_ms": 6.49992499294051,
+        "wind_combination": "mixed"
+      }
+    ],
+    "after": [
+      {
+        "arrows_enabled": true,
+        "audio_enabled": false,
+        "audio_ms": 0.0260328467153284,
+        "audio_peak_ms": 0.23,
+        "drag": false,
+        "final_backlog_ms": 616.540888888886,
+        "frames": 274,
+        "gpu_ms": 4.10532083998631,
+        "hud_draw_ms": 1.33278832116788,
+        "hud_visible": true,
+        "input_ms": 0.111240875912409,
+        "kind": "rain",
+        "layout": "level09",
+        "max_backlog_ms": 616.540888888886,
+        "min_sources": 0,
+        "natural_organization": 0.813893820837759,
+        "natural_weather": true,
+        "p50": 18.115,
+        "p95": 20.541,
+        "p99": 21.258,
+        "peak_arrows": 8,
+        "peak_rain_area_cells": 2621,
+        "peak_rain_focus": 1.0,
+        "peak_source_lines": 0,
+        "pick_ms": 0.117963484603993,
+        "rain_area_group_builds": 82,
+        "rain_area_visible": true,
+        "rendered_size": [
+          1920,
+          1080
+        ],
+        "sample_seconds": 5.0,
+        "sim_ms": 8.83501528997491,
+        "simulation_seconds": 4.58333333333333,
+        "slow_33ms": 0,
+        "source_kinds": [],
+        "steps_per_frame": 1.0,
+        "view_ms": 5.99293506928604,
+        "wind_combination": "mixed"
+      },
+      {
+        "arrows_enabled": true,
+        "audio_enabled": false,
+        "audio_ms": 0.02484765625,
+        "audio_peak_ms": 0.039,
+        "drag": true,
+        "final_backlog_ms": 996.948033670029,
+        "frames": 256,
+        "gpu_ms": 4.58445453643799,
+        "hud_draw_ms": 1.65978515625,
+        "hud_visible": true,
+        "input_ms": 0.1017265625,
+        "kind": "rain",
+        "layout": "level09",
+        "max_backlog_ms": 996.948033670029,
+        "min_sources": 2,
+        "natural_organization": 0.813147905284557,
+        "natural_weather": true,
+        "p50": 19.403,
+        "p95": 21.443,
+        "p99": 22.097,
+        "peak_arrows": 32,
+        "peak_rain_area_cells": 2625,
+        "peak_rain_focus": 1.0,
+        "peak_source_lines": 34,
+        "pick_ms": 0.00273046782240272,
+        "rain_area_group_builds": 78,
+        "rain_area_visible": true,
+        "rendered_size": [
+          1920,
+          1080
+        ],
+        "sample_seconds": 5.0,
+        "sim_ms": 9.50059127807617,
+        "simulation_seconds": 4.28333333333333,
+        "slow_33ms": 0,
+        "source_kinds": [
+          "band",
+          "vortex"
+        ],
+        "steps_per_frame": 1.0,
+        "view_ms": 6.31720876693726,
+        "wind_combination": "mixed"
+      }
+    ],
+    "passed_formal_thresholds": false,
+    "caveat": "Single short before/after samples; different scheduling, weather advance and cursor focus. Not an isolated cost measurement or a performance improvement claim. Both retain frame-time and simulation-backlog failures. V1 long testing deferred as agreed."
+  },
+  "screenshots": {
+    "directory": ".godot/ground-surface/",
+    "files": [
+      "plain-1920.png",
+      "dry-1920.png",
+      "wet-1920.png",
+      "local-wet-1920.png",
+      "plain-1280.png",
+      "dry-1280.png",
+      "wet-1280.png",
+      "local-wet-1280.png"
+    ],
+    "kind": "injected display fixtures, reviewed visually; not normal-play route evidence",
+    "tracked_images_added": false
+  },
+  "final_import": "passed, no SCRIPT ERROR or ERROR log lines",
+  "full_suite_rerun": false,
+  "open_items": [
+    "V1 formal idle-time long performance",
+    "V6 historical native/seedling replay failures",
+    "V15 full routes and difficulty for all nine user levels"
+  ],
+  "exports_created": false,
+  "remote_push": false,
+  "status": "rejected_after_playtest_and_reverted",
+  "current_feature_active": false,
+  "revert": {
+    "date": "2026-10-15",
+    "reason": "User found the color transitions harsh and ordinary-ground detailing low priority; retain plain ground.",
+    "runtime_restored_to": "8297ce5",
+    "removed": [
+      "grass patches",
+      "grass marks",
+      "ordinary-ground wetness texture and fixed-step update",
+      "six grassland display settings",
+      "dedicated test and runner entry"
+    ],
+    "retained": [
+      "watered farmland darkening",
+      "wilt without group rotation",
+      "invalid vortex radius red preview",
+      "nine-level copy and layout"
+    ],
+    "history_only": true,
+    "verification": {
+      "final_import": "passed",
+      "retained_polish_gpu": {
+        "checks": 19,
+        "failures": 0,
+        "resolution": [
+          1920,
+          1080
+        ]
+      },
+      "configs_scripts_shaders_tests_exactly_match_checkpoint": true,
+      "full_suite_rerun": false,
+      "logs": [
+        ".godot/ground-surface/revert-import.log",
+        ".godot/ground-surface/revert-polish.log"
+      ]
+    }
+  }
+}

@@ -52,6 +52,7 @@ script = ExtResource("7_ulvy2")
 id = "level07"
 title = "三池汇雨"
 hint = "可借漩涡收拢湿空气，再撤掉漩涡、借山造云并分送三池；蓄满的池无需停雨"
+available_wind_tools = 7
 island_center = Vector2(0.82010543, 1.448425)
 island_axes = Vector2(8.098161, 5.1981297)
 river_enabled = false

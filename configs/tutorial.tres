@@ -26,6 +26,7 @@ script = ExtResource("1")
 id = "tutorial"
 title = "入门 · 借雨蓄水"
 hint = "把湿空气推向山坡，让云雨填满水库"
+available_wind_tools = 1
 river_enabled = false
 mountains = Array[ExtResource("2")]([SubResource("Resource_pkwav")])
 plots = PackedVector2Array(-3.3375697, 3.3899055)
