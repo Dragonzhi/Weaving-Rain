@@ -12,6 +12,7 @@ var drop := PackedVector2Array()
 var bowl := PackedVector2Array()
 var drop_cache: Dictionary = {}
 var bowl_cache: Dictionary = {}
+var cloud := PackedVector2Array()
 
 func _init() -> void:
 	var curves := [
@@ -24,6 +25,31 @@ func _init() -> void:
 	for n in 25:
 		var angle := PI * n / 24.0
 		bowl.append(Vector2(0.5 + 0.5 * cos(angle), 0.18 + 0.82 * sin(angle)))
+	var cloud_curves := [
+		[Vector2(0.12,1),Vector2(-0.04,1),Vector2(-0.04,0.45),Vector2(0.15,0.45)],
+		[Vector2(0.15,0.45),Vector2(0.16,0.12),Vector2(0.32,0.1),Vector2(0.4,0.28)],
+		[Vector2(0.4,0.28),Vector2(0.43,-0.03),Vector2(0.64,-0.03),Vector2(0.68,0.29)],
+		[Vector2(0.68,0.29),Vector2(0.78,0.12),Vector2(0.9,0.28),Vector2(0.89,0.49)],
+		[Vector2(0.89,0.49),Vector2(1.04,0.48),Vector2(1.04,1),Vector2(0.88,1)]]
+	for curve in cloud_curves:
+		for n in 8: cloud.append(curve[0].bezier_interpolate(curve[1],curve[2],curve[3],n/8.0))
+	cloud.append(Vector2(0.88,1))
+
+func cloud_reserve(canvas: CanvasItem, rect: Rect2, wet: float, stored: float, wet_color: Color, cloud_color: Color) -> void:
+	var outline := PackedVector2Array()
+	var sideways := PackedVector2Array()
+	for p in cloud:
+		outline.append(rect.position+p*rect.size)
+		sideways.append(Vector2(p.y,-p.x))
+	canvas.draw_colored_polygon(outline,Color(0.96,0.98,0.92,0.94))
+	for entry in [[wet+stored,cloud_color],[wet,wet_color]]:
+		if entry[0] <= 0: continue
+		var clipped := _filled(sideways,-clampf(entry[0],0,1))
+		var polygon := PackedVector2Array()
+		for p in clipped: polygon.append(rect.position+Vector2(-p.y,p.x)*rect.size)
+		if polygon.size() >= 3 and not Geometry2D.triangulate_polygon(polygon).is_empty(): canvas.draw_colored_polygon(polygon,entry[1])
+	outline.append(outline[0])
+	canvas.draw_polyline(outline,Color(INK,0.65),1.2,true)
 
 func clear_cache() -> void:
 	drop_cache.clear()

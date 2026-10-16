@@ -2,6 +2,7 @@ extends Control
 ## Native entry pages. The host alone owns gameplay, navigation and persistence.
 signal action_requested(action: String, id: String)
 signal audio_changed(enabled: bool, volume: float)
+signal music_changed(volume: float)
 const Visuals = preload("res://scripts/hud_visuals.gd")
 const View = preload("res://scripts/weather_view.gd")
 const Sim = preload("res://scripts/weather_simulation.gd")
@@ -22,6 +23,8 @@ var tutorial_button: Button
 var sound_toggle: CheckButton
 var volume: HSlider
 var volume_label: Label
+var music_volume: HSlider
+var music_volume_label: Label
 var error_label: Label
 var grid: GridContainer
 var detail_image: TextureRect
@@ -116,6 +119,7 @@ func show_page(next: String) -> void:
 	start_button = null
 	sound_toggle = null
 	volume = null
+	music_volume = null
 	hero_rect = null
 	campaign = host.campaign
 	best = host.progress.best
@@ -365,7 +369,7 @@ func _settings() -> void:
 	panel.custom_minimum_size.x = minf(650,size.x-120)
 	var column := _column(panel,24)
 	sound_toggle = CheckButton.new()
-	sound_toggle.text = "风雨与操作音效"
+	sound_toggle.text = "声音（音乐、风雨与操作）"
 	sound_toggle.button_pressed = host.weather_audio.enabled
 	column.add_child(sound_toggle)
 	var row := _row(column)
@@ -383,12 +387,27 @@ func _settings() -> void:
 	row.add_child(volume_label)
 	sound_toggle.toggled.connect(func(on): audio_changed.emit(on,volume.value/100.0))
 	volume.value_changed.connect(func(value): volume_label.text = "%d%%" % value; audio_changed.emit(sound_toggle.button_pressed,value/100.0))
+	var music_row := _row(column)
+	music_row.add_child(_label("音乐音量",20))
+	music_volume = HSlider.new()
+	music_volume.min_value = 0
+	music_volume.max_value = 100
+	music_volume.step = 1
+	music_volume.value = host.weather_audio.music_volume*100
+	music_volume.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	music_volume.custom_minimum_size = Vector2(260,40)
+	music_row.add_child(music_volume)
+	music_volume_label = _label("%d%%" % music_volume.value,20)
+	music_volume_label.custom_minimum_size.x = 65
+	music_row.add_child(music_volume_label)
+	music_volume.value_changed.connect(func(value): music_volume_label.text = "%d%%" % value; music_changed.emit(value/100.0))
 	var motion := CheckButton.new()
 	motion.text = "减少转场动态（本次运行）"
 	motion.button_pressed = host.transition.reduced_motion
 	motion.toggled.connect(func(on): host.transition.reduced_motion = on)
 	column.add_child(motion)
 	column.add_child(_label("调整立即生效；下次启动保留声音偏好。" if not host.weather_audio.preferences_path.is_empty() else "调整立即生效；本次开发试玩不写入声音偏好。",16))
+	column.add_child(_label("音乐：Meadow Thoughts · Écrivain（CC0）",16))
 	_spacer(content)
 
 func _process(delta: float) -> void:

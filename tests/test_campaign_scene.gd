@@ -62,7 +62,7 @@ func run() -> void:
 	main.hud.menu_open = true
 	await draw()
 	await click(main.hud.free_button)
-	check(main.sim.layout_id == "level01" and main.campaign_play and main.hud.layout_ids == ["level01","meadow","storm_coast"],"Actual skip enters the configured first map; formal selector uses array order")
+	check(main.sim.layout_id == "level01" and main.campaign_play and main.hud.campaign.ids() == ["level01","meadow","storm_coast"],"Actual skip enters the configured first map; formal campaign uses array order")
 	check(main.sim.plot_water == 0 and main.wind_input.sim == main.sim,"First map is normal wet-air start with current picking")
 	main.next_level()
 	check(main.sim.layout_id == "level01" and not main.selecting_levels,"No success cannot advance")

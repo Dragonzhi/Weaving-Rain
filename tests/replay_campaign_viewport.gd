@@ -1,6 +1,7 @@
 extends "res://tests/replay_star_viewport.gd"
 ## Complete teaching -> configured first formal map -> next/selection via real mouse input.
 var route_time := 0.0
+var audio_record = preload("res://tests/audio_route_record.gd").new()
 func click(control: Button) -> void:
 	var point := control.get_global_rect().get_center()
 	button(point,true)
@@ -15,6 +16,8 @@ func run() -> void:
 	main.persist_progress = false
 	root.add_child(main)
 	await RenderingServer.frame_post_draw
+	while main.transition_active(): await process_frame
+	audio_record.start(main)
 	var used_front_entry: bool = main.front_active()
 	if used_front_entry: await click(main.front_menu.primary)
 	process_frame.connect(func(): route_time += main.frame_steps*Sim.FIXED_STEP)
@@ -35,6 +38,7 @@ func run() -> void:
 				if not command.is_empty(): await stroke(command)
 			if not main.guide.phase in phases: phases.append(main.guide.phase)
 			await process_frame
+			audio_record.sample()
 		await RenderingServer.frame_post_draw
 		if not main.guide.phase in phases: phases.append(main.guide.phase)
 		var report := controller.report(main.sim)
@@ -56,6 +60,7 @@ func run() -> void:
 			root.get_texture().get_image().save_png("res://.godot/campaign-review/normal-final-selection.png")
 	passed = passed and failures == 0 and input_pick_error < 0.001
 	var result := {"front_entry":used_front_entry,"passed":passed,"stages":reports,"mouse_events":events,"blocked":blocked,"input_failures":failures,"pick_error":input_pick_error,"selection":main.hud.selection_ids,"following":following}
+	result["audio"] = audio_record.finish("res://.godot/campaign-review/bgm-mix.wav")
 	FileAccess.open("res://.godot/campaign-review/normal-route.json",FileAccess.WRITE).store_string(JSON.stringify(result,"\t"))
 	print("CAMPAIGN VIEWPORT ",JSON.stringify(result))
 	quit(0 if passed else 1)

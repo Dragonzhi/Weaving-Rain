@@ -133,16 +133,11 @@ func run() -> void:
 		main.hud.queue_redraw()
 		await process_frame
 		await RenderingServer.frame_post_draw
-		var selector_point: Vector2 = main.hud.layout_selector.get_global_rect().get_center()
-		mouse_button(selector_point, true)
-		mouse_button(selector_point, false)
-		var popup: PopupMenu = main.hud.layout_selector.get_popup()
-		check(popup.visible and not wind_input.dragging, "Opening layout selector does not stroke the weather")
-		popup.index_pressed.emit(layout_index)
-		popup.hide()
+		check(main.hud.find_children("*","OptionButton",true,false).is_empty(), "Removed level dropdown leaves no hidden input control")
+		var id: String = preload("res://scripts/weather_layouts.gd").IDS[layout_index]
+		main.select_layout(id)
 		await process_frame
 		await RenderingServer.frame_post_draw
-		var id: String = preload("res://scripts/weather_layouts.gd").IDS[layout_index]
 		check(main.sim.layout_id == id and main.sim.peak_density == 0.0 and main.wind_input.sim == main.sim, "Selecting layout rebuilds a clean world with connected input")
 		var geometry_matches := 0
 		for child in main.weather_view.get_children():

@@ -14,15 +14,15 @@ func _ready() -> void:
 func _input(_event: InputEvent) -> void:
 	if active: get_viewport().set_input_as_handled()
 
-func play(style: String, change: Callable) -> void:
+func play(style: String, change: Callable, reveal_only := false) -> void:
 	if active: return
 	active = true
 	kind = "light" if reduced_motion else style
-	progress = 0
+	progress = 0.5 if reveal_only else 0.0
 	show()
 	queue_redraw()
 	var duration := 0.12 if reduced_motion else (0.65 if kind == "wind" else (0.85 if kind == "cloud" else 0.18))
-	if kind != "light":
+	if kind != "light" and not reveal_only:
 		var closing := create_tween()
 		closing.tween_method(_set_progress,0.0,0.5,duration*0.5).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 		await closing.finished

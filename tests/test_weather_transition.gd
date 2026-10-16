@@ -46,8 +46,10 @@ func run() -> void:
 	main.persist_progress = false
 	root.add_child(main)
 	main.set_process(false)
+	check(main.transition_active() and main.transition.kind=="cloud","Startup begins with a covered cloud reveal")
+	while main.transition_active(): await process_frame
 	await draw()
-	check(not main.transition.visible and not main.transition_active(),"Startup has no curtain or input blocker")
+	check(not main.transition.visible and not main.transition_active(),"Startup reveal releases curtain and input blocker")
 	var original: RefCounted = main.sim
 	await tap(named("选择关卡"))
 	check(main.transition_active() and main.transition.kind=="wind" and main.front_menu.page=="home","Wind closes before changing home page")

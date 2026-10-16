@@ -1,0 +1,458 @@
+{
+  "date": "2026-10-16",
+  "scope": "Twelve player-requested UI/visual refinements; gameplay and map data unchanged",
+  "features": {
+    "hints_default": false,
+    "brush_black_direction": "Only when weather hints are enabled",
+    "target_range": "Hover on target or its small label; reservoir uses actual rain footprint, farm uses existing safety buffer",
+    "target_letters": "Hover details and results only",
+    "plot_ui_scale": 0.82,
+    "timer": "Clock/progress icon plus exact mm:ss",
+    "reserve": "Two-color cloud silhouette with percentage and pass-through hover explanation",
+    "rating": "Existing three wind medals on pale shared background",
+    "level_dropdown": "Removed; original native menu level selection retained",
+    "in_game_brand": "Removed; home title retained",
+    "results": "Shared front-menu Theme with existing primary/secondary roles",
+    "ocean": "Deterministic unequal arcs, double ripples and broken threads; original display clock; decorative, not wind",
+    "startup": "Normal start reveals ready home from cloud cover; developer direct starts bypass"
+  },
+  "final_ui_checks": [
+    {
+      "checks": 27,
+      "failures": 0,
+      "size": "(1280, 720)"
+    },
+    {
+      "checks": 27,
+      "failures": 0,
+      "size": "(1920, 1080)"
+    }
+  ],
+  "final_related": [
+    {
+      "name": "front-menu",
+      "resolution": "1280x720",
+      "checks": 59,
+      "failures": 0
+    },
+    {
+      "name": "weather-transition",
+      "resolution": "1280x720",
+      "checks": 38,
+      "failures": 0
+    }
+  ],
+  "configured_regression": {
+    "configured": 84,
+    "covered_names": [
+      "ui-polish",
+      "bgm",
+      "wind-sweep",
+      "weather-transition",
+      "front-menu",
+      "weather",
+      "cold-weather",
+      "onboarding",
+      "campaign",
+      "tool-availability",
+      "authored-levels",
+      "weather-polish",
+      "campaign-scene",
+      "tutorial-reservoir",
+      "layouts",
+      "wind-path",
+      "audio-scene",
+      "audio-gestures",
+      "rain-audio",
+      "compact-feedback",
+      "hud-layouts",
+      "ui-visuals",
+      "scene-lighting",
+      "ground-volume",
+      "wind-tools",
+      "wind-tools-scene",
+      "open-boundary",
+      "map-resources",
+      "plot-needs",
+      "reservoir-tropical",
+      "ground-rain",
+      "rain-area-scene",
+      "rain-layers",
+      "tropical-scene",
+      "plot-needs-scene",
+      "star-levels",
+      "water-reserve",
+      "three-star-finish",
+      "rating",
+      "vortex-wind",
+      "vortex-scene",
+      "vortex-gather",
+      "editor-map",
+      "tuning",
+      "scene",
+      "star-scene",
+      "plot-feedback",
+      "render-fields",
+      "moisture-surface",
+      "cloud-surface",
+      "replay",
+      "lesson-replay",
+      "tutorial-viewport",
+      "level01-viewport",
+      "campaign-viewport",
+      "dual-mountain",
+      "dual-relay",
+      "far-mountain",
+      "far-relay",
+      "close-mountain",
+      "close-reverse",
+      "ridges-mountain",
+      "meadow-level",
+      "valleys-level",
+      "meadow-three-abc",
+      "meadow-three-cab",
+      "valleys-three-mountain",
+      "valleys-three-relay",
+      "valleys-late-clear",
+      "wind-tools-route",
+      "needs-ordinary-first",
+      "needs-seedling-first",
+      "needs-partial-loss",
+      "needs-viewport-route",
+      "vortex-viewport-route",
+      "vortex-control-route",
+      "reservoir-route",
+      "tropical-pool-first",
+      "tropical-farm-first",
+      "tropical-partial-loss",
+      "tropical-pure",
+      "tropical-viewport-pool",
+      "tropical-viewport-farm",
+      "tropical-viewport-pure"
+    ],
+    "coverage": "Split: first 10, next 30 from authored-levels, final 44 from vortex-scene; not one uninterrupted final run",
+    "all_latest_logs_free_of_errors": true,
+    "route_comparisons": 5,
+    "route_comparisons_passed": true,
+    "final_small_followup": "Clock ratio now reads sim.time_limit_seconds; cloud reserve skips subpixel polygons with fewer than 3 vertices. Final two-resolution UI checks and related menu/transition checks rerun."
+  },
+  "history": [
+    {
+      "type": "new_test_preflight",
+      "failure": "New UI test used inferred type for a dynamic property; explicitly typed PackedByteArray before the first successful run."
+    },
+    {
+      "type": "stale_test_interface",
+      "failure": "Authored-levels still read deleted HUD layout_ids; updated it and campaign-scene to inspect actual campaign order, then resumed from authored-levels."
+    },
+    {
+      "type": "implementation_parse_error",
+      "failure": "Final clock-ratio edit introduced one extra indent. Fixed, check-only passed, resumed from vortex-scene. This was not the historical native V6 fault."
+    }
+  ],
+  "normal_campaign_mouse_route": {
+    "audio": {},
+    "blocked": 0,
+    "following": "level02",
+    "front_entry": true,
+    "input_failures": 0,
+    "mouse_events": 2656,
+    "passed": true,
+    "pick_error": 0.0,
+    "selection": [],
+    "stages": [
+      {
+        "campaign_play": true,
+        "cold_lift": 12.5857207627028,
+        "destroyed": [
+          false
+        ],
+        "elapsed": 0.0,
+        "front_strokes": 0,
+        "layout": "tutorial",
+        "limit": 180.0,
+        "order": [
+          0
+        ],
+        "outcome": "success",
+        "per_target": [
+          {
+            "distance": 12.3000001907349,
+            "front": 0,
+            "strokes": 18,
+            "transport": 5
+          },
+          {
+            "distance": 0.0,
+            "front": 0,
+            "strokes": 0,
+            "transport": 0
+          },
+          {
+            "distance": 0.0,
+            "front": 0,
+            "strokes": 0,
+            "transport": 0
+          }
+        ],
+        "phases": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "route": "mountain",
+        "route_seconds": 9.33333333333338,
+        "stars": 0,
+        "strokes": 18,
+        "transport_distance": 12.3000001907349,
+        "transport_strokes": 5,
+        "water": [
+          100.0
+        ],
+        "water_error": -0.000154935222894892
+      },
+      {
+        "campaign_play": true,
+        "cold_lift": 4.88135203038942,
+        "destroyed": [
+          false
+        ],
+        "elapsed": 35.7999999999993,
+        "front_strokes": 0,
+        "layout": "level01",
+        "limit": 180.0,
+        "order": [
+          0
+        ],
+        "outcome": "success",
+        "per_target": [
+          {
+            "distance": 31.1999998092651,
+            "front": 0,
+            "strokes": 65,
+            "transport": 14
+          },
+          {
+            "distance": 0.0,
+            "front": 0,
+            "strokes": 0,
+            "transport": 0
+          },
+          {
+            "distance": 0.0,
+            "front": 0,
+            "strokes": 0,
+            "transport": 0
+          }
+        ],
+        "phases": [
+          0
+        ],
+        "route": "mountain",
+        "route_seconds": 35.7999999999987,
+        "stars": 3,
+        "strokes": 65,
+        "transport_distance": 31.1999998092651,
+        "transport_strokes": 14,
+        "water": [
+          250.0
+        ],
+        "water_error": -0.00130634408827746
+      }
+    ]
+  },
+  "short_performance": {
+    "resolution": [
+      1920,
+      1080
+    ],
+    "warmup_seconds": 1,
+    "sample_seconds_per_case": 5,
+    "kind": "rain",
+    "layout": "level09",
+    "samples": [
+      {
+        "arrows_enabled": false,
+        "audio_enabled": true,
+        "audio_ms": 0.149948630136986,
+        "audio_peak_ms": 0.933,
+        "drag": false,
+        "final_backlog_ms": 239.509777777778,
+        "frames": 292,
+        "gpu_ms": 3.94720458984375,
+        "hud_draw_ms": 1.26505136986301,
+        "hud_visible": true,
+        "input_ms": 0.165914383561644,
+        "kind": "rain",
+        "layout": "level09",
+        "max_backlog_ms": 239.509777777778,
+        "min_sources": 0,
+        "natural_organization": 0.814636758688124,
+        "natural_weather": true,
+        "p50": 16.979,
+        "p95": 18.978,
+        "p99": 22.343,
+        "peak_arrows": 0,
+        "peak_rain_area_cells": 0,
+        "peak_rain_focus": 0.0,
+        "peak_source_lines": 0,
+        "pick_ms": 0.171503380553363,
+        "rain_area_group_builds": 0,
+        "rain_area_visible": false,
+        "rendered_size": [
+          1920,
+          1080
+        ],
+        "sample_seconds": 5.0,
+        "sim_ms": 8.28501912992295,
+        "simulation_seconds": 4.88333333333333,
+        "slow_33ms": 0,
+        "source_kinds": [],
+        "steps_per_frame": 1.0,
+        "view_ms": 5.40037850157855,
+        "wind_combination": "band"
+      },
+      {
+        "arrows_enabled": false,
+        "audio_enabled": true,
+        "audio_ms": 0.156890909090909,
+        "audio_peak_ms": 0.884,
+        "drag": true,
+        "final_backlog_ms": 562.805424242423,
+        "frames": 275,
+        "gpu_ms": 3.97375710227273,
+        "hud_draw_ms": 1.64377818181818,
+        "hud_visible": true,
+        "input_ms": 0.106425454545455,
+        "kind": "rain",
+        "layout": "level09",
+        "max_backlog_ms": 562.805424242423,
+        "min_sources": 2,
+        "natural_organization": 0.813893820837759,
+        "natural_weather": true,
+        "p50": 18.071,
+        "p95": 19.549,
+        "p99": 20.618,
+        "peak_arrows": 0,
+        "peak_rain_area_cells": 0,
+        "peak_rain_focus": 0.0,
+        "peak_source_lines": 35,
+        "pick_ms": 0.00557454065843062,
+        "rain_area_group_builds": 0,
+        "rain_area_visible": false,
+        "rendered_size": [
+          1920,
+          1080
+        ],
+        "sample_seconds": 5.0,
+        "sim_ms": 8.90353959517045,
+        "simulation_seconds": 4.6,
+        "slow_33ms": 0,
+        "source_kinds": [
+          "band",
+          "band"
+        ],
+        "steps_per_frame": 1.0,
+        "view_ms": 5.53707164417614,
+        "wind_combination": "band"
+      }
+    ],
+    "formal_acceptance": false,
+    "interpretation": "Both samples exceed frame/backlog gates. No before/after baseline or background-load isolation: do not attribute to this UI revision or close V1."
+  },
+  "source_sha256": {
+    "scripts/game_hud.gd": "fb32b396b0d0b8a67fea3962d7344d50719ef7ce64ac05437bffde8342f935fe",
+    "scripts/hud_visuals.gd": "6ad2d7ff5d79ffe6b27d1a56b95a5aa0b773e586f47481703e564207447fd775",
+    "scripts/main.gd": "6369c9069032f1379f947f76a56c6b12d66e3b6609e85f8b1538740b31b2be52",
+    "scripts/weather_transition.gd": "ead26ea2fb503b8b7c10dfe308918b2c77e77d83db631e8cade83b3d424ea6ed",
+    "scripts/weather_view.gd": "adfc068b2d51b29faa477bc23816f6b1fd120dbb8de596f23577d7053b0570bf",
+    "shaders/ocean.gdshader": "2b111b5d3ee8db50067b69450bab5b56db870093bd3e561d3e77345750a6860d"
+  },
+  "screenshots": {
+    "cache_directory": ".godot/ui-polish/",
+    "reviewed": [
+      "play-1280.png",
+      "hover-1280.png",
+      "reserve-1280.png",
+      "result-1280.png",
+      "play-1920.png"
+    ],
+    "archive_copies": 0,
+    "display_fixtures_not_natural_route": true
+  },
+  "pending": [
+    "User visual/readability feedback",
+    "Formal V1 performance acceptance",
+    "Historical V6 investigation"
+  ],
+  "exported": false,
+  "committed": false,
+  "pushed": false,
+  "centering_followup": {
+    "date": "2026-10-16",
+    "request": "Center reservoir, raindrop and clock/time content within the existing badges",
+    "change": "Center actual visible row width, excluding absent dry-state icon; account for bowl outline top inset. Center clock plus measured time text as a group.",
+    "checks": [
+      {
+        "script": "test_ui_polish.gd",
+        "size": "1280x720",
+        "checks": 27,
+        "failures": 0
+      },
+      {
+        "script": "test_ui_polish.gd",
+        "size": "1920x1080",
+        "checks": 27,
+        "failures": 0
+      },
+      {
+        "script": "test_ui_visuals.gd",
+        "size": "1920x1080",
+        "checks": 24,
+        "failures": 0
+      }
+    ],
+    "reviewed_screenshot": ".godot/ui-polish/play-1920.png",
+    "full_suite_rerun": false,
+    "source_sha256": "8d0cff5e26b00f60899a23f607a539e6eaab6d89cd50d347e2a75b358c06172c"
+  },
+  "result_home_fix": {
+    "date": "2026-10-16",
+    "root_cause": "HUD draw hid and re-showed result_home every frame, cancelling native Button pressed state before mouse release",
+    "fix": "Derive visible from settled non-sandbox star-level state once per draw; no hide/re-show cycle",
+    "reproduction": {
+      "log": ".godot/result-home-before.log",
+      "checks": 28,
+      "failures": 1,
+      "purpose": "Intentional pre-fix regression failure under 8 redraw frames between mouse press and release"
+    },
+    "test_expectation_correction": "An extra assertion initially expected Continue after a finished game. Existing behavior is Start Journey; corrected the fixture without changing navigation.",
+    "verification": [
+      {
+        "name": "result-home-1280",
+        "checks": 30,
+        "failures": 0
+      },
+      {
+        "name": "result-home-1920",
+        "checks": 30,
+        "failures": 0
+      },
+      {
+        "name": "result-home-star",
+        "checks": 47,
+        "failures": 0
+      },
+      {
+        "name": "result-home-front",
+        "checks": 59,
+        "failures": 0
+      }
+    ],
+    "native_input": true,
+    "manual_signal_emission": false,
+    "full_suite_rerun": false,
+    "source_sha256": "cff3ed193b26e85b5238b8864edf98d881c4a3a311405295b643377e48f5e83b"
+  }
+}

@@ -122,7 +122,6 @@ func _ready() -> void:
 	hud.free_play_requested.connect(func(): navigate(enter_free_play,"cloud"))
 	hud.lesson_requested.connect(func(): navigate(_start_lesson,"cloud"))
 	hud.layout_requested.connect(select_layout)
-	hud.campaign_layout_requested.connect(func(id): navigate(func(): select_campaign_level(id),"cloud"))
 	hud.finish_requested.connect(finish_level)
 	hud.next_requested.connect(func(): navigate(next_level,"cloud"))
 	hud.levels_requested.connect(func(): navigate(open_level_selection,"cloud"))
@@ -147,6 +146,7 @@ func _ready() -> void:
 	front_menu = FrontMenu.instantiate()
 	canvas.add_child(front_menu)
 	front_menu.setup(self)
+	front_menu.music_changed.connect(func(volume): weather_audio.set_music_volume(volume))
 	hud.use_front_menu = true
 	front_menu.action_requested.connect(_front_action)
 	front_menu.audio_changed.connect(func(on, volume):
@@ -170,6 +170,9 @@ func _ready() -> void:
 			cold_lab()
 		elif arg.begins_with("--capture="):
 			_capture(arg.trim_prefix("--capture="))
+	if not bypass_front:
+		# Start covered, then reveal the rendered home; no separate splash or timer.
+		transition.play("cloud",func(): pass,true)
 
 func direct_start(args: PackedStringArray) -> bool:
 	if not custom_map_path.is_empty(): return true
@@ -410,7 +413,6 @@ func record_result() -> void:
 	result_recorded = true
 	var saved := progress.record(sim.layout_id, sim.result_stars, progress_path, persist_progress and not "--fresh-guide" in OS.get_cmdline_user_args())
 	hud.best_stars = progress.best
-	hud.refresh_layouts()
 	hud.queue_redraw()
 	if saved != OK: _tuning_feedback("本局结果有效，保存风纹纪录失败：" + error_string(saved))
 
@@ -434,7 +436,6 @@ func _sync_campaign_hud() -> void:
 	hud.campaign_play = campaign_play
 	hud.development = development or not persist_progress
 	hud.return_to_game = has_free_session
-	hud.refresh_layouts()
 
 func select_campaign_level(id: String) -> void:
 	var definition := campaign.find_map(id) if campaign != null else null
@@ -559,6 +560,7 @@ func _process(delta: float) -> void:
 	hud.tuning_message = tuning_message if Time.get_ticks_msec() < tuning_message_until else ""
 	hud.frame_ms = lerpf(hud.frame_ms, delta * 1000.0, 0.05)
 	start = Time.get_ticks_usec()
+	weather_audio.music_menu = front_active()
 	weather_audio.update_audio(minf(delta,0.1),paused or transition_active())
 	frame_audio_ms = (Time.get_ticks_usec()-start)/1000.0
 	hud.queue_redraw()

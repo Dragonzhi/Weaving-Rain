@@ -23,7 +23,8 @@ func run() -> void:
 	main = load("res://scenes/main.tscn").instantiate()
 	root.add_child(main)
 	await RenderingServer.frame_post_draw
-	check(main.weather_view.hints_enabled and not main.weather_view.rain_area.visible_area, "Default hints are on but dry opening shows no rain area")
+	check(not main.weather_view.hints_enabled and not main.weather_view.rain_area.visible_area, "Weather hints default off")
+	await held_tap(main.hud.arrows_button)
 	fixture()
 	var area: Node3D = main.weather_view.rain_area
 	check(area.visible_area and Array(area.groups).max() == 1, "Real fixed-step release creates two separate visible regions")

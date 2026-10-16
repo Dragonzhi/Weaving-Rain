@@ -39,7 +39,7 @@ func run() -> void:
 			main.hud.queue_redraw()
 			await process_frame
 			await RenderingServer.frame_post_draw
-			check(main.sim.layout_id == map.id and main.campaign_play and main.hud.layout_ids == campaign.ids(),"Real formal selection loads the right world/order: "+map.id)
+			check(main.sim.layout_id == map.id and main.campaign_play and main.hud.campaign.ids() == campaign.ids(),"Real formal selection loads the right world/order: "+map.id)
 			var valid: bool = main.hud.plot_label_rects.size() == map.plots.size()
 			for index in main.hud.plot_label_rects.size():
 				var rect: Rect2 = main.hud.plot_label_rects[index]

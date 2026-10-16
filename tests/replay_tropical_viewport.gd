@@ -34,6 +34,7 @@ func place_seed_vortex() -> bool:
 func run() -> void:
 	main = load("res://scenes/main.tscn").instantiate()
 	root.add_child(main)
+	main.weather_view.hints_enabled = true # This route explicitly validates rain-area hints.
 	await RenderingServer.frame_post_draw
 	var pure := "--pure" in OS.get_cmdline_user_args()
 	var seed_placed := false

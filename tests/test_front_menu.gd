@@ -53,6 +53,7 @@ func run() -> void:
 	main.progress_path = directory+"stars.cfg"
 	root.add_child(main)
 	await draw()
+	while main.transition_active(): await process_frame
 	main.weather_audio.preferences_path = directory+"audio.cfg"
 	check(main.front_active() and main.front_menu.page == "home" and not main.session_started,"Normal fresh startup presents home before gameplay")
 	check(main.paused and not main.wind_input.enabled and main.hud.blocks_wind(Vector2(50,50)),"Home pauses and blocks weather")

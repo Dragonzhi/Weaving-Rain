@@ -84,7 +84,7 @@ var ribbon_colors := PackedColorArray()
 var line_cursor := 0
 var ribbon_points := PackedVector3Array()
 var ribbon_eye := Vector3.ZERO
-var hints_enabled := true
+var hints_enabled := false
 var rain_area: Node3D
 var arrow_mesh := ArrayMesh.new()
 var arrow_material: ShaderMaterial

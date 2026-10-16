@@ -2,6 +2,17 @@
 class_name WRAudioSettings
 extends Resource
 ## 独立音频配置，保存后R／切图读取；F6仍只调整天气。均不改变模拟。
+@export_group("背景音乐")
+## A1主题的线性倍率（0–4），再乘玩家音乐音量和总音量。素材已留音量余量，允许大于1补偿。
+## 默认2比首版0.65提高约9.8dB，让音乐滑杆有足够上调空间；0仅关闭音乐，不影响风雨。
+@export_range(0, 4) var music_gain := 2.0
+## 游玩／暂停时相对主界面的音乐比例（0–1）。调小为操作与天气让位；暂停保留轻音乐。
+@export_range(0, 1) var music_play_ratio := 0.70
+@export_range(0, 1) var music_pause_ratio := 0.55
+## 最大实际雨强时的音乐保留比例（0–1）；按平滑雨声强度渐变，调小强雨中音乐退得更多。
+@export_range(0, 1) var music_rain_ratio := 0.80
+## 音乐起音和场景混音变化的时间常数（秒，0.1–5）；调大更徐缓，不重启乐曲。
+@export_range(0.1, 5) var music_fade_seconds := 1.0
 @export_group("混音比例")
 ## 风、雨和反馈的线性倍率（0–1）。调大更明显，调小让出听觉空间；0关闭该层。
 @export_range(0, 1) var wind_gain := 0.35
@@ -46,8 +57,8 @@ extends Resource
 
 func validation_errors() -> PackedStringArray:
 	var errors := PackedStringArray()
-	for field in ["wind_gain", "rain_gain", "rain_detail_gain", "feedback_gain", "brush_gain", "brush_wind_gain", "brush_pitch_seconds", "wind_tail_seconds", "wind_full_speed", "rain_full_rate", "rain_peak_rate", "fade_seconds", "rain_attack_seconds", "rain_release_seconds", "stop_fade_seconds", "feedback_cooldown", "pan_limit"]:
-		var limits: Vector2 = {"brush_pitch_seconds":Vector2(0.01,0.5), "wind_tail_seconds":Vector2(0.1,10), "wind_full_speed": Vector2(0.1,10), "rain_full_rate":Vector2(0.01,1000), "rain_peak_rate":Vector2(0.001,100), "fade_seconds":Vector2(0.05,2), "rain_attack_seconds":Vector2(0.1,5), "rain_release_seconds":Vector2(0.1,5), "stop_fade_seconds":Vector2(0.05,2), "feedback_cooldown":Vector2(0.05,2), "pan_limit":Vector2(0,0.5)}.get(field, Vector2(0,1))
+	for field in ["music_gain", "music_play_ratio", "music_pause_ratio", "music_rain_ratio", "music_fade_seconds", "wind_gain", "rain_gain", "rain_detail_gain", "feedback_gain", "brush_gain", "brush_wind_gain", "brush_pitch_seconds", "wind_tail_seconds", "wind_full_speed", "rain_full_rate", "rain_peak_rate", "fade_seconds", "rain_attack_seconds", "rain_release_seconds", "stop_fade_seconds", "feedback_cooldown", "pan_limit"]:
+		var limits: Vector2 = {"music_gain":Vector2(0,4), "music_fade_seconds":Vector2(0.1,5), "brush_pitch_seconds":Vector2(0.01,0.5), "wind_tail_seconds":Vector2(0.1,10), "wind_full_speed": Vector2(0.1,10), "rain_full_rate":Vector2(0.01,1000), "rain_peak_rate":Vector2(0.001,100), "fade_seconds":Vector2(0.05,2), "rain_attack_seconds":Vector2(0.1,5), "rain_release_seconds":Vector2(0.1,5), "stop_fade_seconds":Vector2(0.05,2), "feedback_cooldown":Vector2(0.05,2), "pan_limit":Vector2(0,0.5)}.get(field, Vector2(0,1))
 		var value: float = get(field)
 		if not is_finite(value) or value < limits.x or value > limits.y: errors.append(field+"：须在"+str(limits.x)+"–"+str(limits.y)+"内")
 	for field in ["brush_pitch_range", "heavy_rain_range"]:

@@ -29,3 +29,7 @@
 远景处理为100Hz平滑高通、约1.2kHz开始的柔和高频衰减和4.2kHz低通，再作声道共用阈值软峰值控制；不加噪声、混响或处理后增益。运行时雨声独立渐起／渐退，不改变素材循环或实际落雨。
 
 首轮历史散列与数字保留在`audio-review.json`；五差分接入历史见`audio-refinement-review.json`，当前两份雨声散列和检查见`rain-distance-review.json`。CC0来源保留作者致谢，原创短音由本项目制作；不修改整个项目许可。
+
+## 背景音乐（2026-10-16）
+
+用户试听选择A1《Meadow Thoughts》，并授权接入。`assets/audio/meadow_thoughts.ogg`来自[Meadow Thoughts — Écrivain](https://opengameart.org/content/meadow-thoughts)，作者页标注CC0；不是本项目原创。原曲约149.744秒，以1.5秒首尾交叉渐变生成148.244秒循环，恒定增益整理约−26 LUFS，无动态压缩或再编曲。Godot原生Ogg循环播放，保留导入标识；游戏设置页同时致谢。原文件与作者页留`.godot/bgm-audition/sources/`，运行`python tools/make_bgm.py`重现。接入与可调比例见[音乐说明](bgm-implementation.md)，散列与实机记录见[接入检查](bgm-review.json)。本节新增1份Ogg，不替换前述16份风雨和短音。

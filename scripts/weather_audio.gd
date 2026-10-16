@@ -1,5 +1,5 @@
 extends Node
-## 只读声音表现：固定3层天气＋2个短音，不持有/修改天气规则。
+## 只读声音表现：1条音乐、3层天气＋2个短音，不持有/修改天气规则。
 const Settings = preload("res://scripts/audio_settings.gd")
 const Loader = preload("res://scripts/config_loader.gd")
 const Sim = preload("res://scripts/weather_simulation.gd")
@@ -12,6 +12,10 @@ var errors := PackedStringArray()
 var preferences_path := "user://audio.cfg"
 var enabled := true
 var master_volume := 0.75
+var music_volume := 0.70
+var music: AudioStreamPlayer
+var music_menu := true
+var music_level := 0.0
 var preference_timer: Timer
 var focused := true
 var suspended := false
@@ -60,13 +64,13 @@ func _ready() -> void:
 	preference_timer.wait_time = 0.25
 	preference_timer.timeout.connect(_save_preferences)
 	add_child(preference_timer)
-	for bus_name in ["WRWind", "WRRain", "WRFeedback"]:
+	for bus_name in ["WRWind", "WRRain", "WRFeedback", "WRMusic"]:
 		if AudioServer.get_bus_index(bus_name) < 0:
 			AudioServer.add_bus()
 			var index := AudioServer.bus_count-1
 			AudioServer.set_bus_name(index, bus_name)
 			AudioServer.set_bus_send(index, "Master")
-			if bus_name != "WRFeedback": AudioServer.add_bus_effect(index, AudioEffectPanner.new())
+			if bus_name in ["WRWind", "WRRain"]: AudioServer.add_bus_effect(index, AudioEffectPanner.new())
 	for bus_name in ["WRWind", "WRRain"]:
 		panners.append(AudioServer.get_bus_effect(AudioServer.get_bus_index(bus_name),0))
 	# Native protection for overlapping weather/feedback; applies only to this game's Master.
@@ -100,6 +104,19 @@ func _ready() -> void:
 		player.bus = "WRFeedback"
 		add_child(player)
 		voices.append(player)
+	# This player belongs to the session; bind()/retry never replaces or restarts it.
+	music = AudioStreamPlayer.new()
+	music.bus = "WRMusic"
+	music.volume_db = -80
+	var music_path := "res://assets/audio/meadow_thoughts.ogg"
+	if ResourceLoader.exists(music_path):
+		var theme := load(music_path).duplicate() as AudioStreamOggVorbis
+		theme.loop = true
+		theme.loop_offset = 0
+		music.stream = theme
+	else: push_warning("音乐缺失，安静跳过："+music_path)
+	add_child(music)
+	if music.stream != null: music.play()
 
 func load_preferences() -> void:
 	if preferences_path.is_empty() or not FileAccess.file_exists(preferences_path): return
@@ -110,12 +127,23 @@ func load_preferences() -> void:
 		return
 	var candidate_enabled = config.get_value("audio", "enabled", true)
 	var candidate_volume = config.get_value("audio", "volume", 0.75)
-	if not candidate_enabled is bool or not (candidate_volume is float or candidate_volume is int) or not is_finite(float(candidate_volume)) or candidate_volume < 0 or candidate_volume > 1:
-		push_warning("音效偏好保留：enabled须为布尔，volume须为0–1有限数")
+	var candidate_music = config.get_value("audio", "music_volume", 0.70)
+	if not candidate_enabled is bool or not _valid_volume(candidate_volume) or not _valid_volume(candidate_music):
+		push_warning("声音偏好保留：enabled须为布尔，volume／music_volume须为0–1有限数")
 		return
 	enabled = candidate_enabled
 	master_volume = candidate_volume
+	music_volume = candidate_music
 	_apply_master()
+
+func _valid_volume(value: Variant) -> bool:
+	return (value is float or value is int) and is_finite(float(value)) and value >= 0 and value <= 1
+
+func set_music_volume(volume: float, save := true) -> void:
+	if not _valid_volume(volume): return
+	music_volume = volume
+	_apply_master()
+	if save and not preferences_path.is_empty(): preference_timer.start()
 
 func set_options(on: bool, volume: float, save := true) -> void:
 	if not is_finite(volume) or volume < 0 or volume > 1: return
@@ -132,6 +160,7 @@ func _save_preferences() -> void:
 	var config := ConfigFile.new()
 	config.set_value("audio", "enabled", enabled)
 	config.set_value("audio", "volume", master_volume)
+	config.set_value("audio", "music_volume", music_volume)
 	var error := config.save(preferences_path)
 	if error != OK: push_warning("音效偏好保存失败："+error_string(error))
 
@@ -141,6 +170,11 @@ func _exit_tree() -> void:
 func _apply_master() -> void:
 	AudioServer.set_bus_volume_db(0, linear_to_db(maxf(master_volume,0.0001)))
 	AudioServer.set_bus_mute(0, not enabled or not focused or master_volume == 0)
+	var bus := AudioServer.get_bus_index("WRMusic")
+	if bus >= 0:
+		AudioServer.set_bus_volume_db(bus,linear_to_db(maxf(music_volume,0.0001)))
+		AudioServer.set_bus_mute(bus,music_volume == 0)
+	if music != null: music.stream_paused = not focused
 
 func bind(sim: Sim, view_camera: Camera3D) -> void:
 	var loaded := Loader.audio(settings_path)
@@ -310,6 +344,15 @@ func update_audio(dt: float, paused: bool) -> void:
 		player.volume_db = linear_to_db(maxf(gain,0.0001))
 		if active and player.stream != null and not player.playing: player.play()
 		player.stream_paused = not active and gain < 0.001
+	_update_music(dt,paused)
+
+func _update_music(dt: float, paused: bool) -> void:
+	var ratio := 1.0 if music_menu else (settings.music_pause_ratio if paused or model.outcome != "playing" else settings.music_play_ratio)
+	# Read smoothed audible rain, avoiding jumps when new ground_rain starts/stops.
+	var rain_level := clampf(maxf(current_levels.y/maxf(settings.rain_gain,0.0001),current_levels.z/maxf(settings.rain_detail_gain,0.0001)),0,1)
+	if not music_menu: ratio *= lerpf(1.0,settings.music_rain_ratio,rain_level)
+	music_level = lerpf(music_level,settings.music_gain*ratio,1.0-exp(-dt/settings.music_fade_seconds))
+	music.volume_db = linear_to_db(maxf(music_level,0.0001))
 
 func set_paused(value: bool) -> void:
 	if value and not suspended: _stop_voices()

@@ -169,6 +169,8 @@ func run() -> void:
 	check(not main.hud.strength_meter_rect.has_area(), "Canceled or released gestures hide the power meter")
 	await place(Vector2(-5, 0), Vector2(-4, 0))
 	await create_timer(0.3).timeout
+	main.weather_view.hints_enabled = true
+	main.weather_view.update_weather(0,true,main.wind_input)
 	check(main.weather_view.visible_arrows > 0 and main.weather_view.visible_arrows <= 32, "Real source movement gets bounded arrows")
 	await tap(main.hud.arrows_button)
 	await RenderingServer.frame_post_draw

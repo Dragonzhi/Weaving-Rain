@@ -40,8 +40,9 @@ func run() -> void:
 	check(main.hud.plot_glyph_slots[0].size()==5 and main.hud.plot_glyph_slots[1].size()==2, "Actual farm HUD uses each resource's fixed-unit demand")
 	check(main.sim.plot_status(1)=="danger" and not main.sim.target_complete(1) and main.hud.rating_seen==0, "Full water under real rain does not light completion or rating")
 	var scale := Vector2(picture.get_size())/root.get_visible_rect().size
-	var blue_point: Vector2 = (main.hud.plot_label_rects[0].position+Vector2(29,18))*scale
-	var empty_point: Vector2 = (main.hud.plot_label_rects[0].position+Vector2(29+4*16,18))*scale
+	var row_origin: Vector2 = main.hud.plot_label_rects[0].get_center()-main.hud._water_row_center(0)*0.82
+	var blue_point: Vector2 = (row_origin+Vector2(6,13)*0.82)*scale
+	var empty_point: Vector2 = (row_origin+Vector2(6+4*16,13)*0.82)*scale
 	var blue := picture.get_pixelv(Vector2i(blue_point))
 	var empty := picture.get_pixelv(Vector2i(empty_point))
 	check(blue.b-blue.r>0.12 and empty.r-blue.r>0.2, "GPU screenshot distinguishes a filled drop from an empty outlined drop")
@@ -124,9 +125,8 @@ func run() -> void:
 		await render()
 	check(main.sim.humidity==humidity and main.sim.cloud==cloud and main.sim.wind==wind and main.sim.plot_waters==PackedFloat64Array([0,0]), "Floating explanations and animation leave actual weather and water unchanged")
 	main.sim.layout.title = "自定义超长地图标题用于核对选择控件在小窗口内不扩张或遮挡其他信息"
-	main.hud.refresh_layouts()
 	await render()
-	check(main.hud.layout_selector.size.x<=245 and main.hud.layout_selector.tooltip_text.begins_with(main.sim.layout.title) and "最佳" in main.hud.layout_selector.tooltip_text, "Long title stays clipped with full name and explicitly labelled best available on hover")
+	check(main.hud.find_children("*","OptionButton",true,false).is_empty(), "Gameplay has no level dropdown even with a long title")
 	main.select_layout("meadow")
 	main.set_process(false)
 	main.sim.humidity.fill(0)

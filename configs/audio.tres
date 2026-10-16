@@ -4,6 +4,11 @@
 
 [resource]
 script = ExtResource("1")
+music_gain = 2.0
+music_play_ratio = 0.7
+music_pause_ratio = 0.55
+music_rain_ratio = 0.8
+music_fade_seconds = 1.0
 wind_gain = 0.35
 rain_gain = 0.5
 rain_detail_gain = 0.65

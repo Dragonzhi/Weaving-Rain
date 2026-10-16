@@ -1,0 +1,257 @@
+{
+  "date": "2026-10-16",
+  "scope": "A1 native BGM integration; related checks only",
+  "asset": {
+    "id": "A1",
+    "title": "Meadow Thoughts",
+    "author": "Écrivain",
+    "page": "meadow-thoughts",
+    "file": "Meadow Thoughts.ogg",
+    "page_url": "https://opengameart.org/content/meadow-thoughts",
+    "download_url": "https://opengameart.org/sites/default/files/Meadow%20Thoughts.ogg",
+    "license": "CC0 as declared on author upload page, checked 2026-10-16",
+    "source_sha256": "9c55cfadb5acca6ef9ca81bf89d343b13f2b09984d45ae520cf877f1f9ad4404",
+    "source_seconds": 149.7439909297052,
+    "output": "assets/audio/meadow_thoughts.ogg",
+    "seconds": 148.2439909297052,
+    "crossfade_seconds": 1.5,
+    "gain_db_from_source": -11.140599913279626,
+    "peak": 0.277679443359375,
+    "wrap_sample_jump": 0.00079345703125,
+    "output_sha256": "c3335aabee033128e380483a679f2e685c7a959370f8ecc5ab9f52b40868bc6e"
+  },
+  "bit_identical_rebuild": true,
+  "checks": [
+    {
+      "name": "bgm-final-1280",
+      "checks": 40,
+      "failures": 0
+    },
+    {
+      "name": "bgm-final-1920",
+      "checks": 40,
+      "failures": 0
+    },
+    {
+      "name": "bgm-front-1280",
+      "checks": 59,
+      "failures": 0
+    },
+    {
+      "name": "bgm-front-1920",
+      "checks": 59,
+      "failures": 0
+    },
+    {
+      "name": "bgm-audio",
+      "checks": 53,
+      "failures": 0
+    },
+    {
+      "name": "bgm-gestures",
+      "checks": 24,
+      "failures": 0
+    },
+    {
+      "name": "bgm-rain",
+      "checks": 11,
+      "failures": 0
+    },
+    {
+      "name": "bgm-transition",
+      "checks": 37,
+      "failures": 0
+    }
+  ],
+  "native_recordings": [
+    {
+      "path": ".godot/bgm-review/native-loop-1280.wav",
+      "seconds": 2.368,
+      "peak": 0.100372314453125,
+      "rms": 0.020885382310443235,
+      "clipped_samples": 0
+    },
+    {
+      "path": ".godot/bgm-review/native-loop-1920.wav",
+      "seconds": 2.3786666666666667,
+      "peak": 0.100372314453125,
+      "rms": 0.02094513259855866,
+      "clipped_samples": 0
+    },
+    {
+      "path": ".godot/campaign-review/bgm-mix.wav",
+      "seconds": 48.02133333333333,
+      "peak": 0.13531494140625,
+      "rms": 0.020867549752716354,
+      "clipped_samples": 0
+    }
+  ],
+  "campaign": {
+    "audio": {
+      "brush_variants": {},
+      "event_counts": {},
+      "focus_restorations": 0,
+      "max_short_voices": 2,
+      "peak_detail": 0.649124920368195,
+      "peak_rain": 0.273178666830063,
+      "peak_wind": 0.274923503398895,
+      "save_error": 0,
+      "wav": "res://.godot/campaign-review/bgm-mix.wav"
+    },
+    "blocked": 0,
+    "following": "level02",
+    "front_entry": true,
+    "input_failures": 0,
+    "mouse_events": 2922,
+    "passed": true,
+    "pick_error": 0.0,
+    "selection": [],
+    "stages": [
+      {
+        "campaign_play": true,
+        "cold_lift": 10.4530536671958,
+        "destroyed": [
+          false
+        ],
+        "elapsed": 0.0,
+        "front_strokes": 0,
+        "layout": "tutorial",
+        "limit": 180.0,
+        "order": [
+          0
+        ],
+        "outcome": "success",
+        "per_target": [
+          {
+            "distance": 12.2999992370605,
+            "front": 0,
+            "strokes": 18,
+            "transport": 5
+          },
+          {
+            "distance": 0.0,
+            "front": 0,
+            "strokes": 0,
+            "transport": 0
+          },
+          {
+            "distance": 0.0,
+            "front": 0,
+            "strokes": 0,
+            "transport": 0
+          }
+        ],
+        "phases": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "route": "mountain",
+        "route_seconds": 9.15000000000003,
+        "stars": 0,
+        "strokes": 18,
+        "transport_distance": 12.2999992370605,
+        "transport_strokes": 5,
+        "water": [
+          100.0
+        ],
+        "water_error": -0.000129752558962082
+      },
+      {
+        "campaign_play": true,
+        "cold_lift": 4.7178300280387,
+        "destroyed": [
+          false
+        ],
+        "elapsed": 35.4833333333326,
+        "front_strokes": 0,
+        "layout": "level01",
+        "limit": 180.0,
+        "order": [
+          0
+        ],
+        "outcome": "success",
+        "per_target": [
+          {
+            "distance": 31.1999998092651,
+            "front": 0,
+            "strokes": 64,
+            "transport": 14
+          },
+          {
+            "distance": 0.0,
+            "front": 0,
+            "strokes": 0,
+            "transport": 0
+          },
+          {
+            "distance": 0.0,
+            "front": 0,
+            "strokes": 0,
+            "transport": 0
+          }
+        ],
+        "phases": [
+          0
+        ],
+        "route": "mountain",
+        "route_seconds": 35.483333333332,
+        "stars": 3,
+        "strokes": 64,
+        "transport_distance": 31.1999998092651,
+        "transport_strokes": 14,
+        "water": [
+          250.0
+        ],
+        "water_error": -0.00134328423251873
+      }
+    ]
+  },
+  "history": [
+    {
+      "name": "bgm-first-added-color-check",
+      "checks": 40,
+      "failures": 1,
+      "reason": "Test used 0.2 as Godot color luminance limit, while selected dark ink is about 0.29. Corrected to 0.4; final two resolutions both pass."
+    }
+  ],
+  "acceptance": "User preferred A1 excerpt and authorized integration. Full loop, final runtime balance and long listening await feedback.",
+  "not_run": [
+    "Full weather suite",
+    "Formal V1 pressure performance",
+    "Exported build"
+  ],
+  "existing_issues": [
+    "V1",
+    "V6"
+  ],
+  "exported": false,
+  "committed": false,
+  "gain_followup": {
+    "date": "2026-10-16",
+    "feedback": "Default music too quiet, even at 100% music volume",
+    "music_gain_before": 0.65,
+    "music_gain_after": 2.0,
+    "gain_increase_db": 9.762332780422511,
+    "music_gain_valid_range": [
+      0,
+      4
+    ],
+    "rain_ratio_before": 0.65,
+    "rain_ratio_after": 0.8,
+    "resolution": "1920x1080",
+    "checks": 43,
+    "failures": 0,
+    "native_loop_at_music_volume_0_7": {
+      "peak_before": 0.100372314453125,
+      "peak_after": 0.308929443359375,
+      "rms_before": 0.02094513259855866,
+      "rms_after": 0.06433257477049945,
+      "clipped_samples": 0
+    },
+    "asset_and_weather_sfx_unchanged": true,
+    "player_preferences_preserved": true,
+    "pending": "User listening feedback; no full weather suite or formal performance rerun"
+  }
+}

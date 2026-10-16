@@ -20,10 +20,20 @@ void fragment() {
 	vec2 cell = floor(p / vec2(5.0, 4.0));
 	vec2 local = fract(p / vec2(5.0, 4.0)) - 0.5;
 	float hash = fract(sin(dot(cell, vec2(127.1, 311.7))) * 43758.5453);
-	float curve = local.y - 0.09 * sin(local.x * 7.0 + visual_time * 0.3);
-	float line = 1.0 - smoothstep(0.003, 0.003 + fwidth(curve), abs(curve));
-	float length_mask = 1.0 - smoothstep(0.16, 0.21, abs(local.x));
-	color += vec3(0.13, 0.16, 0.14) * line * length_mask * step(0.68, hash);
+	float phase = hash * 6.28318;
+	float time = visual_time * mix(0.15,0.35,hash);
+	// Unequal strokes: long arcs, paired ripples and broken short threads.
+	float x = local.x + 0.07 * sin(time + phase);
+	float y = local.y + (hash - 0.5) * 0.30;
+	float curve = y - mix(0.025,0.13,hash) * sin(x * mix(3.0,8.0,hash) + phase + time);
+	float width = mix(0.0015,0.003,hash);
+	float aa = max(fwidth(curve),0.0001);
+	float line = 1.0 - smoothstep(width,width+aa,abs(curve));
+	float length = mix(0.08,0.30,fract(hash*7.31));
+	float length_mask = 1.0 - smoothstep(length*0.65,length,abs(x));
+	float broken = hash > 0.86 ? smoothstep(0.10,0.30,abs(sin(x*24.0+phase))) : 1.0;
+	float pair = (1.0-smoothstep(width,width+aa,abs(curve-0.048))) * step(0.77,hash) * (1.0-smoothstep(length*0.35,length*0.7,abs(x+0.025)));
+	color += vec3(0.13,0.16,0.14) * (line*length_mask*broken+pair*0.45) * step(0.58,hash) * (0.55+0.35*sin(time*0.4+phase));
 	color = receive_cloud_shadow(color,world_position,0.30);
 	ALBEDO = pow(color, vec3(2.2));
 }
