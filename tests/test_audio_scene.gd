@@ -23,6 +23,7 @@ func tap(control: Control) -> void:
 	event.pressed = false
 	root.push_input(event,true)
 	await process_frame
+	while main.transition_active(): await process_frame
 func place_source(start: Vector2, end: Vector2) -> void:
 	var camera: Camera3D = main.weather_view.camera
 	var event := InputEventMouseButton.new()
@@ -160,19 +161,20 @@ func run() -> void:
 	await tap(main.hud.menu_button)
 	main.hud.queue_redraw()
 	await RenderingServer.frame_post_draw
-	check(main.hud.audio_button.visible and main.hud.audio_volume.visible,"Audio controls only in opened menu")
+	await tap(main.hud.front_buttons[1])
+	check(main.front_active() and main.front_menu.sound_toggle.visible and main.front_menu.volume.visible,"Native settings page exposes shared audio controls")
 	root.get_texture().get_image().save_png("res://.godot/audio-menu-%d.png" % root.get_texture().get_image().get_width())
-	check(main.hud.blocks_wind(main.hud.audio_volume.get_global_rect().get_center()),"Slider consumes gestures inside menu")
-	await tap(main.hud.audio_button)
+	check(main.hud.blocks_wind(main.front_menu.volume.get_global_rect().get_center()),"Slider consumes gestures inside menu")
+	await tap(main.front_menu.sound_toggle)
 	check(not audio.enabled,"Native cross-frame mute button executes")
-	await tap(main.hud.audio_button)
+	await tap(main.front_menu.sound_toggle)
 	check(audio.enabled,"Native button restores audio")
-	main.hud.audio_volume.value = 42
+	main.front_menu.volume.value = 42
 	check(is_equal_approx(audio.master_volume,0.42),"Native slider adjusts volume")
-	await tap(main.hud.menu_button)
+	await tap(main.front_menu.back_button)
 	main.hud.queue_redraw()
 	await RenderingServer.frame_post_draw
-	check(not main.hud.audio_volume.visible,"Closed menu frees weather area")
+	check(not main.front_active(),"Closed menu frees weather area")
 	audio.event_counts.clear()
 	audio.last_played.clear()
 	await tap(main.hud.source_button)

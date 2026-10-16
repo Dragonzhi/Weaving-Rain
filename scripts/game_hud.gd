@@ -1,4 +1,10 @@
 extends Control
+signal menu_changed(open: bool)
+signal front_requested(page: String)
+var front_active := false
+var use_front_menu := false
+var front_buttons: Array[Button] = []
+var result_home: Button
 signal restart_requested
 signal sandbox_requested
 signal cold_lab_requested
@@ -34,6 +40,7 @@ var sim: Sim
 var view: Node3D
 var wind_input: Node
 var paused := false
+var transitioning := false
 var strength_meter_rect := Rect2()
 var debug_visible := false
 var font := SystemFont.new()
@@ -210,9 +217,20 @@ func setup(model: RefCounted, weather_view: Node3D, input: Node) -> void:
 	menu_button.text = "菜单"
 	menu_button.pressed.connect(func():
 		menu_open = not menu_open
+		menu_changed.emit(menu_open)
 		wind_input.cancel()
 		queue_redraw())
 	add_child(menu_button)
+	result_home = Button.new()
+	result_home.text = "返回主界面"
+	result_home.pressed.connect(func(): front_requested.emit("home"))
+	add_child(result_home)
+	for item in [["玩法说明","help"],["设置","settings"],["返回主界面","home"]]:
+		var button := Button.new()
+		button.text = item[0]
+		button.pressed.connect(func(): front_requested.emit(item[1]))
+		add_child(button)
+		front_buttons.append(button)
 	audio_button = Button.new()
 	audio_button.pressed.connect(func():
 		audio_enabled = not audio_enabled
@@ -272,11 +290,11 @@ func setup(model: RefCounted, weather_view: Node3D, input: Node) -> void:
 	add_child(result_retry)
 	levels_button = Button.new()
 	levels_button.text = "选关"
-	levels_button.pressed.connect(func(): menu_open = false; levels_requested.emit())
+	levels_button.pressed.connect(func(): levels_requested.emit())
 	add_child(levels_button)
 	development_button = Button.new()
 	development_button.text = "开发地图"
-	development_button.pressed.connect(func(): menu_open = false; development_requested.emit())
+	development_button.pressed.connect(func(): development_requested.emit())
 	add_child(development_button)
 	_create_level_selection()
 	timer_label = Label.new()
@@ -359,7 +377,7 @@ func setup(model: RefCounted, weather_view: Node3D, input: Node) -> void:
 		next_button.add_theme_color_override(state, Color("f5f6eb"))
 
 func buttons() -> Array:
-	return [menu_button, retry, sandbox_button, cold_button, free_button, lesson_button, dismiss_hint, layout_selector,
+	return front_buttons + [result_home, menu_button, retry, sandbox_button, cold_button, free_button, lesson_button, dismiss_hint, layout_selector,
 		finish_button, next_button, result_retry, levels_button, development_button, selection_start, selection_back, brush_button, source_button, vortex_button, arrows_button, audio_button] + source_remove
 
 func set_audio_options(on: bool, volume: float) -> void:
@@ -384,6 +402,7 @@ func _project(point: Vector3) -> Vector2:
 	return view.camera.unproject_position(point)
 
 func blocks_wind(point: Vector2) -> bool:
+	if front_active: return true
 	if selection_panel.visible: return true
 	if wind_toolbar_rect.has_point(point) or (menu_open and menu_rect.has_point(point)) or result_rect.has_point(point): return true
 	# Drawn labels, water bars, timer, reserve and teaching text are information.
@@ -730,21 +749,26 @@ func _draw() -> void:
 				tool_introduction = PackedStringArray(["新工具 · 漩涡","拖出半径，左顺右逆；聚集后撤源，再输送"])
 			if not tool_introduction.is_empty(): tool_introduction_until = view.elapsed+8.0
 	result_rect = Rect2()
+	result_home.visible = false
 	plot_label_rects.clear()
 	var menu_base := 147 if development else 112
-	menu_rect = Rect2(Vector2(w - 190, 56), Vector2(170, menu_base+68))
+	menu_rect = Rect2(Vector2(w - 190, 56), Vector2(170, menu_base+105 if use_front_menu else menu_base+173))
 	menu_button.position = Vector2(w - 82, 18)
 	menu_button.size = Vector2(62, 30)
-	menu_button.text = "收起" if menu_open else "菜单"
+	menu_button.text = "继续" if menu_open else "菜单"
 	if menu_open: _rounded(menu_rect, PANEL, 9)
-	audio_button.visible = menu_open
+	for index in front_buttons.size():
+		front_buttons[index].visible = menu_open
+		front_buttons[index].position = menu_rect.position+Vector2(8,menu_base+(0 if use_front_menu else 68)+index*33)
+		front_buttons[index].size = Vector2(154,30)
+	audio_button.visible = menu_open and not use_front_menu
 	audio_button.text = "音效：开" if audio_enabled else "音效：关"
 	audio_button.position = menu_rect.position+Vector2(8,menu_base)
 	audio_button.size = Vector2(154,28)
-	audio_volume.visible = menu_open
+	audio_volume.visible = menu_open and not use_front_menu
 	audio_volume.position = menu_rect.position+Vector2(48,menu_base+36)
 	audio_volume.size = Vector2(114,22)
-	audio_label.visible = menu_open
+	audio_label.visible = menu_open and not use_front_menu
 	audio_label.text = "音量"
 	audio_label.position = menu_rect.position+Vector2(10,menu_base+36)
 	retry.visible = menu_open
@@ -798,8 +822,8 @@ func _draw() -> void:
 	next_button.visible = sim.star_level and not sim.sandbox and sim.outcome == "success"
 	if result_select:
 		var result_width := minf(500,w-40)
-		var result_height := 246.0+sim.plot_centers.size()*64.0
-		levels_button.position = Vector2(w*0.5-40 if sim.outcome == "success" else (w+result_width)*0.5-192,(h+result_height)*0.5-49)
+		var result_height := 283.0+sim.plot_centers.size()*64.0
+		levels_button.position = Vector2(w*0.5-40 if sim.outcome == "success" else (w+result_width)*0.5-192,(h+result_height)*0.5-83)
 		levels_button.size = Vector2(80 if sim.outcome == "success" else 170,32)
 	result_retry.visible = sim.star_level and not sim.sandbox and sim.outcome != "playing"
 	sandbox_button.visible = debug_visible
@@ -844,8 +868,8 @@ func _draw() -> void:
 			if sim.threat: status = "已有达标地块 · 清除未损坏土地附近的危险天气，才能结算"
 		if sim.can_end_shortage(): status = "剩余水分不足 · 可继续整理天气，也可按当前风纹结束"
 		if sim.three_star_remaining() >= 0.0: status = "已获满风纹 · 即将自动结算，失去安全会取消倒数"
-	if paused:
-		status = "正在选关 · 天气已暂停" if selection_panel.visible else "已暂停 · 空格继续"
+	if paused and not transitioning:
+		status = "正在选关 · 天气已暂停" if selection_panel.visible else ("已暂停 · 选择继续或按 Esc 返回" if menu_open else "已暂停 · 空格继续")
 	if sim.star_level and sim.outcome != "playing":
 		status = "本局已结算 · 可重试或选关" if sim.result_stars > 0 else "本局已结算 · 查看原因后重试或选关"
 	if not tuning_message.is_empty(): status = tuning_message.left(48) + ("…" if tuning_message.length() > 48 else "")
@@ -923,7 +947,7 @@ func _draw_legacy_result(w: float, h: float) -> void:
 
 func _draw_star_result(w: float, h: float) -> void:
 	var width := minf(500.0, w - 40)
-	var height := 246.0 + sim.plot_centers.size() * 64.0
+	var height := 283.0 + sim.plot_centers.size() * 64.0
 	result_rect = Rect2(Vector2((w-width)*0.5, (h-height)*0.5), Vector2(width, height))
 	_rounded(result_rect, Color(0.96,0.96,0.90,0.97), 13)
 	draw_rect(result_rect.grow(-1), Color(INK,0.35), false, 1.2)
@@ -951,12 +975,15 @@ func _draw_star_result(w: float, h: float) -> void:
 		var reason := status_text(target,true)
 		_text(row.position+Vector2(2,52),reason,15,Visuals.DAMAGE if sim.plot_destroyed[target] else MUTED)
 		result_details.append("%s %s %s/%s · %s" % [String.chr(65+target),name,_quantity(sim.water_for(target)),_quantity(sim.required_water(target)).trim_suffix(".0"),reason])
+	result_home.visible = true
+	result_home.position = at+Vector2(width*0.5-65,height-39)
+	result_home.size = Vector2(130,27)
 	var summary := "完成 %d/%d 个目标 · 最佳 %d 枚风纹" % [sim.result_saved_count,sim.plot_centers.size(),int(best_stars.get(sim.layout_id,0))]
-	_text(at+Vector2(22,height-67),summary,14,MUTED)
-	result_retry.position = at+Vector2(22,height-49)
+	_text(at+Vector2(22,height-101),summary,14,MUTED)
+	result_retry.position = at+Vector2(22,height-83)
 	result_retry.size = Vector2(150,32)
 	next_button.text = "下一关" if campaign_play and campaign != null and not campaign.next_id(sim.layout_id).is_empty() else "返回选关"
-	next_button.position = at+Vector2(width-192,height-49)
+	next_button.position = at+Vector2(width-192,height-83)
 	next_button.size = Vector2(170,32)
 
 func _group_label(units: float) -> String:
@@ -1132,8 +1159,7 @@ func _create_level_selection() -> void:
 	selection_start.pressed.connect(func():
 		var selected := selection_list.get_selected_items()
 		if selected.is_empty(): return
-		if selection_development: layout_requested.emit(selection_ids[selected[0]])
-		else: campaign_layout_requested.emit(selection_ids[selected[0]]))
+		layout_requested.emit(selection_ids[selected[0]]))
 	selection_panel.add_child(selection_start)
 	selection_back = Button.new()
 	selection_back.text = "返回"
@@ -1155,16 +1181,16 @@ func _layout_level_selection() -> void:
 	selection_start.position = Vector2(width-152,height-49)
 	selection_start.size = Vector2(130,32)
 
-func show_level_selection(developer_maps: bool) -> void:
+func show_level_selection(_developer_maps: bool) -> void:
 	menu_open = false
-	selection_development = developer_maps
-	selection_title.text = "开发地图 · 独立试玩" if developer_maps else "选择关卡"
-	selection_ids.assign(Layouts.get_ids() if developer_maps else (campaign.ids() if campaign != null else []))
+	selection_development = true
+	selection_title.text = "开发地图 · 独立试玩"
+	selection_ids.assign(Layouts.get_ids())
 	selection_list.clear()
 	for index in selection_ids.size():
 		var id := selection_ids[index]
-		var definition := Layouts.get_definition(id) if developer_maps else campaign.find_map(id)
-		selection_list.add_item(("" if developer_maps else "%02d · " % (index+1))+definition.title+"   最佳%d风纹" % int(best_stars.get(id,0)))
+		var definition := Layouts.get_definition(id)
+		selection_list.add_item(definition.title+"   最佳%d风纹" % int(best_stars.get(id,0)))
 	selection_start.disabled = selection_ids.is_empty()
 	if not selection_ids.is_empty(): selection_list.select(maxi(selection_ids.find(sim.layout_id),0))
 	selection_panel.show()

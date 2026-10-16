@@ -2,6 +2,7 @@ extends SceneTree
 const Sim = preload("res://scripts/weather_simulation.gd")
 var failures := 0
 var checks := 0
+var main: Node3D
 
 func _init() -> void:
 	call_deferred("run")
@@ -26,7 +27,7 @@ func mouse_motion(point: Vector2) -> void:
 	root.push_input(event, true)
 
 func run() -> void:
-	var main: Node3D = load("res://scenes/main.tscn").instantiate()
+	main = load("res://scenes/main.tscn").instantiate()
 	root.add_child(main)
 	await process_frame
 	await RenderingServer.frame_post_draw
@@ -40,10 +41,12 @@ func run() -> void:
 	var menu_point: Vector2 = main.hud.menu_button.get_global_rect().get_center()
 	mouse_button(menu_point, true)
 	mouse_button(menu_point, false)
+	while main.transition_active(): await process_frame
 	await RenderingServer.frame_post_draw
 	var skip_point: Vector2 = main.hud.free_button.get_global_rect().get_center()
 	mouse_button(skip_point, true)
 	mouse_button(skip_point, false)
+	while main.transition_active(): await process_frame
 	await process_frame
 	await RenderingServer.frame_post_draw
 	check(main.play_mode == "free" and main.sim.layout_id == "level01" and main.sim.peak_density == 0.0, "Skip button starts the first configured formal level")
@@ -55,10 +58,12 @@ func run() -> void:
 	check(main.play_mode == "free" and main.sim.plot_centers.size() == 2, "Retry keeps the current free-play mode")
 	mouse_button(menu_point, true)
 	mouse_button(menu_point, false)
+	while main.transition_active(): await process_frame
 	await RenderingServer.frame_post_draw
 	var revisit_point: Vector2 = main.hud.lesson_button.get_global_rect().get_center()
 	mouse_button(revisit_point, true)
 	mouse_button(revisit_point, false)
+	while main.transition_active(): await process_frame
 	await process_frame
 	await RenderingServer.frame_post_draw
 	check(main.play_mode == "lesson" and is_equal_approx(main.sim.initial_water, lesson_initial), "Revisit button restores the same single-target lesson")
@@ -74,6 +79,7 @@ func run() -> void:
 	var continue_point: Vector2 = main.hud.free_button.get_global_rect().get_center()
 	mouse_button(continue_point, true)
 	mouse_button(continue_point, false)
+	while main.transition_active(): await process_frame
 	await process_frame
 	await RenderingServer.frame_post_draw
 	check(main.play_mode == "free" and main.guide.phase == 0 and not main.wind_input.dragging, "Completion button enters clean free play without dragging or stale guide steps")
@@ -111,11 +117,13 @@ func run() -> void:
 	await process_frame
 	var button_point: Vector2 = main.hud.menu_button.get_global_rect().get_center()
 	mouse_button(button_point, false)
+	while main.transition_active(): await process_frame
 	check(not wind_input.dragging, "Releasing over UI cannot leave a stuck stroke")
 	main.restart(true)
 	mouse_button(button_point, true)
 	check(not wind_input.dragging, "UI buttons do not create wind strokes")
 	mouse_button(button_point, false)
+	while main.transition_active(): await process_frame
 	var card_point := Vector2(80, main.hud.size.y - 65)
 	mouse_button(card_point, true)
 	check(not main.hud.blocks_wind(card_point), "Removed water-card area allows weather input")
@@ -165,6 +173,7 @@ func run() -> void:
 	pause_event.keycode = KEY_SPACE
 	pause_event.pressed = true
 	root.push_input(pause_event)
+	while main.transition_active(): await process_frame
 	main._process(0.0)
 	check(main.paused and not wind_input.enabled, "Pause disables wind input")
 	main.restart(false)

@@ -17,6 +17,8 @@ func tap(control: Control) -> void:
 		e.pressed = pressed
 		root.push_input(e, true)
 	await RenderingServer.frame_post_draw
+	while main.transition_active(): await process_frame
+	await RenderingServer.frame_post_draw
 func run() -> void:
 	main = load("res://scenes/main.tscn").instantiate()
 	root.add_child(main)

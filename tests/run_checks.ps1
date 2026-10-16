@@ -12,6 +12,9 @@ if (-not (Test-Path -LiteralPath $cacheDirectory)) {
     New-Item -ItemType Directory -Path $cacheDirectory | Out-Null
 }
 $checks = @(
+    @{ Name = 'wind-sweep'; Script = 'res://tests/test_wind_sweep.gd'; Headless = $false; Resolution = '1920x1080'; Front = $true },
+    @{ Name = 'weather-transition'; Script = 'res://tests/test_weather_transition.gd'; Headless = $false; Args = @('--fresh-guide'); Resolution = '1920x1080'; Front = $true },
+    @{ Name = 'front-menu'; Script = 'res://tests/test_front_menu.gd'; Headless = $false; Args = @('--fresh-guide'); Resolution = '1920x1080'; Front = $true },
     @{ Name = 'weather'; Script = 'res://tests/test_weather.gd'; Headless = $true },
     @{ Name = 'cold-weather'; Script = 'res://tests/test_cold_weather.gd'; Headless = $true },
     @{ Name = 'onboarding'; Script = 'res://tests/test_onboarding.gd'; Headless = $true },
@@ -61,7 +64,7 @@ $checks = @(
     @{ Name = 'lesson-replay'; Script = 'res://tests/replay_weather.gd'; Headless = $true; Args = @('--lesson', '--snapshot=res://.godot/lesson-snapshot.json') },
     @{ Name = 'tutorial-viewport'; Script = 'res://tests/replay_tutorial_viewport.gd'; Headless = $false; Args = @('--fresh-guide'); Resolution = '1920x1080' },
     @{ Name = 'level01-viewport'; Script = 'res://tests/replay_tutorial_viewport.gd'; Headless = $false; Args = @('--fresh-guide', '--layout=level01'); Resolution = '1920x1080' },
-    @{ Name = 'campaign-viewport'; Script = 'res://tests/replay_campaign_viewport.gd'; Headless = $false; Args = @('--fresh-guide'); Resolution = '1920x1080' },
+    @{ Name = 'campaign-viewport'; Script = 'res://tests/replay_campaign_viewport.gd'; Headless = $false; Args = @('--fresh-guide'); Resolution = '1920x1080'; Front = $true },
     @{ Name = 'dual-mountain'; Script = 'res://tests/replay_relay.gd'; Headless = $true; Args = @('--mountain') },
     @{ Name = 'dual-relay'; Script = 'res://tests/replay_relay.gd'; Headless = $true; Args = @('--snapshot=res://.godot/relay-snapshot.json') },
     @{ Name = 'far-mountain'; Script = 'res://tests/replay_relay.gd'; Headless = $true; Args = @('--layout=far', '--mountain-with-cold') },
@@ -103,7 +106,10 @@ foreach ($check in $checks) {
     if ($check.ContainsKey('Editor')) { $arguments += @('--editor', '--quit-after', '240') }
     if ($check.ContainsKey('Resolution')) { $arguments += @('--resolution', $check.Resolution) }
     if ($check.Headless) { $arguments = @('--headless') + $arguments }
-    if ($check.ContainsKey('Args')) { $arguments += @('--') + $check.Args }
+    $userArguments = @()
+    if (-not $check.ContainsKey('Front')) { $userArguments += '--skip-menu' }
+    if ($check.ContainsKey('Args')) { $userArguments += $check.Args }
+    if ($userArguments.Count -gt 0) { $arguments += @('--') + $userArguments }
     $checkProcess = Start-Process -FilePath $GodotPath -ArgumentList $arguments -WindowStyle Hidden -PassThru -Wait
     $output = Get-Content -LiteralPath $logPath -Raw
     Write-Output $output.TrimEnd()

@@ -8,7 +8,16 @@ const Layouts = preload("res://scripts/weather_layouts.gd")
 const ConfigLoader = preload("res://scripts/config_loader.gd")
 const LevelProgress = preload("res://scripts/level_progress.gd")
 const WeatherAudio = preload("res://scripts/weather_audio.gd")
+const FrontMenu = preload("res://scenes/front_menu.tscn")
+const WeatherTransition = preload("res://scripts/weather_transition.gd")
+var transition: Control
 const SIMULATION_BUDGET_US := 8000
+@export var show_front_menu := true
+var front_menu: Control
+var session_started := false
+var front_return_to := "game"
+var front_was_paused := false
+var game_menu_was_paused := false
 @export var weather_settings: WRWeatherSettings = WRWeatherSettings.new()
 var settings_path := "res://configs/weather.tres"
 var custom_map: WRMapDefinition
@@ -49,6 +58,7 @@ var frame_input_ms := 0.0
 
 func _ready() -> void:
 	var args := OS.get_cmdline_user_args()
+	var bypass_front := not show_front_menu or direct_start(args)
 	if persist_progress and not "--fresh-guide" in args: progress.read(progress_path)
 	if not progress.migration_message.is_empty(): _tuning_feedback(progress.migration_message)
 	if weather_settings == null: weather_settings = WRWeatherSettings.new()
@@ -106,16 +116,16 @@ func _ready() -> void:
 	hud.guide = guide
 	hud.play_mode = play_mode
 	wind_input.hud = hud
-	hud.restart_requested.connect(func(): restart(false))
+	hud.restart_requested.connect(func(): navigate(func(): restart(false),"cloud"))
 	hud.sandbox_requested.connect(func(): restart(true))
 	hud.cold_lab_requested.connect(cold_lab)
-	hud.free_play_requested.connect(enter_free_play)
-	hud.lesson_requested.connect(func(): switch_mode("lesson"))
+	hud.free_play_requested.connect(func(): navigate(enter_free_play,"cloud"))
+	hud.lesson_requested.connect(func(): navigate(_start_lesson,"cloud"))
 	hud.layout_requested.connect(select_layout)
-	hud.campaign_layout_requested.connect(select_campaign_level)
+	hud.campaign_layout_requested.connect(func(id): navigate(func(): select_campaign_level(id),"cloud"))
 	hud.finish_requested.connect(finish_level)
-	hud.next_requested.connect(next_level)
-	hud.levels_requested.connect(open_level_selection)
+	hud.next_requested.connect(func(): navigate(next_level,"cloud"))
+	hud.levels_requested.connect(func(): navigate(open_level_selection,"cloud"))
 	hud.selection_closed.connect(close_level_selection)
 	hud.development_requested.connect(func(): open_level_selection(true))
 	hud.best_stars = progress.best
@@ -128,10 +138,31 @@ func _ready() -> void:
 	wind_input.brush_motion.connect(func(gesture, speed): weather_audio.brush_motion(gesture,speed))
 	wind_input.source_created.connect(func(): weather_audio.cue("source"))
 	hud.sound_requested.connect(func(sound): weather_audio.cue(sound))
+	hud.menu_changed.connect(func(open): navigate(func(): _game_menu_changed(open),"light"))
+	hud.front_requested.connect(func(page): navigate(func(): open_front_page(page),"cloud" if page == "home" else "light"))
 	hud.audio_changed.connect(func(on, volume):
 		var was_enabled: bool = weather_audio.enabled
 		weather_audio.set_options(on,volume)
 		if on and not was_enabled: weather_audio.cue("click"))
+	front_menu = FrontMenu.instantiate()
+	canvas.add_child(front_menu)
+	front_menu.setup(self)
+	hud.use_front_menu = true
+	front_menu.action_requested.connect(_front_action)
+	front_menu.audio_changed.connect(func(on, volume):
+		var was_enabled: bool = weather_audio.enabled
+		weather_audio.set_options(on,volume)
+		hud.set_audio_options(on,volume)
+		if on and not was_enabled: weather_audio.cue("click"))
+	var transition_layer := CanvasLayer.new()
+	transition_layer.layer = 100
+	add_child(transition_layer)
+	transition = WeatherTransition.new()
+	transition_layer.add_child(transition)
+	session_started = true
+	if not bypass_front:
+		session_started = false
+		open_front_page("home")
 	for arg in args:
 		if arg == "--cloud-lab":
 			restart(true)
@@ -139,6 +170,130 @@ func _ready() -> void:
 			cold_lab()
 		elif arg.begins_with("--capture="):
 			_capture(arg.trim_prefix("--capture="))
+
+func direct_start(args: PackedStringArray) -> bool:
+	if not custom_map_path.is_empty(): return true
+	for arg in args:
+		if arg in ["--skip-menu","--free-play","--single-plot","--cloud-lab","--cold-lab"] or arg.begins_with("--map=") or arg.begins_with("--layout="): return true
+	return false
+
+func _game_menu_changed(open: bool) -> void:
+	if open:
+		game_menu_was_paused = paused
+		paused = true
+		wind_input.cancel()
+		wind_input.enabled = false
+	else:
+		paused = game_menu_was_paused
+		wind_input.enabled = not paused and sim.outcome == "playing" and not front_active()
+	hud.paused = paused
+
+func front_active() -> bool:
+	return front_menu != null and front_menu.visible
+
+func open_front_page(page: String, from_home := false) -> void:
+	var opening_from_game := not front_active()
+	if opening_from_game:
+		front_was_paused = game_menu_was_paused if hud.menu_open else paused
+		front_return_to = "game"
+	elif page != "home" and from_home:
+		front_return_to = "home"
+	if page == "home": front_return_to = "home"
+	paused = true
+	wind_input.cancel()
+	wind_input.enabled = false
+	hud.menu_open = false
+	hud.front_active = true
+	hud.hide()
+	weather_view.hide()
+	selecting_levels = page == "levels"
+	if page == "levels":
+		reload_campaign()
+		_sync_campaign_hud()
+		if opening_from_game: front_menu.selected_id = sim.layout_id
+		hud.selection_ids.assign(campaign.ids() if campaign != null else [])
+	front_menu.show_page(page)
+	if page == "levels" and not tuning_message.is_empty() and Time.get_ticks_msec() < tuning_message_until:
+		front_menu.set_error(tuning_message)
+	weather_audio.set_paused(true)
+
+func close_front_page() -> void:
+	if not front_active(): return
+	front_menu.close()
+	hud.front_active = false
+	hud.show()
+	weather_view.show()
+	selecting_levels = false
+	paused = front_was_paused
+	hud.paused = paused
+	wind_input.cancel()
+	wind_input.enabled = not paused and sim.outcome == "playing"
+	weather_audio.set_paused(paused)
+
+func transition_active() -> bool:
+	return transition != null and transition.active
+
+func navigate(change: Callable, style := "light") -> void:
+	if transition_active(): return
+	wind_input.cancel()
+	wind_input.enabled = false
+	hud.paused = true
+	hud.transitioning = true
+	weather_audio.set_paused(true)
+	await transition.play(style,func():
+		change.call()
+		transition.fade_target = front_menu.content if front_active() else hud
+		wind_input.cancel()
+		wind_input.enabled = false
+		hud.paused = true
+		hud.transitioning = true
+		weather_audio.set_paused(true))
+	wind_input.cancel()
+	wind_input.enabled = not paused and not front_active() and sim.outcome == "playing"
+	hud.paused = paused
+	hud.transitioning = false
+	weather_audio.set_paused(paused)
+
+func _front_action(action: String, id: String) -> void:
+	if transition_active(): return
+	weather_audio.cue("click")
+	if action == "click": return
+	if action == "quit":
+		get_tree().quit()
+		return
+	var style := "light"
+	if action in ["start","selected","tutorial"]: style = "cloud"
+	elif (action == "levels" and front_menu.page == "home") or (action == "back" and front_menu.page == "levels" and front_return_to == "home"): style = "wind"
+	elif action == "back" and front_menu.page == "levels": style = "cloud"
+	navigate(func(): _apply_front_action(action,id),style)
+
+func _apply_front_action(action: String, _id: String) -> void:
+	match action:
+		"start":
+			if session_started and sim.outcome == "playing":
+				front_was_paused = false
+				close_front_page()
+			elif not session_started:
+				if play_mode == "free" and campaign != null: select_campaign_level(campaign.levels[0].id)
+				else: _start_lesson()
+			elif campaign != null:
+				select_campaign_level(campaign.levels[0].id)
+			else: _start_lesson()
+		"levels", "help", "settings": open_front_page(action,front_menu.page == "home")
+		"selected": select_campaign_level(front_menu.selected_id)
+		"tutorial": _start_lesson()
+		"reload": open_front_page("levels",front_return_to == "home")
+		"back":
+			if front_return_to == "home": open_front_page("home")
+			else: close_front_page()
+		"quit": get_tree().quit()
+
+func _start_lesson() -> void:
+	var loaded := ConfigLoader.map(lesson_map_path,weather_settings.plot_half)
+	if not loaded.errors.is_empty():
+		_tuning_feedback("教学未切换："+"；".join(loaded.errors))
+		return
+	switch_mode("lesson")
 
 func initial_mode(args: PackedStringArray) -> String:
 	var mode := "lesson"
@@ -202,6 +357,8 @@ func select_layout(id: String) -> void:
 	switch_mode("free")
 
 func switch_mode(mode: String) -> void:
+	if front_active(): close_front_page()
+	session_started = true
 	selecting_levels = false
 	hud.selection_panel.hide()
 	hud.menu_open = false
@@ -297,12 +454,16 @@ func select_campaign_level(id: String) -> void:
 	free_layout = id
 	campaign_play = true
 	switch_mode("free")
+	_remember_entry()
 
 func open_level_selection(developer_maps := false) -> void:
+	if not developer_maps and front_menu != null:
+		open_front_page("levels", front_active() and front_menu.page == "home")
+		return
 	if developer_maps and not (development or not persist_progress): return
 	if not developer_maps: reload_campaign()
 	_sync_campaign_hud()
-	if not selecting_levels: selection_was_paused = paused
+	if not selecting_levels: selection_was_paused = game_menu_was_paused if hud.menu_open else paused
 	selecting_levels = true
 	paused = true
 	wind_input.cancel()
@@ -310,6 +471,9 @@ func open_level_selection(developer_maps := false) -> void:
 	hud.show_level_selection(developer_maps)
 
 func close_level_selection() -> void:
+	if front_active():
+		_front_action("back", "")
+		return
 	if not selecting_levels: return
 	selecting_levels = false
 	paused = selection_was_paused
@@ -322,6 +486,9 @@ func enter_free_play() -> void:
 	else:
 		open_level_selection()
 		return
+	_remember_entry()
+
+func _remember_entry() -> void:
 	# Tests and explicit development starts do not modify the player's preference.
 	var args := OS.get_cmdline_user_args()
 	if not persist_progress or "--fresh-guide" in args or "--single-plot" in args or "--free-play" in args or Array(args).any(func(arg): return arg.begins_with("--layout=") or arg.begins_with("--map=")):
@@ -344,8 +511,8 @@ func cold_lab() -> void:
 
 func _process(delta: float) -> void:
 	record_result()
-	weather_audio.set_paused(paused)
-	var moving: bool = not paused and sim.outcome == "playing"
+	weather_audio.set_paused(paused or transition_active())
+	var moving: bool = not paused and not transition_active() and not front_active() and sim.outcome == "playing"
 	var start := Time.get_ticks_usec()
 	if moving:
 		wind_input.flush()
@@ -381,29 +548,48 @@ func _process(delta: float) -> void:
 	start = Time.get_ticks_usec()
 	if wind_input.dragging:
 		weather_view.note_interaction(Vector2(wind_input.brush_point.x, wind_input.brush_point.z))
-	weather_view.update_weather(minf(delta, 0.1), moving, wind_input)
+	if not front_active(): weather_view.update_weather(minf(delta, 0.1), moving, wind_input)
 	frame_view_ms = (Time.get_ticks_usec() - start) / 1000.0
 	wind_input.enabled = moving
 	start = Time.get_ticks_usec()
-	wind_input.update_hover()
+	if not front_active(): wind_input.update_hover()
 	frame_pick_ms = (Time.get_ticks_usec() - start) / 1000.0
-	hud.paused = paused
+	hud.paused = paused or transition_active()
+	hud.transitioning = transition_active()
 	hud.tuning_message = tuning_message if Time.get_ticks_msec() < tuning_message_until else ""
 	hud.frame_ms = lerpf(hud.frame_ms, delta * 1000.0, 0.05)
 	start = Time.get_ticks_usec()
-	weather_audio.update_audio(minf(delta,0.1),paused)
+	weather_audio.update_audio(minf(delta,0.1),paused or transition_active())
 	frame_audio_ms = (Time.get_ticks_usec()-start)/1000.0
 	hud.queue_redraw()
 
+func _input(event: InputEvent) -> void:
+	if transition_active():
+		get_viewport().set_input_as_handled()
+		return
+	# Space remains the gameplay pause shortcut, never an accidental menu accept.
+	if event is InputEventKey and event.keycode == KEY_SPACE and (front_active() or hud.menu_open):
+		get_viewport().set_input_as_handled()
+
 func _unhandled_key_input(event: InputEvent) -> void:
+	if transition_active(): return
 	if not event is InputEventKey or not event.pressed or event.echo:
+		return
+	if front_active():
+		if event.keycode == KEY_ESCAPE and front_menu.page != "home": _front_action("back", "")
 		return
 	if selecting_levels:
 		if event.keycode == KEY_ESCAPE: close_level_selection()
 		return
+	if event.keycode == KEY_ESCAPE:
+		hud.menu_open = not hud.menu_open
+		navigate(func(): _game_menu_changed(hud.menu_open),"light")
+		hud.queue_redraw()
+		return
+	if hud.menu_open and event.keycode == KEY_SPACE: return
 	match event.keycode:
 		KEY_R:
-			restart(false)
+			navigate(func(): restart(false),"cloud")
 		KEY_F2:
 			restart(true)
 		KEY_F3:
@@ -413,9 +599,12 @@ func _unhandled_key_input(event: InputEvent) -> void:
 		KEY_F6:
 			if development: reload_tuning()
 		KEY_SPACE:
-			paused = not paused
-			wind_input.cancel()
-			wind_input.enabled = not paused and sim.outcome == "playing"
+			navigate(_toggle_pause,"light")
+
+func _toggle_pause() -> void:
+	paused = not paused
+	wind_input.cancel()
+	wind_input.enabled = not paused and sim.outcome == "playing"
 
 func _capture(path: String) -> void:
 	# Development-only render capture; never changes the normal starting state.
@@ -429,6 +618,7 @@ func _tuning_feedback(message: String) -> void:
 	tuning_message = message
 	tuning_message_until = Time.get_ticks_msec() + 10000
 	print("TUNING ", message)
+	if front_active(): front_menu.set_error(message)
 
 func reload_tuning() -> bool:
 	var loaded := ConfigLoader.settings(settings_path)

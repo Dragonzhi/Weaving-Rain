@@ -3,6 +3,7 @@ const Layouts = preload("res://scripts/weather_layouts.gd")
 const TEST_LEVELS := ["meadow", "valleys", "reservoir_lab", "storm_coast"]
 var checks := 0
 var failures := 0
+var main: Node3D
 
 func check(value: bool, message: String) -> void:
 	checks += 1
@@ -19,11 +20,13 @@ func click(button: Button) -> void:
 		event.pressed = pressed
 		root.push_input(event, true)
 
+	while main.transition_active(): await process_frame
+	await RenderingServer.frame_post_draw
 func _init() -> void:
 	call_deferred("run")
 
 func run() -> void:
-	var main: Node3D = load("res://scenes/main.tscn").instantiate()
+	main = load("res://scenes/main.tscn").instantiate()
 	# Regression maps form a temporary campaign; they are not the published sequence.
 	var campaign := WRCampaign.new()
 	campaign.tutorial = load("res://configs/tutorial.tres")
@@ -34,14 +37,14 @@ func run() -> void:
 	await process_frame
 	await RenderingServer.frame_post_draw
 	main.set_process(false)
-	click(main.hud.menu_button)
+	await click(main.hud.menu_button)
 	await RenderingServer.frame_post_draw
 	check(main.hud.levels_button.visible, "Practice exposes star-level entry")
-	click(main.hud.levels_button)
+	await click(main.hud.levels_button)
 	await process_frame
 	await RenderingServer.frame_post_draw
 	check(main.selecting_levels and main.paused, "Actual entry opens a paused campaign selection")
-	click(main.hud.selection_start)
+	await click(main.front_menu.start_button)
 	await RenderingServer.frame_post_draw
 	check(main.sim.layout_id == "meadow" and main.sim.star_level and main.sim.plot_centers.size() == 3, "Actual entry button starts a normal three-field level")
 	check(not main.hud.finish_button.visible and main.hud.finish_button.disabled, "No stars keeps unusable finish out of the scene")
@@ -53,7 +56,7 @@ func run() -> void:
 	main.paused = false
 	main._process(1.0 / 60.0)
 	check(is_equal_approx(main.sim.elapsed_seconds, 1.0 / 60.0), "Resumed main loop advances weather and countdown together")
-	click(main.hud.finish_button)
+	await click(main.hud.finish_button)
 	check(main.sim.outcome == "playing" and not main.wind_input.dragging, "Disabled finish neither ends the game nor creates wind")
 	check(main.hud.reserve_rect.has_area() and not main.hud.blocks_wind(main.hud.reserve_rect.get_center()), "Compact reserve remains visible and allows wind through")
 	main.sim.humidity.fill(0)
@@ -76,13 +79,13 @@ func run() -> void:
 	check(main.hud.reserve_message == "剩余水分不足以浇够新地块" and not main.hud.finish_button.disabled and main.hud.finish_button.text == "结束 · 当前 0 枚风纹", "Exhausted reserve offers explicit zero-star ending")
 	check(main.sim.outcome == "playing" and main.wind_input.enabled, "Shortage notice allows continued interaction")
 	if "--capture" in OS.get_cmdline_user_args(): root.get_texture().get_image().save_png("res://.godot/water-shortage.png")
-	click(main.hud.finish_button)
+	await click(main.hud.finish_button)
 	await process_frame
 	await RenderingServer.frame_post_draw
 	check(main.sim.outcome == "shortage" and main.sim.ended_for_shortage and main.hud.result_retry.visible and not main.hud.next_button.visible, "Actual zero-star shortage ending exposes retry without next level")
 	check(not main.wind_input.enabled and not main.wind_input.dragging, "Manual shortage ending immediately disables further wind")
 	if "--capture" in OS.get_cmdline_user_args(): root.get_texture().get_image().save_png("res://.godot/water-shortage-result.png")
-	click(main.hud.result_retry)
+	await click(main.hud.result_retry)
 	await process_frame
 	await RenderingServer.frame_post_draw
 	check(not main.sim.ended_for_shortage and not main.sim.can_end_shortage() and main.sim.time_remaining() == 180.0, "Actual retry restores full weather reserve and time")
@@ -109,7 +112,7 @@ func run() -> void:
 	await process_frame
 	await RenderingServer.frame_post_draw
 	check(not main.hud.finish_button.disabled and main.sim.outcome == "playing", "One safe star offers settlement after another field is damaged")
-	click(main.hud.finish_button)
+	await click(main.hud.finish_button)
 	await process_frame
 	await RenderingServer.frame_post_draw
 	check(main.sim.outcome == "success" and main.sim.result_stars == 1, "Viewport settlement button freezes a one-star success")
@@ -118,7 +121,7 @@ func run() -> void:
 	check(not main.wind_input.dragging, "Finish cancels pending input")
 	if "--capture" in OS.get_cmdline_user_args():
 		root.get_texture().get_image().save_png("res://.godot/star-result.png")
-	click(main.hud.result_retry)
+	await click(main.hud.result_retry)
 	await process_frame
 	await RenderingServer.frame_post_draw
 	check(main.sim.layout_id == "meadow" and main.sim.earned_stars() == 0 and not main.sim.plot_destroyed.any(func(value): return value), "Actual retry restores current map with clean weather and fields")
@@ -153,11 +156,11 @@ func run() -> void:
 	await RenderingServer.frame_post_draw
 	check(main.hud.finish_button.text == "满风纹 · 3 秒后自动结算", "Regained stars show a fresh full countdown")
 	if "--capture" in OS.get_cmdline_user_args(): root.get_texture().get_image().save_png("res://.godot/three-star-countdown.png")
-	click(main.hud.finish_button)
+	await click(main.hud.finish_button)
 	await process_frame
 	await RenderingServer.frame_post_draw
 	check(main.sim.result_stars == 3 and main.progress.best.get("meadow") == 3, "Improved result updates the best")
-	click(main.hud.next_button)
+	await click(main.hud.next_button)
 	await process_frame
 	await RenderingServer.frame_post_draw
 	check(main.sim.layout_id == "valleys" and main.sim.plot_waters == PackedFloat64Array([0, 0, 0]), "Next button starts the second level without stale water")
@@ -177,7 +180,7 @@ func run() -> void:
 	check(main.sim.outcome == "timeout" and main.hud.result_retry.visible and not main.hud.next_button.visible, "Deadline in real main loop shows zero-star retry without next-level access")
 	check(not main.wind_input.enabled and not main.wind_input.dragging and main.result_recorded, "Automatic settlement immediately cancels wind and records its result")
 	if "--capture" in OS.get_cmdline_user_args(): root.get_texture().get_image().save_png("res://.godot/star-timeout.png")
-	click(main.hud.result_retry)
+	await click(main.hud.result_retry)
 	await process_frame
 	await RenderingServer.frame_post_draw
 	check(main.sim.time_remaining() == 180.0 and not main.sim.timed_out, "Result retry restores full countdown")
@@ -202,8 +205,10 @@ func run() -> void:
 	check(main.sim.result_stars == 3, "Last mixed level uses each target's completion rule")
 	main.next_level()
 	check(main.selecting_levels and main.sim.layout_id == "storm_coast", "Last configured level returns to selection without replacing the result")
-	main.hud.selection_list.select(0)
-	click(main.hud.selection_start)
+	main.front_menu.choose_level(main.campaign.levels[0].id)
+	await process_frame
+	await RenderingServer.frame_post_draw
+	await click(main.front_menu.start_button)
 	check(main.sim.layout_id == "meadow", "Selecting the first entry starts that map explicitly")
 	main.sim.humidity.fill(0)
 	main.sim.cloud.fill(0)

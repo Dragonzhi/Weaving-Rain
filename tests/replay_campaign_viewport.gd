@@ -7,12 +7,16 @@ func click(control: Button) -> void:
 	for frame in 3: await process_frame
 	button(point,false)
 	await RenderingServer.frame_post_draw
+	while main.transition_active(): await process_frame
+	await RenderingServer.frame_post_draw
 func run() -> void:
 	DirAccess.make_dir_recursive_absolute("res://.godot/campaign-review")
 	main = load("res://scenes/main.tscn").instantiate()
 	main.persist_progress = false
 	root.add_child(main)
 	await RenderingServer.frame_post_draw
+	var used_front_entry: bool = main.front_active()
+	if used_front_entry: await click(main.front_menu.primary)
 	process_frame.connect(func(): route_time += main.frame_steps*Sim.FIXED_STEP)
 	var reports: Array[Dictionary] = []
 	var first: String = main.campaign.levels[0].id
@@ -51,7 +55,7 @@ func run() -> void:
 			passed = passed and (main.selecting_levels if following.is_empty() else (main.sim.layout_id == following and main.sim.plot_water == 0))
 			root.get_texture().get_image().save_png("res://.godot/campaign-review/normal-final-selection.png")
 	passed = passed and failures == 0 and input_pick_error < 0.001
-	var result := {"passed":passed,"stages":reports,"mouse_events":events,"blocked":blocked,"input_failures":failures,"pick_error":input_pick_error,"selection":main.hud.selection_ids,"following":following}
+	var result := {"front_entry":used_front_entry,"passed":passed,"stages":reports,"mouse_events":events,"blocked":blocked,"input_failures":failures,"pick_error":input_pick_error,"selection":main.hud.selection_ids,"following":following}
 	FileAccess.open("res://.godot/campaign-review/normal-route.json",FileAccess.WRITE).store_string(JSON.stringify(result,"\t"))
 	print("CAMPAIGN VIEWPORT ",JSON.stringify(result))
 	quit(0 if passed else 1)

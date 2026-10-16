@@ -1,0 +1,316 @@
+{
+  "date": "2026-10-16",
+  "engine": "Godot 4.7.2 stable Steam / Forward+ / D3D12",
+  "status": "Implemented; native interaction and visual checks complete; player pacing feedback pending",
+  "implementation": {
+    "navigation": "main.navigate()",
+    "renderer": "scripts/weather_transition.gd",
+    "durations_seconds": {
+      "wind": 0.65,
+      "cloud": 0.85,
+      "light": 0.18,
+      "reduced_motion": 0.12
+    },
+    "durations_exclude": "Covered loading / waiting for viewport layout and first new GPU frame",
+    "reduced_motion": "Native settings, session-only; no preference format change",
+    "light_fade": "Native control Tween; no GPU screenshot readback",
+    "idle": "Hidden input overlay; no transition process loop",
+    "weather_rules_maps_and_save_formats_changed": false
+  },
+  "final_native_checks": [
+    {
+      "size": "1920x1080",
+      "transition": {
+        "checks": 37,
+        "failures": 0,
+        "scope": "Lifecycle fixtures, native mouse input; normal route recorded separately",
+        "size": "(1920, 1080)"
+      },
+      "front_menu": {
+        "checks": 59,
+        "failures": 0,
+        "size": "(1920, 1080)"
+      }
+    },
+    {
+      "size": "1280x720",
+      "transition": {
+        "checks": 37,
+        "failures": 0,
+        "scope": "Lifecycle fixtures, native mouse input; normal route recorded separately",
+        "size": "(1280, 720)"
+      },
+      "front_menu": {
+        "checks": 59,
+        "failures": 0,
+        "size": "(1280, 720)"
+      }
+    },
+    {
+      "size": "1280x800",
+      "transition": {
+        "checks": 37,
+        "failures": 0,
+        "scope": "Lifecycle fixtures, native mouse input; normal route recorded separately",
+        "size": "(1280, 800)"
+      },
+      "front_menu": {
+        "checks": 59,
+        "failures": 0,
+        "size": "(1280, 800)"
+      }
+    },
+    {
+      "size": "1100x700",
+      "transition": {
+        "checks": 37,
+        "failures": 0,
+        "scope": "Lifecycle fixtures, native mouse input; normal route recorded separately",
+        "size": "(1100, 700)"
+      },
+      "front_menu": {
+        "checks": 59,
+        "failures": 0,
+        "size": "(1100, 700)"
+      }
+    }
+  ],
+  "full_regression": {
+    "configured_entries": 81,
+    "single_uninterrupted_final_run": false,
+    "prefix_passed_entries": 16,
+    "prefix_log": ".godot/transition-full.log",
+    "interruption": "compact-feedback had an instantaneous-close assumption; 25 checks, 1 failure. Fixed helper to wait for native transition.",
+    "continuation_start": "compact-feedback",
+    "continuation_entries": 65,
+    "continuation_passed": true,
+    "route_comparisons": 5,
+    "continuation_log": ".godot/transition-continuation.log",
+    "final_related": {
+      "campaign_scene_checks": 41,
+      "star_scene_checks": 47,
+      "audio_checks": 53,
+      "failures": 0,
+      "logs": [
+        ".godot/native-transition-review/final-test_campaign_scene.log",
+        ".godot/native-transition-review/verified-test_star_scene.log",
+        ".godot/native-transition-review/verified-test_audio_scene.log"
+      ]
+    },
+    "coverage_note": "Final native control fade and wind-line placement were rechecked with four sizes and targeted navigation/audio plus full normal campaign route; do not claim all final changes passed the whole suite in a single run."
+  },
+  "normal_mouse_route": {
+    "data_injection": false,
+    "rule_threshold_changes": false,
+    "actual_full_medal_countdown": true,
+    "report": {
+      "blocked": 0,
+      "following": "level02",
+      "front_entry": true,
+      "input_failures": 0,
+      "mouse_events": 3135,
+      "passed": true,
+      "pick_error": 0.0,
+      "selection": [],
+      "stages": [
+        {
+          "campaign_play": true,
+          "cold_lift": 12.448352275557,
+          "destroyed": [
+            false
+          ],
+          "elapsed": 0.0,
+          "front_strokes": 0,
+          "layout": "tutorial",
+          "limit": 180.0,
+          "order": [
+            0
+          ],
+          "outcome": "success",
+          "per_target": [
+            {
+              "distance": 12.3000001907349,
+              "front": 0,
+              "strokes": 18,
+              "transport": 5
+            },
+            {
+              "distance": 0.0,
+              "front": 0,
+              "strokes": 0,
+              "transport": 0
+            },
+            {
+              "distance": 0.0,
+              "front": 0,
+              "strokes": 0,
+              "transport": 0
+            }
+          ],
+          "phases": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "route": "mountain",
+          "route_seconds": 9.36666666666671,
+          "stars": 0,
+          "strokes": 18,
+          "transport_distance": 12.3000001907349,
+          "transport_strokes": 5,
+          "water": [
+            100.0
+          ],
+          "water_error": -0.000182604620022175
+        },
+        {
+          "campaign_play": true,
+          "cold_lift": 4.64281006213801,
+          "destroyed": [
+            false
+          ],
+          "elapsed": 35.4999999999993,
+          "front_strokes": 0,
+          "layout": "level01",
+          "limit": 180.0,
+          "order": [
+            0
+          ],
+          "outcome": "success",
+          "per_target": [
+            {
+              "distance": 31.1999998092651,
+              "front": 0,
+              "strokes": 64,
+              "transport": 14
+            },
+            {
+              "distance": 0.0,
+              "front": 0,
+              "strokes": 0,
+              "transport": 0
+            },
+            {
+              "distance": 0.0,
+              "front": 0,
+              "strokes": 0,
+              "transport": 0
+            }
+          ],
+          "phases": [
+            0
+          ],
+          "route": "mountain",
+          "route_seconds": 35.4999999999987,
+          "stars": 3,
+          "strokes": 64,
+          "transport_distance": 31.1999998092651,
+          "transport_strokes": 14,
+          "water": [
+            250.0
+          ],
+          "water_error": -0.00134249647879869
+        }
+      ]
+    },
+    "log": ".godot/native-transition-review/verified-replay_campaign_viewport.log"
+  },
+  "performance": {
+    "includes_covered_map_loading": true,
+    "samples": [
+      {
+        "frame_gate": true,
+        "frames": 449,
+        "max_ms": 229.41,
+        "over_20_ms": 2,
+        "over_33_ms": 2,
+        "p95_ms": 6.274,
+        "p99_ms": 8.119,
+        "simulation_steps_while_active": 0,
+        "style": "wind",
+        "transitions": 4
+      },
+      {
+        "frame_gate": true,
+        "frames": 577,
+        "max_ms": 158.807,
+        "over_20_ms": 2,
+        "over_33_ms": 2,
+        "p95_ms": 6.282,
+        "p99_ms": 6.412,
+        "simulation_steps_while_active": 0,
+        "style": "cloud",
+        "transitions": 4
+      },
+      {
+        "frame_gate": true,
+        "frames": 132,
+        "max_ms": 6.935,
+        "over_20_ms": 0,
+        "over_33_ms": 0,
+        "p95_ms": 6.25,
+        "p99_ms": 6.67,
+        "simulation_steps_while_active": 0,
+        "style": "light",
+        "transitions": 4
+      }
+    ],
+    "short_diagnostic": true,
+    "size": "(1920, 1080)"
+  },
+  "performance_limits": [
+    "Only four transitions per style; not V1 weather long-test acceptance.",
+    "Wind/cloud maxima are 229.410/158.807ms; P95/P99 passing does not mean every frame passed.",
+    "Transition input/time freeze prevents loading delay from consuming game time; further perceived loading smoothness remains player feedback."
+  ],
+  "preserved_attempts": [
+    {
+      "case": "Native 1280x720 resize assertion",
+      "result": "1 failure in first 32-check attempt",
+      "resolution": "Compared to logical visible viewport after canvas scaling; later GPU native checks pass.",
+      "log": ".godot/transition-native.log"
+    },
+    {
+      "case": "Native 1100x700 covered-stage assertion",
+      "result": "37 checks, 1 failure",
+      "resolution": "First fully covered GPU frame intentionally precedes load callback; wait for installed map before checking it. No runtime rule change.",
+      "log": ".godot/native-transition-review/test_weather_transition-1100x700.log"
+    },
+    {
+      "case": "Screenshot light fade short performance",
+      "result": "P99 23.332ms",
+      "resolution": "Removed screenshot readback/upload; final native fade P99 6.670ms",
+      "artifact": ".godot/native-transition-review/performance-before-native-fade.json"
+    },
+    {
+      "case": "Short profiler step counter",
+      "result": "Initially counted 2 stale previous-frame steps at cloud start",
+      "resolution": "Compare actual elapsed seconds on the same simulation object; final actual transition advance 0. Dedicated fixed-step lifecycle checks also pass."
+    },
+    {
+      "case": "Additional star scene renderer diagnostic",
+      "result": "Behavior 47 checks, 0 failures; log contained one native particles null error",
+      "engine_error": "Parameter particles is null, particles_get_instance_buffer_motion_vectors_offsets, particles_storage.cpp:759",
+      "source_log": ".godot/native-transition-review/particles-null-star-scene.log",
+      "rerun": "47 checks, 0 failures and no renderer ERROR in verified-test_star_scene.log",
+      "root_cause": "Unconfirmed; tracked under V6, not declared fixed or attributed to a particular change."
+    }
+  ],
+  "archived_native_frames": [
+    "docs/visual-language/menu-review/transition-wind.png",
+    "docs/visual-language/menu-review/transition-cloud.png"
+  ],
+  "open_items": [
+    "V20 native pacing / visual player feedback",
+    "V1 formal weather stress performance",
+    "V6 historical replay variation and native errors; one additional particles diagnostic preserved"
+  ],
+  "exported_package": false,
+  "git_commit": false,
+  "remote_push": false,
+  "visual_followup": {
+    "report": "wind-sweep-review.json",
+    "scope": "Latest wind palette/flow polish; original metrics above remain historical first implementation evidence"
+  }
+}

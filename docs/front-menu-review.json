@@ -1,0 +1,264 @@
+{
+  "date": "2026-10-15",
+  "engine": "Godot 4.7.2 stable Steam / Forward+ D3D12",
+  "direction": "B · 风过群岛",
+  "status": "implemented; player review pending",
+  "native_matrix": [
+    {
+      "resolution": "1920x1080",
+      "checks": 59,
+      "failures": 0,
+      "log": ".godot\\front-native-1920x1080.log"
+    },
+    {
+      "resolution": "1280x720",
+      "checks": 59,
+      "failures": 0,
+      "log": ".godot\\front-native-1280x720.log"
+    },
+    {
+      "resolution": "1280x800",
+      "checks": 59,
+      "failures": 0,
+      "log": ".godot\\front-native-1280x800.log"
+    },
+    {
+      "resolution": "1100x700",
+      "checks": 59,
+      "failures": 0,
+      "log": ".godot\\front-native-1100x700.log"
+    }
+  ],
+  "related_final": {
+    "campaign_scene": {
+      "checks": 41,
+      "failures": 0
+    },
+    "star_scene": {
+      "checks": 47,
+      "failures": 0
+    },
+    "audio_scene": {
+      "checks": 53,
+      "failures": 0
+    }
+  },
+  "normal_mouse_route": {
+    "blocked": 0,
+    "following": "level02",
+    "front_entry": true,
+    "input_failures": 0,
+    "mouse_events": 2777,
+    "passed": true,
+    "pick_error": 0.0,
+    "selection": [],
+    "stages": [
+      {
+        "campaign_play": true,
+        "cold_lift": 10.4854491454857,
+        "destroyed": [
+          false
+        ],
+        "elapsed": 0.0,
+        "front_strokes": 0,
+        "layout": "tutorial",
+        "limit": 180.0,
+        "order": [
+          0
+        ],
+        "outcome": "success",
+        "per_target": [
+          {
+            "distance": 12.2999992370605,
+            "front": 0,
+            "strokes": 18,
+            "transport": 5
+          },
+          {
+            "distance": 0.0,
+            "front": 0,
+            "strokes": 0,
+            "transport": 0
+          },
+          {
+            "distance": 0.0,
+            "front": 0,
+            "strokes": 0,
+            "transport": 0
+          }
+        ],
+        "phases": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "route": "mountain",
+        "route_seconds": 9.15000000000003,
+        "stars": 0,
+        "strokes": 18,
+        "transport_distance": 12.2999992370605,
+        "transport_strokes": 5,
+        "water": [
+          100.0
+        ],
+        "water_error": -0.000135184234920871
+      },
+      {
+        "campaign_play": true,
+        "cold_lift": 4.59850503253723,
+        "destroyed": [
+          false
+        ],
+        "elapsed": 35.4666666666659,
+        "front_strokes": 0,
+        "layout": "level01",
+        "limit": 180.0,
+        "order": [
+          0
+        ],
+        "outcome": "success",
+        "per_target": [
+          {
+            "distance": 31.1999998092651,
+            "front": 0,
+            "strokes": 64,
+            "transport": 14
+          },
+          {
+            "distance": 0.0,
+            "front": 0,
+            "strokes": 0,
+            "transport": 0
+          },
+          {
+            "distance": 0.0,
+            "front": 0,
+            "strokes": 0,
+            "transport": 0
+          }
+        ],
+        "phases": [
+          0
+        ],
+        "route": "mountain",
+        "route_seconds": 35.4666666666654,
+        "stars": 3,
+        "strokes": 64,
+        "transport_distance": 31.1999998092651,
+        "transport_strokes": 14,
+        "water": [
+          250.0
+        ],
+        "water_error": -0.00135066673038864
+      }
+    ]
+  },
+  "short_performance": {
+    "samples": [
+      {
+        "accumulator_ms": 0.0,
+        "frame_gate": true,
+        "frames": 496,
+        "label": "home",
+        "max_ms": 6.658,
+        "over_20_ms": 0,
+        "p95_ms": 6.266,
+        "p99_ms": 6.382,
+        "preview_updates": 495,
+        "simulation_seconds": 0.0,
+        "wall_seconds": 3.004735
+      },
+      {
+        "accumulator_ms": 0.0,
+        "frame_gate": true,
+        "frames": 496,
+        "label": "levels",
+        "max_ms": 8.851,
+        "over_20_ms": 0,
+        "p95_ms": 6.325,
+        "p99_ms": 7.945,
+        "preview_updates": 0,
+        "simulation_seconds": 0.0,
+        "wall_seconds": 3.005056
+      },
+      {
+        "accumulator_ms": 2.13739393939413,
+        "frame_gate": true,
+        "frames": 440,
+        "label": "gameplay_preview_stopped",
+        "max_ms": 12.65,
+        "over_20_ms": 0,
+        "p95_ms": 10.579,
+        "p99_ms": 11.322,
+        "preview_updates": 0,
+        "simulation_seconds": 2.99999999999999,
+        "wall_seconds": 3.006803
+      },
+      {
+        "accumulator_ms": 2.13739393939413,
+        "frame_gate": true,
+        "frames": 496,
+        "label": "settings",
+        "max_ms": 7.816,
+        "over_20_ms": 0,
+        "p95_ms": 6.269,
+        "p99_ms": 6.465,
+        "preview_updates": 0,
+        "simulation_seconds": 0.0,
+        "wall_seconds": 3.005577
+      }
+    ],
+    "short_diagnostic": true,
+    "size": "(1920, 1080)"
+  },
+  "full_regression": {
+    "coverage": "segmented, not one uninterrupted final run",
+    "prefix_log": ".godot/front-full-final.log",
+    "continuation_log": ".godot/front-full-continuation.log",
+    "continuation_start": "star-scene",
+    "all_remaining_checks_and_five_route_comparisons_passed": true,
+    "earlier_failures": [
+      {
+        "log": ".godot/front-full-run.log",
+        "test": "audio-scene",
+        "reason": "one safe-recovery cue count failed; next full-prefix run and final related audio check passed; cause not established"
+      },
+      {
+        "log": ".godot/front-full-final.log",
+        "test": "star-scene",
+        "reason": "two assertions followed a pointer click before new native container layout; test now waits process_frame and frame_post_draw; continuation and final related check passed"
+      }
+    ],
+    "final_ui_checks_after_keyboard_and_startup_fixes": true
+  },
+  "thumbnail_generation": {
+    "images": 10,
+    "size": "640x360",
+    "render_size": "960x540",
+    "repeat_overwrite_passed": true,
+    "temporary_directory": ".godot/level-preview-build/",
+    "log": ".godot/front-regenerate.log",
+    "simulation_steps": 0
+  },
+  "screenshots": [
+    "docs/visual-language/menu-review/home.png",
+    "docs/visual-language/menu-review/levels.png"
+  ],
+  "preserved": [
+    "all nine authored map layouts and numbers",
+    "weather simulation and settings",
+    "campaign order",
+    "rating and progress format",
+    "onboarding and audio preference files",
+    "development direct launch and fresh-guide isolation",
+    "pure-color ground"
+  ],
+  "remaining": [
+    "native visual and reading feedback from player",
+    "V1 formal weather stress performance acceptance",
+    "V6 historical replay variability and native exception root cause"
+  ],
+  "exported_package": false,
+  "pushed_remote": false
+}

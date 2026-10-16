@@ -18,6 +18,7 @@ func key(code: Key) -> void:
 	event.keycode = code
 	event.pressed = true
 	root.push_input(event, true)
+	while main.transition_active(): await process_frame
 func photograph(name: String) -> void:
 	main.hud.queue_redraw()
 	await RenderingServer.frame_post_draw
@@ -114,14 +115,14 @@ func run() -> void:
 	check(main.sim.wind_sources.size() == 1 and main.sim.wind_sources[0].id == band.id, "Expired held row cannot close the next source")
 	main.sim.add_vortex(Vector2(5, 2), 1.5, 1, 1)
 	main.set_process(true)
-	key(KEY_SPACE)
+	await key(KEY_SPACE)
 	await RenderingServer.frame_post_draw
 	var paused_life: float = main.sim.wind_sources[1].remaining
 	var clock: float = main.weather_view.elapsed
 	await create_timer(0.25).timeout
 	check(main.paused and main.sim.wind_sources[1].remaining == paused_life and main.weather_view.elapsed == clock, "Actual pause freezes sources and wind animation")
 	await photograph("paused")
-	key(KEY_SPACE)
+	await key(KEY_SPACE)
 	await process_frame
 	main.restart(false)
 	check(main.wind_input.tool == "vortex" and main.sim.wind_sources.is_empty(), "Retry retains tool and clears mixed sources")
@@ -151,12 +152,12 @@ func run() -> void:
 	main.wind_input._notification(Node.NOTIFICATION_APPLICATION_FOCUS_OUT)
 	check(not main.wind_input.dragging and main.sim.wind_sources.is_empty(), "Focus loss cancels a right-button preview")
 	await place(1, MOUSE_BUTTON_RIGHT, 1.5, false)
-	key(KEY_SPACE)
+	await key(KEY_SPACE)
 	check(main.paused and not main.wind_input.dragging and main.sim.wind_sources.is_empty(), "Pause cancels a right-button preview")
 	mouse(at, true, MOUSE_BUTTON_RIGHT)
 	check(not main.wind_input.dragging and main.sim.wind_sources.is_empty(), "Pause blocks another press immediately, before the next main frame")
 	mouse(at, false, MOUSE_BUTTON_RIGHT)
-	key(KEY_SPACE)
+	await key(KEY_SPACE)
 	await place(1, MOUSE_BUTTON_LEFT, 1.5, false)
 	var limit_config: WRWeatherSettings = main.sim.settings.duplicate(true)
 	limit_config.vortex_radius_limits = Vector2(0.75, 1.0)

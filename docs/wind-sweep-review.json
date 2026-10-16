@@ -1,0 +1,133 @@
+{
+  "date": "2026-10-16",
+  "feedback": "风掠切页实现偏简略，颜色单一",
+  "scope": "Only wind rendering and its GPU checks; navigation, timing, cloud and light logic unchanged",
+  "appearance": {
+    "palette": [
+      "#aacbd1",
+      "#d1e5d8",
+      "#f1f1df",
+      "#c4e0d3",
+      "#9cc8cd"
+    ],
+    "interpolation": "Native per-vertex colors across shared curved strips",
+    "edge": "Two translucent outer sheets; opaque core at page swap",
+    "wind_lines": 13,
+    "motion": "Unequal length, staggered phase, curved traces; fade at endpoints",
+    "duration_seconds": 0.65,
+    "no_new_nodes_per_ribbon": true
+  },
+  "gpu_fixtures": [
+    {
+      "checks": 5,
+      "failures": 0,
+      "scope": "Fixed-progress native GPU fixture, no playable route",
+      "size": "(1920, 1080)"
+    },
+    {
+      "checks": 5,
+      "failures": 0,
+      "scope": "Fixed-progress native GPU fixture, no playable route",
+      "size": "(1100, 700)"
+    }
+  ],
+  "navigation_checks": [
+    {
+      "size": "1920x1080",
+      "checks": 37,
+      "failures": 0,
+      "log": ".godot/wind-sweep-review/final-native.log"
+    },
+    {
+      "size": "1100x700",
+      "checks": 37,
+      "failures": 0,
+      "log": ".godot/wind-polish-test_weather_transition-1100x700.log",
+      "note": "Before final palette-only literal adjustment; final palette GPU fixture separately rerun."
+    }
+  ],
+  "performance": {
+    "includes_covered_map_loading": true,
+    "samples": [
+      {
+        "frame_gate": true,
+        "frames": 448,
+        "max_ms": 237.218,
+        "over_20_ms": 2,
+        "over_33_ms": 2,
+        "p95_ms": 6.374,
+        "p99_ms": 7.699,
+        "simulation_steps_while_active": 0,
+        "style": "wind",
+        "transitions": 4
+      },
+      {
+        "frame_gate": true,
+        "frames": 576,
+        "max_ms": 161.302,
+        "over_20_ms": 2,
+        "over_33_ms": 2,
+        "p95_ms": 6.296,
+        "p99_ms": 6.757,
+        "simulation_steps_while_active": 0,
+        "style": "cloud",
+        "transitions": 4
+      },
+      {
+        "frame_gate": true,
+        "frames": 132,
+        "max_ms": 10.298,
+        "over_20_ms": 0,
+        "over_33_ms": 0,
+        "p95_ms": 6.266,
+        "p99_ms": 7.24,
+        "simulation_steps_while_active": 0,
+        "style": "light",
+        "transitions": 4
+      }
+    ],
+    "short_diagnostic": true,
+    "size": "(1920, 1080)"
+  },
+  "limits": [
+    "Four transitions per style only, not V1 formal weather performance acceptance.",
+    "Wind maximum frame 237.218ms and two frames over33ms remain; P95/P99 passing does not mean every frame passed.",
+    "No new full-suite or normal winning-route run in this appearance-only followup. Prior segmented full-suite/route evidence remains history in theme-transition-review.json.",
+    "V1 and V6 remain open; actual improved aesthetic still awaits player feedback."
+  ],
+  "native_frame": "docs/visual-language/menu-review/transition-wind.png",
+  "screenshot_kind": "Actual native menu while wind sweep is closing; not a winning route",
+  "exported_package": false,
+  "git_commit": false,
+  "remote_push": false,
+  "transparency_followup": {
+    "feedback": "增加更多一点的透明地方",
+    "change": "Wind opacity around 40–100% with full opacity only around swap; both spatial ends feather to transparent across about 0.125 viewport widths, plus lighter outer sheets. Existing palette and timing retained.",
+    "opacity_plateau_progress": [
+      0.46,
+      0.54
+    ],
+    "gpu_fixtures": [
+      {
+        "checks": 6,
+        "failures": 0,
+        "scope": "Fixed-progress native GPU fixture, no playable route",
+        "size": "(1920, 1080)"
+      },
+      {
+        "checks": 6,
+        "failures": 0,
+        "scope": "Fixed-progress native GPU fixture, no playable route",
+        "size": "(1100, 700)"
+      }
+    ],
+    "navigation": {
+      "size": "1920x1080",
+      "checks": 37,
+      "failures": 0,
+      "log": ".godot/wind-sweep-review/transparency-native.log"
+    },
+    "performance_retested": false,
+    "scope": "Wind drawing only; no full weather suite or normal winning route rerun."
+  }
+}
