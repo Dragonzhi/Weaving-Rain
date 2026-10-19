@@ -1,0 +1,113 @@
+{
+  "date": "2026-10-18",
+  "status": "Five assets produced and inspected; user approval and TapTap acceptance pending",
+  "requirements_source": "User-supplied TapTap requirements; horizontal 460:215 and portrait 2:3 interpreted by dimensions, since pasted labels were transposed.",
+  "method": "Built-in image_gen produced three reference-guided original illustrations; Godot 4.7.2 exported exact canvases and native-font title wordmark. Not a direct screenshot or simple collage.",
+  "sources": [
+    {
+      "file": "sources/landscape.png",
+      "generated_size": [
+        1672,
+        941
+      ],
+      "sha256": "37aca8047507c20526467448f7debdee4804148604a13ae13816868efcde5323"
+    },
+    {
+      "file": "sources/portrait.png",
+      "generated_size": [
+        1024,
+        1536
+      ],
+      "sha256": "b36871c03bed59840118eb45703f89279ccb80df6fd7b06ab220f56b2133575e"
+    },
+    {
+      "file": "sources/wallpaper.png",
+      "generated_size": [
+        2206,
+        713
+      ],
+      "sha256": "2fb1de90c4492be2431546d62f88845220b73032c81ffbe240a9207bf6e84302"
+    }
+  ],
+  "exports": [
+    {
+      "file": "upload/promo-1920x1080.png",
+      "size": [
+        1920,
+        1080
+      ],
+      "bytes": 1584372,
+      "sha256": "e9addccf30e57c31673ea50cb36e98c15a793fb8027d77523c98cf328245c6a1",
+      "format_size_alpha_checks": "pass"
+    },
+    {
+      "file": "upload/logo-transparent.png",
+      "size": [
+        1375,
+        594
+      ],
+      "bytes": 99988,
+      "sha256": "fee83cc5e9bbeec4e6c546ff9d818dafdf6f8cf2f0e3450bbd32d5ec9ed6a2b3",
+      "format_size_alpha_checks": "pass"
+    },
+    {
+      "file": "upload/cover-landscape-1840x860.png",
+      "size": [
+        1840,
+        860
+      ],
+      "bytes": 1283563,
+      "sha256": "9aa5293d64955a0b7511108ca4684399873b91032d231222dc3d0b9ad9d9545b",
+      "format_size_alpha_checks": "pass"
+    },
+    {
+      "file": "upload/cover-portrait-1200x1800.png",
+      "size": [
+        1200,
+        1800
+      ],
+      "bytes": 1805825,
+      "sha256": "645bf99b080ff15a2e494d611c61682fc32694665d589c4a40195ca6318ff5c6",
+      "format_size_alpha_checks": "pass"
+    },
+    {
+      "file": "upload/wallpaper-3840x1240.png",
+      "size": [
+        3840,
+        1240
+      ],
+      "bytes": 2531453,
+      "sha256": "45f4c3069b21be36b649d756be502476589d671b4ebc4f125feaa143a01a12d0",
+      "format_size_alpha_checks": "pass"
+    }
+  ],
+  "archive": {
+    "file": "WeavingRain-TapTap-assets.zip",
+    "bytes": 7305265,
+    "sha256": "e2017ce9f227fa87956149dae81eb2b5da20f4faa4d7fa622d29f92c9d9cf39f",
+    "contents_and_crc": "pass"
+  },
+  "visible_text": "Only 风织雨 and WEAVING RAIN, the Chinese/English game title. Wallpaper has no text. Transparent logo is a title wordmark, not the square application icon.",
+  "font_sources": [
+    "Installed SimSun",
+    "Installed Microsoft YaHei UI"
+  ],
+  "fonts_redistributed": false,
+  "manual_review": "Agent viewed promo, both covers, transparent wordmark and wallpaper. No HUD, slogans, author credit, app icon, watermark, characters, buildings or gameplay inventions; important wallpaper subjects on the right.",
+  "checks": [
+    "Native export final run exit 0, no SCRIPT ERROR in .godot/taptap-assets-20261018-final.log",
+    "Pillow decoded and verified all five PNGs",
+    "Exact dimensions and strict decimal-byte caps passed",
+    "Logo alpha and <=12px outer padding passed",
+    "ZIP has only five final images and CRC passed"
+  ],
+  "limitations": [
+    "Generated illustration sources have the native dimensions recorded above; Godot resamples them to required output canvases. Not native 3840px generated artwork.",
+    "These are newly composed promotional illustrations, not gameplay captures or new in-game assets.",
+    "First export hit a float-size equality assertion in the shared picture helper; fixed by rounding title dimensions, all five re-exported and inspected.",
+    "The two remote example-image URLs could not be read by the web tool; supplied textual requirements and the attached rules image were used.",
+    "No upload, platform acceptance check, game export, commit, push, full gameplay regression or performance rerun."
+  ],
+  "prompts": "prompts.json",
+  "reproduce": "Run render-assets.gd in graphical Godot, then python docs/demo-delivery/taptap-2026-10-18/verify-assets.py"
+}

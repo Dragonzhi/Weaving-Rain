@@ -11,6 +11,12 @@ const WeatherAudio = preload("res://scripts/weather_audio.gd")
 const FrontMenu = preload("res://scenes/front_menu.tscn")
 const WeatherTransition = preload("res://scripts/weather_transition.gd")
 var transition: Control
+@export var show_learning_briefings := true
+var onboarding_path := "res://configs/onboarding.tres"
+var briefing_pending := false
+var briefing_was_paused := false
+var seen_briefings := {}
+var known_tools := 1
 const SIMULATION_BUDGET_US := 8000
 @export var show_front_menu := true
 var front_menu: Control
@@ -99,6 +105,7 @@ func _ready() -> void:
 			free_layout = "standard"
 	sim = _new_simulation()
 	guide.reset(play_mode == "lesson")
+	_reload_onboarding()
 	weather_view = WeatherView.new()
 	add_child(weather_view)
 	weather_view.setup(sim)
@@ -106,7 +113,9 @@ func _ready() -> void:
 	wind_input = WindInput.new()
 	add_child(wind_input)
 	wind_input.setup(sim, weather_view.camera)
-	wind_input.stroke_applied.connect(func(a, b, height): weather_view.add_wind_stroke(a, b, height))
+	wind_input.stroke_applied.connect(func(a, b, height):
+		weather_view.add_wind_stroke(a, b, height)
+		guide.note_stroke(sim,a,b,wind_input.gesture_cloud))
 	var canvas := CanvasLayer.new()
 	add_child(canvas)
 	hud = HUD.new()
@@ -121,6 +130,8 @@ func _ready() -> void:
 	hud.cold_lab_requested.connect(cold_lab)
 	hud.free_play_requested.connect(func(): navigate(enter_free_play,"cloud"))
 	hud.lesson_requested.connect(func(): navigate(_start_lesson,"cloud"))
+	hud.briefing_requested.connect(func(): show_briefing(true))
+	hud.briefing_started.connect(close_briefing)
 	hud.layout_requested.connect(select_layout)
 	hud.finish_requested.connect(finish_level)
 	hud.next_requested.connect(func(): navigate(next_level,"cloud"))
@@ -160,6 +171,7 @@ func _ready() -> void:
 	transition = WeatherTransition.new()
 	transition_layer.add_child(transition)
 	session_started = true
+	_prepare_briefing()
 	if not bypass_front:
 		session_started = false
 		open_front_page("home")
@@ -195,6 +207,7 @@ func front_active() -> bool:
 	return front_menu != null and front_menu.visible
 
 func open_front_page(page: String, from_home := false) -> void:
+	if hud.briefing_active(): close_briefing()
 	var opening_from_game := not front_active()
 	if opening_from_game:
 		front_was_paused = game_menu_was_paused if hud.menu_open else paused
@@ -238,6 +251,7 @@ func transition_active() -> bool:
 
 func navigate(change: Callable, style := "light") -> void:
 	if transition_active(): return
+	if hud.briefing_active(): close_briefing()
 	wind_input.cancel()
 	wind_input.enabled = false
 	hud.paused = true
@@ -296,6 +310,7 @@ func _start_lesson() -> void:
 	if not loaded.errors.is_empty():
 		_tuning_feedback("教学未切换："+"；".join(loaded.errors))
 		return
+	seen_briefings.erase("tutorial")
 	switch_mode("lesson")
 
 func initial_mode(args: PackedStringArray) -> String:
@@ -360,6 +375,7 @@ func select_layout(id: String) -> void:
 	switch_mode("free")
 
 func switch_mode(mode: String) -> void:
+	if hud.briefing_active(): close_briefing()
 	if front_active(): close_front_page()
 	session_started = true
 	selecting_levels = false
@@ -374,6 +390,7 @@ func switch_mode(mode: String) -> void:
 	sim = _new_simulation()
 	result_recorded = false
 	guide.reset(mode == "lesson")
+	_reload_onboarding()
 	var selected_hints: bool = weather_view.hints_enabled
 	var selected_style_path: String = weather_view.style_path
 	remove_child(weather_view)
@@ -395,6 +412,7 @@ func switch_mode(mode: String) -> void:
 	_sync_campaign_hud()
 	hud.queue_redraw()
 	_bind_audio()
+	_prepare_briefing()
 
 func _bind_audio() -> void:
 	if weather_audio == null: return
@@ -403,6 +421,7 @@ func _bind_audio() -> void:
 	if not weather_audio.errors.is_empty(): _tuning_feedback("音效配置保留："+"；".join(weather_audio.errors))
 
 func finish_level() -> void:
+	if hud.briefing_active(): close_briefing()
 	wind_input.cancel()
 	if sim.finish():
 		wind_input.enabled = false
@@ -511,6 +530,9 @@ func cold_lab() -> void:
 	sim.refresh_display()
 
 func _process(delta: float) -> void:
+	if briefing_pending and not front_active() and not transition_active() and not hud.menu_open:
+		briefing_pending = false
+		show_briefing()
 	record_result()
 	weather_audio.set_paused(paused or transition_active())
 	var moving: bool = not paused and not transition_active() and not front_active() and sim.outcome == "playing"
@@ -566,6 +588,9 @@ func _process(delta: float) -> void:
 	hud.queue_redraw()
 
 func _input(event: InputEvent) -> void:
+	if hud.briefing_active() and event is InputEventKey and event.keycode == KEY_SPACE:
+		get_viewport().set_input_as_handled()
+		return
 	if transition_active():
 		get_viewport().set_input_as_handled()
 		return
@@ -576,6 +601,12 @@ func _input(event: InputEvent) -> void:
 func _unhandled_key_input(event: InputEvent) -> void:
 	if transition_active(): return
 	if not event is InputEventKey or not event.pressed or event.echo:
+		return
+	if hud.briefing_active():
+		if event.keycode == KEY_R: navigate(func(): restart(false),"cloud")
+		elif event.keycode == KEY_ESCAPE:
+			hud.menu_open = true
+			navigate(func(): _game_menu_changed(true),"light")
 		return
 	if front_active():
 		if event.keycode == KEY_ESCAPE and front_menu.page != "home": _front_action("back", "")
@@ -607,6 +638,69 @@ func _toggle_pause() -> void:
 	paused = not paused
 	wind_input.cancel()
 	wind_input.enabled = not paused and sim.outcome == "playing"
+
+func _reload_onboarding() -> void:
+	var loaded := ConfigLoader.onboarding(onboarding_path)
+	guide.settings = loaded.resource
+	if not loaded.errors.is_empty(): _tuning_feedback("教学配置保留："+"；".join(loaded.errors))
+
+func _prepare_briefing() -> void:
+	briefing_pending = true
+	# State lives with the session, not in _draw (which must never change a pause).
+	hud.tool_introduction.clear()
+	hud.tool_introduction_until = 0.0
+	_briefing_content(false)
+
+func _briefing_content(force: bool) -> Dictionary:
+	if sim.sandbox or sim.outcome != "playing": return {}
+	if play_mode == "lesson":
+		if seen_briefings.has("tutorial") and not force: return {}
+		return {"title":"把一场雨送进水库", "body":"左键拖动浅色湿空气，把它推向山坡。\n先拖一小段，再停住按住，可以持续送风。\n云也能直接拖动；让雨落进水库，蓄满就完成。\n\n这里不计时，水库可以溢流；随时可在菜单跳过或重看。"}
+	if play_mode != "free" or (not campaign_play and not force): return {}
+	var index := guide.settings.map_ids.find(sim.layout_id)
+	var title: String = guide.settings.map_titles[index] if index >= 0 else sim.layout.title
+	var body: String = guide.settings.map_notes[index] if index >= 0 else sim.layout.hint
+	var fresh: int = int(sim.layout.get("available_wind_tools",7)) & ~known_tools
+	if fresh == 0 and index < 0 and not force: return {}
+	if seen_briefings.has(sim.layout_id) and fresh == 0 and not force: return {}
+	if (fresh & 2) != 0 or (force and (int(sim.layout.get("available_wind_tools",7)) & 2) != 0):
+		body += "\n\n风带：拖出起点与终点，滚轮切换三档力度。松手后吹 %.0f 秒，可在底栏提前撤除。" % sim.settings.source_lifetime
+		if fresh != 0: title = "新工具 · 风带"
+	if (fresh & 4) != 0 or (force and (int(sim.layout.get("available_wind_tools",7)) & 4) != 0):
+		body += "\n\n漩涡：拖动确定半径，左键顺时针／右键逆时针，滚轮调力度。范围有效时松手生成；收拢后撤源，再输送。"
+		if fresh != 0: title = "新工具 · 风带与漩涡" if (fresh & 2) != 0 else "新工具 · 漩涡"
+	if fresh != 0: hud.tool_introduction = PackedStringArray([title,body])
+	for target in sim.plot_centers.size():
+		if not sim.is_reservoir(target):
+			body += "\n农田 %s：适量 %.0f–%.0f，解除危险后保持安全 %.0f 秒。" % [String.chr(65+target),sim.required_water(target),sim.flood_limit(target),sim.settings.safe_seconds]
+	return {"title":title,"body":body}
+
+func show_briefing(force := false) -> void:
+	if front_active() or transition_active() or hud.briefing_active(): return
+	if force: _reload_onboarding()
+	var content := _briefing_content(force)
+	if content.is_empty(): return
+	if play_mode == "lesson" or campaign_play:
+		seen_briefings["tutorial" if play_mode == "lesson" else sim.layout_id] = true
+	if play_mode == "free" and campaign_play: known_tools |= int(sim.layout.get("available_wind_tools",7))
+	if not show_learning_briefings or "--skip-briefing" in OS.get_cmdline_user_args(): return
+	briefing_was_paused = game_menu_was_paused if hud.menu_open else paused
+	hud.menu_open = false
+	paused = true
+	wind_input.cancel()
+	wind_input.enabled = false
+	hud.paused = true
+	weather_audio.set_paused(true)
+	hud.show_briefing(content.title,content.body,"开始练习" if play_mode == "lesson" else "开始")
+
+func close_briefing() -> void:
+	if not hud.briefing_active(): return
+	hud.briefing_panel.hide()
+	paused = briefing_was_paused
+	hud.paused = paused
+	wind_input.cancel()
+	wind_input.enabled = not paused and not front_active() and not transition_active() and sim.outcome == "playing"
+	weather_audio.set_paused(paused)
 
 func _capture(path: String) -> void:
 	# Development-only render capture; never changes the normal starting state.

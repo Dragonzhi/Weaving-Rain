@@ -28,6 +28,26 @@ func run() -> void:
 	main.guide.cold_hint_left = 0
 	var hud: Control = main.hud
 	var view: Node3D = main.weather_view
+	var marker_start := Vector2(-5,0)
+	var marker_end := Vector2(4,1)
+	var marker_direction := (marker_end-marker_start).normalized()
+	var fresh: PackedVector2Array = hud._source_outline(marker_start,marker_end,marker_direction,false)
+	var cached: PackedVector2Array = hud._source_outline(marker_start,marker_end,marker_direction,true)
+	check(cached.to_byte_array()==fresh.to_byte_array(),"Static wind-band marker cache preserves exact projected geometry")
+	var camera_position: Vector3 = view.camera.position
+	view.camera.position.x += 0.2
+	var moved: PackedVector2Array = hud._source_outline(marker_start,marker_end,marker_direction,true)
+	fresh = hud._source_outline(marker_start,marker_end,marker_direction,false)
+	check(moved.to_byte_array()==fresh.to_byte_array() and moved!=cached,"Camera changes invalidate cached wind-band outlines")
+	view.camera.position = camera_position
+	var radius: float = main.sim.settings.brush_radius
+	main.sim.settings.brush_radius += 0.1
+	cached = hud._source_outline(marker_start,marker_end,marker_direction,true)
+	fresh = hud._source_outline(marker_start,marker_end,marker_direction,false)
+	check(cached==fresh,"Wind-radius changes do not reuse an old source outline")
+	main.sim.settings.brush_radius = radius
+	for n in 12: hud._source_outline(marker_start+Vector2(n,0),marker_end,marker_direction,true)
+	check(hud.source_outlines.size()<=4,"Replaced sources cannot grow marker cache without bound")
 	check(not hud.menu_open and not hud.retry.visible and not hud.lesson_button.visible, "Menu actions are collapsed by default")
 	check(not hud.blocks_wind(Vector2(80, hud.size.y - 65)), "Old large water-card footprint is released")
 	check(not hud.blocks_wind(hud.timer_rect.get_center()) and not hud.blocks_wind(hud.reserve_rect.get_center()), "Timer and reserve are pass-through information")

@@ -46,6 +46,9 @@ func has_supply(settings: WRWeatherSettings) -> bool:
 
 func prepare(dt: float, sim: RefCounted) -> void:
 	var settings: WRWeatherSettings = sim.settings
+	var points: PackedVector2Array = sim.positions
+	var humidity: PackedFloat32Array = sim.humidity
+	var evaporated: float = sim.evaporated_water
 	var steering := Vector2.ZERO
 	for n in 16:
 		var offset := Vector2.from_angle(n * TAU / 16.0) * settings.tropical_radius
@@ -58,20 +61,21 @@ func prepare(dt: float, sim: RefCounted) -> void:
 	heat_mean = 0.0
 	var supports := 0
 	for i in indices:
-		var distance: float = sim.positions[i].distance_to(center) / settings.tropical_radius
+		var distance: float = points[i].distance_to(center) / settings.tropical_radius
 		var influence := pow(maxf(0.0, 1.0 - distance * distance), 2)
 		heat[i] = maxf(0.0, heat[i] - settings.tropical_cooling * strength * strength * influence * dt)
 		if heat[i] > settings.tropical_energy_min:
 			var added: float = settings.tropical_evaporation * heat[i] * dt
-			var before: float = sim.humidity[i]
-			sim.humidity[i] += added
+			var before: float = humidity[i]
+			humidity[i] += added
 			# Account the representable addition to the authoritative float32 field.
-			added = sim.humidity[i] - before
-			sim.evaporated_water += added
+			added = humidity[i] - before
+			evaporated += added
 			supply_rate += added / dt
 		if influence > 0.1:
 			heat_mean += heat[i]
 			supports += 1
+	sim.evaporated_water = evaporated
 	if supports > 0: heat_mean /= supports
 	low_velocity.fill(Vector2.ZERO)
 	high_velocity.fill(Vector2.ZERO)
@@ -84,7 +88,7 @@ func prepare(dt: float, sim: RefCounted) -> void:
 	for z in range(maxi(0, start.y), mini(sim.DEPTH, finish.y + 1)):
 		for x in range(maxi(0, start.x), mini(sim.WIDTH, finish.x + 1)):
 			var i: int = z * sim.WIDTH + x
-			var offset: Vector2 = sim.positions[i] - center
+			var offset: Vector2 = points[i] - center
 			var distance := offset.length()
 			if distance >= radius or distance < 0.00001: continue
 			var radial := offset / distance
@@ -96,24 +100,37 @@ func prepare(dt: float, sim: RefCounted) -> void:
 
 func lift(dt: float, sim: RefCounted) -> void:
 	var settings: WRWeatherSettings = sim.settings
+	# These fields stay the same objects throughout this phase. Keep native packed
+	# array references rather than resolving RefCounted properties for each cell.
+	var points: PackedVector2Array = sim.positions
+	var humidity: PackedFloat32Array = sim.humidity
+	var clouds: PackedFloat32Array = sim.cloud
+	var lifts: PackedFloat32Array = sim.lifted
+	var velocity_field: PackedVector2Array = sim.low_wind
+	var left: PackedInt32Array = sim.neighbor_left
+	var right: PackedInt32Array = sim.neighbor_right
+	var bottom: PackedInt32Array = sim.neighbor_bottom
+	var top: PackedInt32Array = sim.neighbor_top
+	var combined_lift: float = sim.last_lift
 	last_lift = 0.0
 	for i in indices:
-		var ready: bool = heat[i] > settings.tropical_energy_min and sim.humidity[i] >= settings.tropical_humidity_min
-		var convergence: float = -((sim.low_wind[sim.neighbor_right[i]].x - sim.low_wind[sim.neighbor_left[i]].x) + (sim.low_wind[sim.neighbor_bottom[i]].y - sim.low_wind[sim.neighbor_top[i]].y)) / (2.0 * sim.CELL)
+		var ready: bool = heat[i] > settings.tropical_energy_min and humidity[i] >= settings.tropical_humidity_min
+		var convergence: float = -((velocity_field[right[i]].x - velocity_field[left[i]].x) + (velocity_field[bottom[i]].y - velocity_field[top[i]].y)) / (2.0 * sim.CELL)
 		ready = ready and convergence >= settings.tropical_convergence_min
 		timers[i] = minf(settings.tropical_convection_seconds, timers[i] + dt) if ready else maxf(0.0, timers[i] - dt * 2.0)
 		if not ready or timers[i] + 0.000001 < settings.tropical_convection_seconds: continue
-		var offset: Vector2 = sim.positions[i] - center
+		var offset: Vector2 = points[i] - center
 		var q := offset.length() / settings.tropical_radius
 		var band := exp(-pow((q - 0.5) / 0.28, 2)) if organization > 0.05 else 1.0
 		# Uneven actual convection, not a visual mask, organizes two broad cloud arms.
 		band *= 0.75 + 0.25 * sin(offset.angle() * 2.0 + q * 7.0)
-		var amount: float = sim.humidity[i] * (1.0 - exp(-settings.tropical_lift_rate * convergence * heat[i] * band * dt))
-		sim.humidity[i] -= amount
-		sim.cloud[i] += amount
-		sim.lifted[i] += amount
-		sim.last_lift += amount
+		var amount: float = humidity[i] * (1.0 - exp(-settings.tropical_lift_rate * convergence * heat[i] * band * dt))
+		humidity[i] -= amount
+		clouds[i] += amount
+		lifts[i] += amount
+		combined_lift += amount
 		last_lift += amount
+	sim.last_lift = combined_lift
 	total_lift += last_lift
 	var rotation := 0.0
 	var spin := -1.0 if sea.hemisphere == 0 else 1.0

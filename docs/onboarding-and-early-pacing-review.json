@@ -1,0 +1,569 @@
+{
+  "date": "2026-10-19",
+  "status": "Implementation complete; segmented regression covered all 85 configured entries with a retained first needs-viewport failure and one passing independent rerun. New-player acceptance and P1/V1/V6 remain open.",
+  "implementation": {
+    "guide": "Five result-driven reservoir nodes; early events remembered, no new victory condition",
+    "assistance": "8/20 active simulation seconds without node progress, local labels and ghost gesture, no weather injection",
+    "briefing": "Native PanelContainer/Button, session first visits/tools, complete simulation pause, manual review, transactional settings",
+    "deadlines_seconds": {
+      "level01": 360,
+      "level02": 420,
+      "level03": 420,
+      "level04": 360
+    },
+    "unchanged": [
+      "Map geometry, IDs and UIDs, target capacities and weather rules",
+      "Tutorial unlimited, later maps and WRMapDefinition default180",
+      "Weather hints off by default, F6 weather-only, save formats",
+      "Windows default still D3D12, no export/commit/push/upload"
+    ]
+  },
+  "commands": [
+    {
+      "command": "Godot --headless --path <project> --editor --quit --log-file .godot/onboarding-20261019/import.log",
+      "result": "Sandbox denied editor_data/cache/temp/settings writes. Class registered but this import is not a clean pass; later escalated full editor-map check passed."
+    },
+    {
+      "command": "& './tests/run_checks.ps1' *> '.godot/onboarding-20261019/full-output.log'",
+      "result": "Stopped at tool-availability: 1/65 failed because its stopped-process fixture still expected draw-time introduction bookkeeping. Fixture now explicitly consumes --skip-briefing."
+    },
+    {
+      "command": "& './tests/run_checks.ps1' *> '.godot/onboarding-20261019/full-output2.log'",
+      "result": "74 configured entries passed, then needs-viewport-route exited1 (seedling55.4331 exceeds55). Not a complete single pass."
+    },
+    {
+      "command": "Godot --path <project> --resolution 1280x720 / 1920x1080 --script res://tests/test_onboarding_pacing.gd --log-file <final-pacing-size.log> -- --fresh-guide --skip-menu",
+      "result": "exit0 both; no SCRIPT ERROR/ERROR; 74 checks per size, 0 failures"
+    },
+    {
+      "command": "& './tests/run_checks.ps1' -StartAt 'vortex-viewport-route' *> '.godot/onboarding-20261019/full-tail.log'",
+      "result": "exit0; remaining10 entries and five route comparisons passed"
+    },
+    {
+      "command": "& '.godot/onboarding-20261019/final-related.ps1' *> '.godot/onboarding-20261019/final-related-output.log'",
+      "result": "exit0; final front-menu59, transition38, normal teaching-to-level02 route and one independent needs-viewport rerun passed"
+    },
+    {
+      "command": "Godot --path <project> --resolution 1280x720 / 1920x1080 --script res://tests/test_onboarding_pacing.gd --log-file <keyboard-pacing-size.log> -- --fresh-guide --skip-menu",
+      "result": "Final native-keyboard followup: both logs/reports80 checks, 0 failures, no SCRIPT ERROR/ERROR; verifies R retries and Esc opens/restores menu from reading. No further broad rerun after this isolated keyboard guard change."
+    }
+  ],
+  "pacing_checks": {
+    "1280": {
+      "checks": 80,
+      "failures": 0,
+      "resolution": "(1280, 720)",
+      "scope": "UI/state fixtures, not new-player or complete route validation"
+    },
+    "1920": {
+      "checks": 80,
+      "failures": 0,
+      "resolution": "(1920, 1080)",
+      "scope": "UI/state fixtures, not new-player or complete route validation"
+    }
+  },
+  "map_content_comparison": [
+    {
+      "map": "configs/maps/level01.tres",
+      "seconds": 360,
+      "only_change": "time_limit_seconds",
+      "uid_preserved": true
+    },
+    {
+      "map": "configs/maps/level02.tres",
+      "seconds": 420,
+      "only_change": "time_limit_seconds",
+      "uid_preserved": true
+    },
+    {
+      "map": "configs/maps/level03.tres",
+      "seconds": 420,
+      "only_change": "time_limit_seconds",
+      "uid_preserved": true
+    },
+    {
+      "map": "configs/maps/level04.tres",
+      "seconds": 360,
+      "only_change": "time_limit_seconds",
+      "uid_preserved": true
+    }
+  ],
+  "normal_campaign_route_before_final_navigation_followup": {
+    "audio": {},
+    "blocked": 0,
+    "following": "level02",
+    "front_entry": true,
+    "input_failures": 0,
+    "mouse_events": 1457,
+    "passed": true,
+    "pick_error": 0.0,
+    "selection": [],
+    "stages": [
+      {
+        "campaign_play": true,
+        "cold_lift": 12.3383513244063,
+        "destroyed": [
+          false
+        ],
+        "elapsed": 0.0,
+        "front_strokes": 0,
+        "layout": "tutorial",
+        "limit": 180.0,
+        "order": [
+          0
+        ],
+        "outcome": "success",
+        "per_target": [
+          {
+            "distance": 12.3000001907349,
+            "front": 0,
+            "strokes": 18,
+            "transport": 5
+          },
+          {
+            "distance": 0.0,
+            "front": 0,
+            "strokes": 0,
+            "transport": 0
+          },
+          {
+            "distance": 0.0,
+            "front": 0,
+            "strokes": 0,
+            "transport": 0
+          }
+        ],
+        "phases": [
+          0,
+          1,
+          2,
+          4,
+          5
+        ],
+        "route": "mountain",
+        "route_seconds": 9.38333333333338,
+        "stars": 0,
+        "strokes": 18,
+        "transport_distance": 12.3000001907349,
+        "transport_strokes": 5,
+        "water": [
+          100.0
+        ],
+        "water_error": -0.000123995333467519
+      },
+      {
+        "campaign_play": true,
+        "cold_lift": 4.75881534893731,
+        "destroyed": [
+          false
+        ],
+        "elapsed": 35.7666666666659,
+        "front_strokes": 0,
+        "layout": "level01",
+        "limit": 360.0,
+        "order": [
+          0
+        ],
+        "outcome": "success",
+        "per_target": [
+          {
+            "distance": 31.1999998092651,
+            "front": 0,
+            "strokes": 65,
+            "transport": 14
+          },
+          {
+            "distance": 0.0,
+            "front": 0,
+            "strokes": 0,
+            "transport": 0
+          },
+          {
+            "distance": 0.0,
+            "front": 0,
+            "strokes": 0,
+            "transport": 0
+          }
+        ],
+        "phases": [
+          0
+        ],
+        "route": "mountain",
+        "route_seconds": 35.7499999999987,
+        "stars": 3,
+        "strokes": 65,
+        "transport_distance": 31.1999998092651,
+        "transport_strokes": 14,
+        "water": [
+          250.0
+        ],
+        "water_error": -0.00132763225269628
+      }
+    ]
+  },
+  "source_sha256": {
+    "scripts/onboarding_settings.gd": "d9558d73fd1a0ac4a6ab1d804af129907148e2b1b480c51902a89a4d3da9218f",
+    "scripts/onboarding_settings.gd.uid": "8eba5bfc05b36065a029c8e94386d7f459fcc4b371e37ada64c21479a8b36559",
+    "configs/onboarding.tres": "d5a57d52e7a1667e0d1553fd192318b689c1e61f4679a8121411732536a95f71",
+    "scripts/config_loader.gd": "fd8d7f38187d31bf2f0145c73c5490089362c420f1efe34227015b06a19bce4d",
+    "scripts/onboarding.gd": "f808a42b850d34ee57f178cc6198c8fb310f7a7a92e8a0e5cfae25a124959a9b",
+    "scripts/main.gd": "cff6ca62492382a36640bc2aab440b6d25ee180c8185792489ff059042309ae6",
+    "scripts/game_hud.gd": "ed170382bb8c2518c340bf0dfc91023c786234fa035c97ac236c3b1de40114e3",
+    "configs/maps/level01.tres": "3568b91abc8c1aa8a279113350d835bd8e0710ccccfbfa28e528bcf90187507a",
+    "configs/maps/level02.tres": "ab375e7b4ad41bcc046c0025944b2c6290243893efff3a265d4e4527bf1bf819",
+    "configs/maps/level03.tres": "972a140a6604cc2adaec15c3f28fb3f35fad37330ea60ad8b9233e0b1f19de90",
+    "configs/maps/level04.tres": "3e234551f3be86aa9388cc2954badb084942ac60428113cf87ce3771ecacfbd8",
+    "tests/test_onboarding_pacing.gd": "0d5ced634b96fa9c79b92dd2aa6192d3c0a745dd84ace046956d13a7c7469f83",
+    "tests/test_onboarding_pacing.gd.uid": "a9755ee26f277f203f8cd45976c2c83086a7f5bd5cbc892a25d4932d40083f04",
+    "tests/test_tutorial_reservoir.gd": "7ce19e092151e370eac840a81ecaffe337b6b2f5c2c2d1346e789b56e72fdcad",
+    "tests/test_tool_availability.gd": "a98ad3a8c38782f3c62113d7ffa136b4e2ed50352e48238e11d39d14b42aacd3",
+    "tests/replay_campaign_viewport.gd": "2f489bb57653dfb85b34c84a7cde504c9761d6b9bdcdb7e336a134816b91cf84",
+    "tests/replay_tutorial_viewport.gd": "107eee043d41aed51ad56550514334a04ae1b79f551ab89ca7100d0caf0ee41f",
+    "tests/run_checks.ps1": "c39739a436a7cdbd8f4be6bfcf94799853e1377bbffded980e93f06d620c2f9a"
+  },
+  "boundaries": [
+    "UI tests inject result fields to isolate states; they are not normal-start completion proof",
+    "Normal campaign route uses actual pointer events and normal wet-air start; no water injection or threshold edits",
+    "No new-player sessions or 25-percent time-margin acceptance",
+    "No new formal performance sampling; P1/V1/V6 remain open",
+    "Affected Iris Xe Vulkan workaround is separate; original distributed EXE unchanged"
+  ],
+  "next": "Arrange2–3 first-time players for tutorial and first maps; record understanding and remaining time, adjust one factor at a time. Separately consider default Vulkan in the next build; do not mark P1/V1/V6 solved.",
+  "regression": {
+    "configured_entries": 85,
+    "second_run_passed_before_failure": 74,
+    "first_failure": {
+      "name": "needs-viewport-route",
+      "result": {
+        "band": {
+          "end": [
+            -3.65793037414551,
+            0.294363021850586
+          ],
+          "lifetime": 30.0,
+          "start": [
+            -6.38675355911255,
+            1.54078722000122
+          ],
+          "strength": 0.0
+        },
+        "blocked": 0,
+        "cold_lift": 57.3633109739612,
+        "destroyed": [
+          false,
+          true
+        ],
+        "elapsed": 38.4999999999991,
+        "events": 1416,
+        "front_strokes": 0,
+        "input_pick_error": 0.0,
+        "layout": "needs_lab",
+        "limit": 180.0,
+        "order": [
+          0,
+          1
+        ],
+        "outcome": "playing",
+        "per_target": [
+          {
+            "distance": 42.5999999046326,
+            "front": 0,
+            "strokes": 25,
+            "transport": 18
+          },
+          {
+            "distance": 62.9999992847443,
+            "front": 0,
+            "strokes": 58,
+            "transport": 27
+          },
+          {
+            "distance": 0.0,
+            "front": 0,
+            "strokes": 0,
+            "transport": 0
+          }
+        ],
+        "placed": true,
+        "removed": true,
+        "route": "mountain",
+        "stars": 0,
+        "strokes": 83,
+        "transport_distance": 105.599999189377,
+        "transport_strokes": 45,
+        "water": [
+          108.49821202839,
+          55.4331070801021
+        ],
+        "water_error": -0.000556653873672985
+      },
+      "retained": true
+    },
+    "continuation_passed_entries": 10,
+    "route_comparisons": 5,
+    "final_related": [
+      {
+        "log": "E:\\Godot\\Project\\Weaving Rain\\.godot\\onboarding-20261019\\final-front-menu.log",
+        "exit": 0,
+        "name": "front-menu",
+        "passed": true
+      },
+      {
+        "log": "E:\\Godot\\Project\\Weaving Rain\\.godot\\onboarding-20261019\\final-transition.log",
+        "exit": 0,
+        "name": "transition",
+        "passed": true
+      },
+      {
+        "log": "E:\\Godot\\Project\\Weaving Rain\\.godot\\onboarding-20261019\\final-campaign-route.log",
+        "exit": 0,
+        "name": "campaign-route",
+        "passed": true
+      },
+      {
+        "log": "E:\\Godot\\Project\\Weaving Rain\\.godot\\onboarding-20261019\\final-needs-route.log",
+        "exit": 0,
+        "name": "needs-route",
+        "passed": true
+      }
+    ],
+    "independent_needs_rerun": {
+      "band": {
+        "end": [
+          -3.65793037414551,
+          0.294363021850586
+        ],
+        "lifetime": 30.0,
+        "start": [
+          -6.38675355911255,
+          1.54078722000122
+        ],
+        "strength": 0.0
+      },
+      "blocked": 0,
+      "cold_lift": 36.1108781884567,
+      "destroyed": [
+        false,
+        false
+      ],
+      "elapsed": 34.5499999999993,
+      "events": 1323,
+      "front_strokes": 0,
+      "input_pick_error": 0.0,
+      "layout": "needs_lab",
+      "limit": 180.0,
+      "order": [
+        0,
+        1
+      ],
+      "outcome": "success",
+      "per_target": [
+        {
+          "distance": 46.8000009059906,
+          "front": 0,
+          "strokes": 24,
+          "transport": 20
+        },
+        {
+          "distance": 36.9000005722046,
+          "front": 0,
+          "strokes": 58,
+          "transport": 16
+        },
+        {
+          "distance": 0.0,
+          "front": 0,
+          "strokes": 0,
+          "transport": 0
+        }
+      ],
+      "placed": true,
+      "removed": true,
+      "route": "mountain",
+      "stars": 3,
+      "strokes": 82,
+      "transport_distance": 83.7000014781952,
+      "transport_strokes": 36,
+      "water": [
+        106.202118912197,
+        40.4257757015308
+      ],
+      "water_error": -0.000721107288654821
+    },
+    "qualification": "All entries covered across batches, not one uninterrupted pass. Early checks preceded navigation pause-scope fix; front59/transition38/native campaign rechecked afterward. Final R/Esc guard affects reading only and is covered by 80-check pacing tests at both sizes. Historical replay variability remains open."
+  },
+  "normal_campaign_route_final": {
+    "audio": {},
+    "blocked": 0,
+    "following": "level02",
+    "front_entry": true,
+    "input_failures": 0,
+    "mouse_events": 1459,
+    "passed": true,
+    "pick_error": 0.0,
+    "selection": [],
+    "stages": [
+      {
+        "campaign_play": true,
+        "cold_lift": 12.3531696103167,
+        "destroyed": [
+          false
+        ],
+        "elapsed": 0.0,
+        "front_strokes": 0,
+        "layout": "tutorial",
+        "limit": 180.0,
+        "order": [
+          0
+        ],
+        "outcome": "success",
+        "per_target": [
+          {
+            "distance": 12.3000001907349,
+            "front": 0,
+            "strokes": 18,
+            "transport": 5
+          },
+          {
+            "distance": 0.0,
+            "front": 0,
+            "strokes": 0,
+            "transport": 0
+          },
+          {
+            "distance": 0.0,
+            "front": 0,
+            "strokes": 0,
+            "transport": 0
+          }
+        ],
+        "phases": [
+          0,
+          1,
+          2,
+          4,
+          5
+        ],
+        "route": "mountain",
+        "route_seconds": 9.38333333333338,
+        "stars": 0,
+        "strokes": 18,
+        "transport_distance": 12.3000001907349,
+        "transport_strokes": 5,
+        "water": [
+          100.0
+        ],
+        "water_error": -0.000145545678321923
+      },
+      {
+        "campaign_play": true,
+        "cold_lift": 4.70404400134647,
+        "destroyed": [
+          false
+        ],
+        "elapsed": 35.7666666666659,
+        "front_strokes": 0,
+        "layout": "level01",
+        "limit": 360.0,
+        "order": [
+          0
+        ],
+        "outcome": "success",
+        "per_target": [
+          {
+            "distance": 31.1999998092651,
+            "front": 0,
+            "strokes": 65,
+            "transport": 14
+          },
+          {
+            "distance": 0.0,
+            "front": 0,
+            "strokes": 0,
+            "transport": 0
+          },
+          {
+            "distance": 0.0,
+            "front": 0,
+            "strokes": 0,
+            "transport": 0
+          }
+        ],
+        "phases": [
+          0
+        ],
+        "route": "mountain",
+        "route_seconds": 35.7499999999987,
+        "stars": 3,
+        "strokes": 65,
+        "transport_distance": 31.1999998092651,
+        "transport_strokes": 14,
+        "water": [
+          250.0
+        ],
+        "water_error": -0.00138009039346798
+      }
+    ]
+  },
+  "engine": "Godot4.7.2.stable.steam.ed1daf0bf",
+  "render_test_environment": "D3D12 12_0 Forward+, NVIDIA GeForce RTX4060 Laptop GPU; not affected Iris Xe or Vulkan full regression",
+  "reviewed_cached_screenshots": [
+    "farm-1280.png",
+    "help-1280.png",
+    "farm-1920.png"
+  ],
+  "log_manifest": {
+    "import.log": {
+      "bytes": 2646,
+      "sha256": "e3eea5fdc062777ea611afe565c56d1f7dad214f105425c297a2d24ae58cd073"
+    },
+    "full-output.log": {
+      "bytes": 3443,
+      "sha256": "f6a7f45615193dd376fbf929f3421b24c1ea4a193083449b3746cfcf54cf6b0c"
+    },
+    "full-output2.log": {
+      "bytes": 35532,
+      "sha256": "2fc4b073b2f7811a79bcfb3052e98312caeb28d8741e686662f0ac9301117548"
+    },
+    "full-tail.log": {
+      "bytes": 10721,
+      "sha256": "8c4b26a7662073f2a009c4625ed420af0a57b321128d5cb797ac84236c4d5958"
+    },
+    "final-pacing-1280x720.log": {
+      "bytes": 333,
+      "sha256": "90dfd94beba1a4266f41e52946b5652a352d5156acb21b5aa753c1bbb5aa3dc5"
+    },
+    "final-pacing-1920x1080.log": {
+      "bytes": 333,
+      "sha256": "90dfd94beba1a4266f41e52946b5652a352d5156acb21b5aa753c1bbb5aa3dc5"
+    },
+    "final-front-menu.log": {
+      "bytes": 314,
+      "sha256": "05602053f530887f9b7e009fd41ef886ab598dd02a19e3531cb4bb11ce4115a9"
+    },
+    "final-transition.log": {
+      "bytes": 428,
+      "sha256": "c5665f87422c81f6ee65ea998e7f81e03dc43da3f7b1fa505db8cbfe22b65649"
+    },
+    "final-campaign-route.log": {
+      "bytes": 1472,
+      "sha256": "81113a84fdeb582a833e57e9437088c573ea7d616f11cf7045c84c1f4d8683ff"
+    },
+    "needs-viewport-first-failed.log": {
+      "bytes": 933,
+      "sha256": "3cf9bd1c6a43a82c89f8534d8914f1321313aae51b464210771c9b968a867f2e"
+    },
+    "final-needs-route.log": {
+      "bytes": 935,
+      "sha256": "85a82ab325050ce7fb90470268e28426ae78678b3a2099ffd60fc569aee42006"
+    },
+    "keyboard-pacing-1280x720.log": {
+      "bytes": 333,
+      "sha256": "b4b5e0f7a9c126b31c298a16e26be8e73c0b1b9fb6ea692f527e918fa0c219f5"
+    },
+    "keyboard-pacing-1920x1080.log": {
+      "bytes": 333,
+      "sha256": "b4b5e0f7a9c126b31c298a16e26be8e73c0b1b9fb6ea692f527e918fa0c219f5"
+    }
+  }
+}

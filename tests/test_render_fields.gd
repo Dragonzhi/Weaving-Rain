@@ -54,6 +54,33 @@ func run() -> void:
 		near_b = near_b or (absf(p.x - Sim.SECOND_PLOT.x) <= Sim.PLOT_HALF and absf(p.y - Sim.SECOND_PLOT.y) <= Sim.PLOT_HALF)
 	check(inside, "Every GPU rain column remains inside an actually rainy simulation cell")
 	check(near_a and near_b, "Capped heavy rain still represents both target areas")
+	var shared_drop: Mesh = view.rainfall.mesh
+	var original_drop := BoxMesh.new()
+	original_drop.size = Vector3(0.018,0.22,0.018)
+	var shared_arrays := shared_drop.surface_get_arrays(0)
+	var original_arrays := original_drop.surface_get_arrays(0)
+	check(shared_arrays[Mesh.ARRAY_VERTEX].size()==8 and shared_arrays[Mesh.ARRAY_INDEX].size()==36,"Rain occlusion runs on eight shared corners while keeping all twelve box triangles")
+	var same_triangles := true
+	for index in 36:
+		same_triangles = same_triangles and shared_arrays[Mesh.ARRAY_VERTEX][shared_arrays[Mesh.ARRAY_INDEX][index]] == original_arrays[Mesh.ARRAY_VERTEX][original_arrays[Mesh.ARRAY_INDEX][index]]
+	check(same_triangles,"Shared rain vertices retain every original triangle position and winding")
+	main.hud.visible = false
+	view.rainfall.mesh = original_drop
+	await process_frame
+	await RenderingServer.frame_post_draw
+	var original_pixels: PackedByteArray = root.get_texture().get_image().get_data()
+	view.rainfall.mesh = shared_drop
+	await process_frame
+	await RenderingServer.frame_post_draw
+	var shared_pixels: PackedByteArray = root.get_texture().get_image().get_data()
+	check(shared_pixels==original_pixels,"Actual GPU rain pixels are byte-identical with shared vertices")
+	var visible_drops: int = view.rainfall.visible_instance_count
+	view.rainfall.visible_instance_count = 0
+	await process_frame
+	await RenderingServer.frame_post_draw
+	check(root.get_texture().get_image().get_data()!=shared_pixels,"GPU equality comparison includes actually visible rain")
+	view.rainfall.visible_instance_count = visible_drops
+	main.hud.visible = true
 	var uploads: int = view.rain_uploads
 	var anchors: PackedFloat32Array = view.rainfall.buffer.duplicate()
 	view.update_weather(0.3, true)
@@ -85,6 +112,13 @@ func run() -> void:
 					maximum = maxf(maximum, main.sim.display_cloud[clampi(z + dz, 0, Sim.DEPTH - 1) * Sim.WIDTH + clampi(x + dx, 0, Sim.WIDTH - 1)])
 			conservative = conservative and bounds_image.get_pixel(x, z).r >= maximum
 	check(conservative, "GPU empty-space bounds never underestimate any current cloud footprint")
+	for scenario in ["zero","nonzero","zero_again","signed_zero"]:
+		main.sim.charge.fill(0.0)
+		if scenario == "nonzero": main.sim.charge[13] = 0.6
+		if scenario == "signed_zero": main.sim.charge[13] = -0.0
+		main.sim.refresh_display()
+		var expected: PackedFloat32Array = main.sim._smooth(main.sim.charge)
+		check(main.sim.display_charge.to_byte_array() == expected.to_byte_array(),"Charge smoothing preserves exact zero/nonzero transitions and development injection: " + scenario)
 	print("RENDER FIELD TESTS: ", checks, " checks, ", failures, " failures")
 	main.queue_free()
 	await process_frame

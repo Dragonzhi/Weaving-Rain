@@ -1,0 +1,162 @@
+{
+  "date": "2026-10-16",
+  "status": "User accepted current icon and cover; icon integrated at res://icon.svg. Exported executable icon pending final package check.",
+  "direction": {
+    "icon": "A wind lifting cloud",
+    "cover": "sunny sea with local rain",
+    "credit": "ZLOONG · 智龙"
+  },
+  "source": {
+    "base_commit": "7a28040",
+    "working_tree_dirty": true,
+    "capture_method": "tests/star_route.gd, order 0,1; real viewport strokes",
+    "normal_start_no_cloud": true,
+    "weather_injected": false,
+    "camera_changed": false,
+    "alterations": "HUD hidden for clean capture; title, subtitle and credits overlaid in separate document-only renderer",
+    "selected_frame": {
+      "name": "level03-04",
+      "png_result": 0,
+      "rain_rate": 4.24704794310147,
+      "sandbox": false,
+      "seconds": 20.1833333333335,
+      "water": [
+        118.222120908065,
+        132.812141794424
+      ],
+      "water_error": -0.000219182323064615
+    },
+    "route_evidence": {
+      "events": 1564,
+      "failures": 0,
+      "blocked": 0,
+      "input_pick_error": 0.0,
+      "outcome": "success"
+    },
+    "not_evidence_of": "Full nine-map playthrough, difficulty approval or performance acceptance",
+    "runtime_sha256": {
+      "scripts/main.gd": "6369c9069032f1379f947f76a56c6b12d66e3b6609e85f8b1538740b31b2be52",
+      "scripts/weather_simulation.gd": "475b0ffafabe1d07753cdbbc54f93e36007b22dad81f4fe7a726b4235a1de0c6",
+      "scripts/weather_view.gd": "bd250b2ec7d3ee1e14857b40a2e9b05013e4f6c1bbd39b3b1ee3f9971fb3e067",
+      "scripts/wind_input.gd": "d04c4d9e993fcefc6fc1c7a5c3b31c6cf14f6e43c62b0f4930f8794139b1bb37",
+      "configs/weather.tres": "4320a25244e039bf3252918e9b6fecc5d5659137c6d760f9b1fcd59a9db165fc",
+      "configs/scene_style.tres": "3f9184760340a20d55849ed5413f1b63e6b5e9bd32170de2659b711f453f3715",
+      "configs/maps/level03.tres": "6156e168b92286b77fe708c05adebc91b8fab6d529beba01f0267d41f79937da"
+    }
+  },
+  "checks": [
+    {
+      "icon_size": 32,
+      "dimensions_and_alpha": "pass"
+    },
+    {
+      "icon_size": 64,
+      "dimensions_and_alpha": "pass"
+    },
+    {
+      "icon_size": 128,
+      "dimensions_and_alpha": "pass"
+    },
+    {
+      "icon_size": 256,
+      "dimensions_and_alpha": "pass"
+    },
+    {
+      "icon_size": 1024,
+      "dimensions_and_alpha": "pass"
+    }
+  ],
+  "sheets_size": [
+    1920,
+    1080
+  ],
+  "artwork_roi": [
+    600,
+    330,
+    1560,
+    940
+  ],
+  "artwork_roi_pixel_identical": true,
+  "source_copy_sha256_matches": true,
+  "final_render_log": ".godot/demo-visual-render-verified.log",
+  "capture_log": ".godot/demo-cover-capture-rerun.log",
+  "earlier_errors_retained": [
+    ".godot/demo-cover-capture.log: temporary script type-inference error, corrected",
+    ".godot/demo-visual-render-final.log: TextureRect minimum size assertion, corrected by setting expansion mode before texture assignment"
+  ],
+  "files": {
+    "cover-source-level03.png": {
+      "bytes": 208422,
+      "sha256": "33659371fbcd36dcad313a1b54d82f62a557d2f0aef2d9a74a9bc6a3d0ab46e5"
+    },
+    "cover-sunny-sea-draft.png": {
+      "bytes": 239078,
+      "sha256": "eab4c6141b5c18fa03d0eef76c77554095421656072b93ec8744cd7067f82696"
+    },
+    "icon-1024.png": {
+      "bytes": 106356,
+      "sha256": "4432144150bb8b4895bfe30f622c4b0c40a1025b86c3a9498b07540b83b2ca4b"
+    },
+    "icon-128.png": {
+      "bytes": 7784,
+      "sha256": "ecbc16d5aec1b76995553e318facc0108ad2740a31df65c34c5733143ece1ff3"
+    },
+    "icon-256.png": {
+      "bytes": 18010,
+      "sha256": "bee976d11ed95ac163d8ff3aaba2967824e60b516cb34995cce52b1a54c8fba5"
+    },
+    "icon-32.png": {
+      "bytes": 1424,
+      "sha256": "4a3000e560410f47fe1238ec6340c18af2547b7a53119760a84bcf2906b63738"
+    },
+    "icon-64.png": {
+      "bytes": 3416,
+      "sha256": "e485706527c220c23c768411be4d2676f3256c3751c2a1e5fc33a526dbf6968c"
+    },
+    "icon-size-review.png": {
+      "bytes": 124281,
+      "sha256": "74061136ead2610ff95e3bf350ec804ffd534d2517db4a6086f7f67b0f8181ac"
+    },
+    "icon-wind-lifts-cloud.svg": {
+      "bytes": 1258,
+      "sha256": "6770ea06c26c938ead57c8e9075fd58b5d26c53bd2830684631eb6b8d45188e4"
+    }
+  },
+  "gameplay_code_changed": false,
+  "project_icon_replaced": true,
+  "exported": false,
+  "committed": false,
+  "pushed": false,
+  "published": false,
+  "scope": "This visual-draft task only; earlier uncommitted performance edits remain in the workspace.",
+  "renderer": {
+    "path": "docs/demo-delivery/render-drafts.gd",
+    "sha256": "88d80a18951127cf08852226c641b0c2cea252614c740287b974dc0cdb7d7d03"
+  },
+  "acceptance": {
+    "date": "2026-10-16",
+    "user_reply": "可以就目前这样的吧",
+    "accepted": [
+      "icon-wind-lifts-cloud.svg",
+      "cover-sunny-sea-draft.png"
+    ],
+    "project_icon": "res://icon.svg",
+    "icon_sha256": "6770ea06c26c938ead57c8e9075fd58b5d26c53bd2830684631eb6b8d45188e4",
+    "import_uid": "uid://oya8wpn6jmc8",
+    "import_uid_preserved": true,
+    "verification": {
+      "exported_exe_checked": false,
+      "front_menu": true,
+      "import_pixels_identical": true,
+      "path": "res://icon.svg",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "log": ".godot/demo-icon-final.log",
+    "import_processing": "Default process/fix_alpha_border=true; expected SVG raster receives Image.fix_alpha_edges() before exact comparison. Raw mismatches were alpha-edge RGB repair, not a different icon.",
+    "diagnostic_note": "One temporary headless helper awaited a render frame and was explicitly stopped by own tagged PID. Final GPU helper exited normally; not a native gameplay crash.",
+    "exported_exe_icon_verified": false
+  }
+}

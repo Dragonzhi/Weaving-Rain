@@ -55,13 +55,18 @@ func _read_field() -> void:
 	var next_coverage := PackedByteArray()
 	next_coverage.resize(Sim.COUNT)
 	wet_cells.resize(0)
+	var rain := sim.ground_rain
+	var buffer := pixels
+	var cells := wet_cells
+	var focus_values := focus
 	for i in Sim.COUNT:
-		var wet := sim.ground_rain[i] > 0.0
+		var amount := rain[i]
+		var wet := amount > 0.0
 		next_coverage[i] = 1 if wet else 0
-		pixels[i * 4] = sim.ground_rain[i]
-		pixels[i * 4 + 1] = 1.0 if wet else 0.0
-		if wet: wet_cells.append(i)
-		else: focus[i] = 0.0
+		buffer[i * 4] = amount
+		buffer[i * 4 + 1] = 1.0 if wet else 0.0
+		if wet: cells.append(i)
+		else: focus_values[i] = 0.0
 	if next_coverage != coverage:
 		coverage = next_coverage
 		_build_groups()
@@ -69,36 +74,43 @@ func _read_field() -> void:
 
 func _build_groups() -> void:
 	group_builds += 1
-	groups.fill(-1)
+	var assigned := groups
+	var covered := coverage
+	var queue := flood_queue
+	var left := sim.neighbor_left
+	var right := sim.neighbor_right
+	var top := sim.neighbor_top
+	var bottom := sim.neighbor_bottom
+	assigned.fill(-1)
 	var group := 0
 	for start in wet_cells:
-		if groups[start] >= 0: continue
+		if assigned[start] >= 0: continue
 		var head := 0
 		var tail := 1
-		flood_queue[0] = start
-		groups[start] = group
+		queue[0] = start
+		assigned[start] = group
 		while head < tail:
-			var i := flood_queue[head]
+			var i := queue[head]
 			head += 1
-			var neighbor := sim.neighbor_left[i]
-			if coverage[neighbor] != 0 and groups[neighbor] < 0:
-				groups[neighbor] = group
-				flood_queue[tail] = neighbor
+			var neighbor := left[i]
+			if covered[neighbor] != 0 and assigned[neighbor] < 0:
+				assigned[neighbor] = group
+				queue[tail] = neighbor
 				tail += 1
-			neighbor = sim.neighbor_right[i]
-			if coverage[neighbor] != 0 and groups[neighbor] < 0:
-				groups[neighbor] = group
-				flood_queue[tail] = neighbor
+			neighbor = right[i]
+			if covered[neighbor] != 0 and assigned[neighbor] < 0:
+				assigned[neighbor] = group
+				queue[tail] = neighbor
 				tail += 1
-			neighbor = sim.neighbor_top[i]
-			if coverage[neighbor] != 0 and groups[neighbor] < 0:
-				groups[neighbor] = group
-				flood_queue[tail] = neighbor
+			neighbor = top[i]
+			if covered[neighbor] != 0 and assigned[neighbor] < 0:
+				assigned[neighbor] = group
+				queue[tail] = neighbor
 				tail += 1
-			neighbor = sim.neighbor_bottom[i]
-			if coverage[neighbor] != 0 and groups[neighbor] < 0:
-				groups[neighbor] = group
-				flood_queue[tail] = neighbor
+			neighbor = bottom[i]
+			if covered[neighbor] != 0 and assigned[neighbor] < 0:
+				assigned[neighbor] = group
+				queue[tail] = neighbor
 				tail += 1
 		group += 1
 

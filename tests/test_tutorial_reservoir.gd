@@ -19,7 +19,7 @@ func run() -> void:
 	check(not sim.star_level and not sim.timer_active() and not sim.sandbox,"Teaching has no timer or stored rating")
 	check(sim.peak_density==0 and Array(sim.cold).max()==0 and sim.plot_water==0,"Normal teaching begins with wet air only")
 	check(sim.required_water(0)==100 and main.guide.phase==0,"Independent tutorial capacity and initial step")
-	check("3" in main.guide.title(sim) and "山坡" in main.guide.instruction(sim),"First instruction teaches the uphill action")
+	check("5" in main.guide.title(sim) and "湿空气" in main.guide.instruction(sim),"First instruction identifies interactive wet air")
 	var i := 0
 	var distance := INF
 	for cell in sim.COUNT:
@@ -39,7 +39,7 @@ func run() -> void:
 	check(sim.outcome=="success" and sim.target_complete(0),"Actual released rain completes teaching immediately at full pool")
 	check(sim.rain[i]>0 and sim.cloud[i]>0 and sim.plot_safe_times[0]==0,"No cloud removal or safety hold required")
 	check(sim.overflow_water>0 and not sim.plot_destroyed[0] and absf(sim.water_error())<.01,"Pool accepts excess rain without damage or lost accounting")
-	check(main.guide.phase==3 and "入门完成"==main.guide.title(sim),"Three teaching steps finish without a safety phase")
+	check(main.guide.phase==5 and "入门完成"==main.guide.title(sim),"Five teaching nodes finish without a hidden safety phase")
 	main.hud.queue_redraw()
 	await RenderingServer.frame_post_draw
 	check(main.hud.free_button.visible and not main.hud.next_button.visible,"Completion offers existing continue action without a star result")

@@ -13,6 +13,9 @@ var bowl := PackedVector2Array()
 var drop_cache: Dictionary = {}
 var bowl_cache: Dictionary = {}
 var cloud := PackedVector2Array()
+var cloud_sideways := PackedVector2Array()
+var cloud_cache: Dictionary = {}
+var medal_cache: Dictionary = {}
 
 func _init() -> void:
 	var curves := [
@@ -34,26 +37,30 @@ func _init() -> void:
 	for curve in cloud_curves:
 		for n in 8: cloud.append(curve[0].bezier_interpolate(curve[1],curve[2],curve[3],n/8.0))
 	cloud.append(Vector2(0.88,1))
+	for p in cloud: cloud_sideways.append(Vector2(p.y,-p.x))
 
 func cloud_reserve(canvas: CanvasItem, rect: Rect2, wet: float, stored: float, wet_color: Color, cloud_color: Color) -> void:
-	var outline := PackedVector2Array()
-	var sideways := PackedVector2Array()
-	for p in cloud:
-		outline.append(rect.position+p*rect.size)
-		sideways.append(Vector2(p.y,-p.x))
+	if not cloud_cache.has(rect):
+		var points := PackedVector2Array()
+		for p in cloud: points.append(rect.position+p*rect.size)
+		cloud_cache[rect] = points
+	var outline: PackedVector2Array = cloud_cache[rect]
 	canvas.draw_colored_polygon(outline,Color(0.96,0.98,0.92,0.94))
 	for entry in [[wet+stored,cloud_color],[wet,wet_color]]:
 		if entry[0] <= 0: continue
-		var clipped := _filled(sideways,-clampf(entry[0],0,1))
+		var clipped := _filled(cloud_sideways,-clampf(entry[0],0,1))
 		var polygon := PackedVector2Array()
 		for p in clipped: polygon.append(rect.position+Vector2(-p.y,p.x)*rect.size)
 		if polygon.size() >= 3 and not Geometry2D.triangulate_polygon(polygon).is_empty(): canvas.draw_colored_polygon(polygon,entry[1])
-	outline.append(outline[0])
-	canvas.draw_polyline(outline,Color(INK,0.65),1.2,true)
+	var closed := outline.duplicate()
+	closed.append(closed[0])
+	canvas.draw_polyline(closed,Color(INK,0.65),1.2,true)
 
 func clear_cache() -> void:
 	drop_cache.clear()
 	bowl_cache.clear()
+	cloud_cache.clear()
+	medal_cache.clear()
 
 static func water_slots(required: float, amount: float) -> Array[Dictionary]:
 	# At most six slots, even for very large valid custom requirements.
@@ -131,11 +138,17 @@ func medal(canvas: CanvasItem, at: Vector2, radius: float, active: bool, emphasi
 	color.a = (0.6 + 0.4 * emphasis) if active else 0.70
 	if active: canvas.draw_circle(at, radius - 2, Color(GOLD, 0.09 + emphasis * 0.08))
 	canvas.draw_arc(at, radius, 0, TAU, 48, color, 1.6, true)
-	for row in 3:
-		var wave := PackedVector2Array()
-		for n in 13:
-			var x := n / 12.0
-			wave.append(at + Vector2((x-0.5)*radius*1.18, (row-1)*radius*0.32 + sin(x*TAU)*radius*0.08))
+	var key := Vector3(at.x,at.y,radius)
+	if not medal_cache.has(key):
+		var waves: Array[PackedVector2Array] = []
+		for row in 3:
+			var wave := PackedVector2Array()
+			for n in 13:
+				var x := n / 12.0
+				wave.append(at + Vector2((x-0.5)*radius*1.18, (row-1)*radius*0.32 + sin(x*TAU)*radius*0.08))
+			waves.append(wave)
+		medal_cache[key] = waves
+	for wave in medal_cache[key]:
 		canvas.draw_polyline(wave, color, 1.5 if radius < 20 else 2.0, true)
 
 static func tool_icon(kind: String) -> Texture2D:

@@ -1,5 +1,10 @@
 extends RefCounted
 ## Reads actual weather results. It never applies wind or modifies weather.
+var settings := WROnboardingSettings.new()
+var idle_seconds := 0.0
+var wet_stroke := false
+var cloud_stroke := false
+var held_seen := false
 var lesson := true
 var phase := 0
 var saw_rain := false
@@ -7,17 +12,46 @@ var cold_hint_seen := false
 var cold_hint_left := 0.0
 
 func reset(is_lesson: bool) -> void:
+	idle_seconds = 0.0
+	wet_stroke = false
+	cloud_stroke = false
+	held_seen = false
 	lesson = is_lesson
 	phase = 0
 	saw_rain = false
 	cold_hint_seen = false
 	cold_hint_left = 0.0
 
+func note_stroke(sim: RefCounted, a: Vector2, b: Vector2, hit_cloud: bool) -> void:
+	if not lesson or sim.sandbox or a.distance_to(b) < 0.0001: return
+	if hit_cloud:
+		cloud_stroke = true
+	else:
+		# The brush has a soft footprint; the cursor need not hit a grid centre.
+		for i in sim.COUNT:
+			if sim.humidity[i] > 0.15 and sim.positions[i].distance_to(Geometry2D.get_closest_point_to_segment(sim.positions[i],a,b)) < sim.settings.brush_radius:
+				wet_stroke = true
+				break
+
+func help_level() -> int:
+	return 2 if idle_seconds >= settings.gesture_seconds else (1 if idle_seconds >= settings.reminder_seconds else 0)
+
 func update(sim: RefCounted, delta: float) -> void:
 	if sim.sandbox:
 		return
 	if lesson:
+		var previous := phase
+		idle_seconds += delta
+		held_seen = held_seen or not sim.held_wind.is_empty()
 		saw_rain = saw_rain or sim.total_rain_rate > 0.01
+		if sim.is_reservoir(0):
+			if wet_stroke: phase = maxi(phase,1)
+			if sim.total_mountain_lift > 0.04 and sim.peak_density > 0.15: phase = maxi(phase,2)
+			if saw_rain or sim.plot_water > 0.01: phase = maxi(phase,3)
+			if (saw_rain and cloud_stroke) or sim.plot_water > 0.01: phase = maxi(phase,4)
+			if sim.outcome == "success": phase = 5
+			if phase != previous: idle_seconds = 0.0
+			return
 		if sim.total_mountain_lift > 0.04 and sim.peak_density > 0.15:
 			phase = maxi(phase, 1)
 		if saw_rain or sim.plot_water > 0.01:
@@ -38,19 +72,21 @@ func update(sim: RefCounted, delta: float) -> void:
 
 func title(sim: RefCounted) -> String:
 	if sim.is_reservoir(0):
-		return ["1 / 3  把水汽送上山", "2 / 3  成云降雨", "3 / 3  填满水库", "入门完成"][mini(phase,3)]
+		return "入门完成" if phase >= 5 else "%d / 5  %s" % [phase+1,settings.titles[phase]]
 	if sim.outcome == "flood":
 		return "雨水过量 · 可以重试这一步"
 	return ["1 / 4  借山成云", "2 / 4  收厚成雨", "3 / 4  把雨送到土地", "4 / 4  安全收尾", "入门完成"][phase]
 
 func instruction(sim: RefCounted) -> String:
 	if sim.is_reservoir(0):
-		if phase >= 3: return "水库已蓄满，你已经学会借山造雨。"
-		if phase > 0 and sim.peak_density < 0.15 and sim.total_rain_rate < 0.01:
+		if phase >= 5: return "水库已蓄满；水汽—山—云—雨—水库，连成了一场雨。"
+		if phase > 1 and sim.peak_density < 0.15 and sim.total_rain_rate < 0.01:
 			return "云已散薄：再把浅色湿空气推向山坡，补给云水。"
-		if phase == 2: return "让雨云覆盖水库，观察水位逐渐升高。"
-		if phase == 1: return "继续补给云水，让云变厚并保持片刻，等待降雨。"
-		return "拖出方向后按住续吹，把浅色湿空气推向山坡。"
+		if help_level() > 0:
+			if phase <= 1: return "按住左键拖动浅色细丝，朝标记的山坡送；停住可续吹。"
+			if phase == 2: return "沿山坡继续补给湿空气，等云变厚；雨线出现才开始下雨。"
+			if sim.plot_water <= 0.01: return "已下雨但水位未升：直接按住云朵，拖向水库上方。"
+		return settings.actions[phase]
 	if sim.outcome == "flood":
 		return "按 R 重试；接近适量前就开始移云。"
 	if phase == 4:
@@ -69,10 +105,9 @@ func instruction(sim: RefCounted) -> String:
 
 func detail(sim: RefCounted) -> String:
 	if sim.is_reservoir(0):
-		if phase >= 3: return "蓄满即完成；后面的农田关再学习控制雨量和安全收尾。"
-		if phase == 2: return "水库满后可溢流，不会损坏；淡蓝轮廓表示实际落雨。"
-		if phase == 1: return "金色上升箭头表示真实抬升，雨线出现才开始降雨。"
-		return "鼠标拖动拨风，停住按住可以续吹；先试着推动一团水汽。"
+		if phase >= 5:
+			return "下一关要把云送得更远；直接按住云拖动即可。" if not cloud_stroke else "水库可溢流；以后遇到农田，要控制雨量并移云收尾。"
+		return settings.details[phase]
 	if sim.outcome == "flood":
 		return "切断补给不会立即停雨，已积存的云水仍会释放。"
 	if phase == 3:

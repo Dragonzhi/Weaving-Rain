@@ -1,0 +1,462 @@
+{
+  "date": "2026-10-18",
+  "status": "Windows release ZIP built and independently launched; TapTap upload, parsing, self-test and review pending.",
+  "source_commit": "7a28040a4dcc1f047681cd16f5009cbe1fa02759",
+  "source_state": "Current working tree, including pre-existing uncommitted runtime/performance changes. No commit or push made.",
+  "version": "0.1.0 (Windows PE 0.1.0.0)",
+  "author_credit": "ZLOONG · 智龙",
+  "engine": "Godot 4.7.2 stable official ed1daf0bf matching installed editor/export template",
+  "preset": "TapTap Windows Demo; added separately, original Windows Desktop preserved",
+  "official_guide": "https://www.taptap.cn/moment/854478404412507237",
+  "official_package_rules": [
+    "Upload .zip or .7z",
+    "Set executable path correctly",
+    "Wait for platform parsing success and perform platform self-test before submitting review"
+  ],
+  "archive": {
+    "archive": ".godot\\WeavingRain-TapTap-Demo-20261018.zip",
+    "bytes": 46294723,
+    "sha256": "d0f71976bbdc0a2d2ff491ddcd87252d3adc716b9f36059ebabdcd8e783de7a1",
+    "files": [
+      "BUILD_INFO.json",
+      "CREDITS.md",
+      "LICENSES/GODOT-COMPONENTS.json",
+      "LICENSES/GODOT-COPYRIGHT.txt",
+      "LICENSES/GODOT-LICENSE-TEXTS.json",
+      "LICENSES/GODOT-MIT.txt",
+      "PLAYER_GUIDE.md",
+      "README.txt",
+      "WeavingRain.exe"
+    ],
+    "crc": "pass",
+    "file_hashes": "pass",
+    "entrypoint": "WeavingRain.exe",
+    "extracted_for_final_check": "C:\\Users\\32485\\.codex\\visualizations\\2026\\10\\08\\01a11bca-872d-7a11-8789-664a75328e4c\\weaving-rain-release-check\\from-zip"
+  },
+  "exe_icon": {
+    "passed": true,
+    "icons": [
+      {
+        "group": 1621099525744,
+        "size": [
+          16,
+          16
+        ],
+        "source_pixels_match": true,
+        "difference_extrema": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ]
+        ]
+      },
+      {
+        "group": 1621099525744,
+        "size": [
+          32,
+          32
+        ],
+        "source_pixels_match": true,
+        "difference_extrema": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ]
+        ]
+      },
+      {
+        "group": 1621099525744,
+        "size": [
+          48,
+          48
+        ],
+        "source_pixels_match": true,
+        "difference_extrema": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ]
+        ]
+      },
+      {
+        "group": 1621099525744,
+        "size": [
+          64,
+          64
+        ],
+        "source_pixels_match": true,
+        "difference_extrema": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ]
+        ]
+      },
+      {
+        "group": 1621099525744,
+        "size": [
+          128,
+          128
+        ],
+        "source_pixels_match": true,
+        "difference_extrema": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ]
+        ]
+      },
+      {
+        "group": 1621099525744,
+        "size": [
+          256,
+          256
+        ],
+        "source_pixels_match": true,
+        "difference_extrema": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ]
+        ]
+      }
+    ],
+    "scope": "Compare actual Windows PE icon resource pixels against source ICO."
+  },
+  "packed_resources": {
+    "debug_build": true,
+    "editor": true,
+    "engine": {
+      "build": "steam",
+      "hash": "ed1daf0bf001b61586d9930840f2f1394092c079",
+      "hex": 263938,
+      "major": 4,
+      "minor": 7,
+      "patch": 2,
+      "status": "stable",
+      "string": "4.7.2-stable (steam)",
+      "timestamp": 0
+    },
+    "executable": "D:/SteamLibrary/steamapps/common/Godot Engine/godot.windows.opt.tools.64.exe",
+    "maps": [
+      {
+        "id": "tutorial",
+        "targets": 1,
+        "title": "入门 · 借雨蓄水",
+        "tools": 1,
+        "valid": true
+      },
+      {
+        "id": "level01",
+        "targets": 1,
+        "title": "山外一池",
+        "tools": 1,
+        "valid": true
+      },
+      {
+        "id": "level02",
+        "targets": 2,
+        "title": "两池分雨",
+        "tools": 1,
+        "valid": true
+      },
+      {
+        "id": "level03",
+        "targets": 2,
+        "title": "田池之间",
+        "tools": 1,
+        "valid": true
+      },
+      {
+        "id": "level04",
+        "targets": 2,
+        "title": "两山两路",
+        "tools": 1,
+        "valid": true
+      },
+      {
+        "id": "level05",
+        "targets": 2,
+        "title": "留风送雨",
+        "tools": 3,
+        "valid": true
+      },
+      {
+        "id": "level06",
+        "targets": 2,
+        "title": "借雨接力",
+        "tools": 3,
+        "valid": true
+      },
+      {
+        "id": "level07",
+        "targets": 3,
+        "title": "三池汇雨",
+        "tools": 7,
+        "valid": true
+      },
+      {
+        "id": "level08",
+        "targets": 2,
+        "title": "海上借雨",
+        "tools": 7,
+        "valid": true
+      },
+      {
+        "id": "level09",
+        "targets": 3,
+        "title": "群山风雨",
+        "tools": 7,
+        "valid": true
+      }
+    ],
+    "music_seconds": 148.243988037109,
+    "passed": true,
+    "scope": "Packed release resources loaded from standalone EXE, not gameplay completion.",
+    "sounds": [
+      {
+        "file": "res://assets/audio/wind.wav",
+        "loaded": true
+      },
+      {
+        "file": "res://assets/audio/rain.wav",
+        "loaded": true
+      },
+      {
+        "file": "res://assets/audio/rain_detail.wav",
+        "loaded": true
+      },
+      {
+        "file": "res://assets/audio/brush.wav",
+        "loaded": true
+      },
+      {
+        "file": "res://assets/audio/brush_2.wav",
+        "loaded": true
+      },
+      {
+        "file": "res://assets/audio/brush_3.wav",
+        "loaded": true
+      },
+      {
+        "file": "res://assets/audio/brush_4.wav",
+        "loaded": true
+      },
+      {
+        "file": "res://assets/audio/brush_5.wav",
+        "loaded": true
+      },
+      {
+        "file": "res://assets/audio/click.wav",
+        "loaded": true
+      },
+      {
+        "file": "res://assets/audio/source.wav",
+        "loaded": true
+      },
+      {
+        "file": "res://assets/audio/adequate.wav",
+        "loaded": true
+      },
+      {
+        "file": "res://assets/audio/safe.wav",
+        "loaded": true
+      },
+      {
+        "file": "res://assets/audio/full.wav",
+        "loaded": true
+      },
+      {
+        "file": "res://assets/audio/damage.wav",
+        "loaded": true
+      },
+      {
+        "file": "res://assets/audio/success.wav",
+        "loaded": true
+      },
+      {
+        "file": "res://assets/audio/failure.wav",
+        "loaded": true
+      }
+    ]
+  },
+  "release_startups": [
+    {
+      "passed": true,
+      "log": "C:\\Users\\32485\\.codex\\visualizations\\2026\\10\\08\\01a11bca-872d-7a11-8789-664a75328e4c\\weaving-rain-release-check\\tutorial-startup.log",
+      "expected": "result=0 layout=tutorial targets=1 tropical=false",
+      "exit": 0,
+      "screenshot": "C:\\Users\\32485\\.codex\\visualizations\\2026\\10\\08\\01a11bca-872d-7a11-8789-664a75328e4c\\weaving-rain-release-check\\tutorial-startup.png",
+      "id": "tutorial"
+    },
+    {
+      "passed": true,
+      "log": "C:\\Users\\32485\\.codex\\visualizations\\2026\\10\\08\\01a11bca-872d-7a11-8789-664a75328e4c\\weaving-rain-release-check\\level01-startup.log",
+      "expected": "result=0 layout=level01 targets=1 tropical=false",
+      "exit": 0,
+      "screenshot": "C:\\Users\\32485\\.codex\\visualizations\\2026\\10\\08\\01a11bca-872d-7a11-8789-664a75328e4c\\weaving-rain-release-check\\level01-startup.png",
+      "id": "level01"
+    },
+    {
+      "passed": true,
+      "log": "C:\\Users\\32485\\.codex\\visualizations\\2026\\10\\08\\01a11bca-872d-7a11-8789-664a75328e4c\\weaving-rain-release-check\\level02-startup.log",
+      "expected": "result=0 layout=level02 targets=2 tropical=false",
+      "exit": 0,
+      "screenshot": "C:\\Users\\32485\\.codex\\visualizations\\2026\\10\\08\\01a11bca-872d-7a11-8789-664a75328e4c\\weaving-rain-release-check\\level02-startup.png",
+      "id": "level02"
+    },
+    {
+      "passed": true,
+      "log": "C:\\Users\\32485\\.codex\\visualizations\\2026\\10\\08\\01a11bca-872d-7a11-8789-664a75328e4c\\weaving-rain-release-check\\level03-startup.log",
+      "expected": "result=0 layout=level03 targets=2 tropical=false",
+      "exit": 0,
+      "screenshot": "C:\\Users\\32485\\.codex\\visualizations\\2026\\10\\08\\01a11bca-872d-7a11-8789-664a75328e4c\\weaving-rain-release-check\\level03-startup.png",
+      "id": "level03"
+    },
+    {
+      "passed": true,
+      "log": "C:\\Users\\32485\\.codex\\visualizations\\2026\\10\\08\\01a11bca-872d-7a11-8789-664a75328e4c\\weaving-rain-release-check\\level04-startup.log",
+      "expected": "result=0 layout=level04 targets=2 tropical=false",
+      "exit": 0,
+      "screenshot": "C:\\Users\\32485\\.codex\\visualizations\\2026\\10\\08\\01a11bca-872d-7a11-8789-664a75328e4c\\weaving-rain-release-check\\level04-startup.png",
+      "id": "level04"
+    },
+    {
+      "passed": true,
+      "log": "C:\\Users\\32485\\.codex\\visualizations\\2026\\10\\08\\01a11bca-872d-7a11-8789-664a75328e4c\\weaving-rain-release-check\\level05-startup.log",
+      "expected": "result=0 layout=level05 targets=2 tropical=false",
+      "exit": 0,
+      "screenshot": "C:\\Users\\32485\\.codex\\visualizations\\2026\\10\\08\\01a11bca-872d-7a11-8789-664a75328e4c\\weaving-rain-release-check\\level05-startup.png",
+      "id": "level05"
+    },
+    {
+      "passed": true,
+      "log": "C:\\Users\\32485\\.codex\\visualizations\\2026\\10\\08\\01a11bca-872d-7a11-8789-664a75328e4c\\weaving-rain-release-check\\level06-startup.log",
+      "expected": "result=0 layout=level06 targets=2 tropical=false",
+      "exit": 0,
+      "screenshot": "C:\\Users\\32485\\.codex\\visualizations\\2026\\10\\08\\01a11bca-872d-7a11-8789-664a75328e4c\\weaving-rain-release-check\\level06-startup.png",
+      "id": "level06"
+    },
+    {
+      "passed": true,
+      "log": "C:\\Users\\32485\\.codex\\visualizations\\2026\\10\\08\\01a11bca-872d-7a11-8789-664a75328e4c\\weaving-rain-release-check\\level07-startup.log",
+      "expected": "result=0 layout=level07 targets=3 tropical=false",
+      "exit": 0,
+      "screenshot": "C:\\Users\\32485\\.codex\\visualizations\\2026\\10\\08\\01a11bca-872d-7a11-8789-664a75328e4c\\weaving-rain-release-check\\level07-startup.png",
+      "id": "level07"
+    },
+    {
+      "passed": true,
+      "log": "C:\\Users\\32485\\.codex\\visualizations\\2026\\10\\08\\01a11bca-872d-7a11-8789-664a75328e4c\\weaving-rain-release-check\\level08-startup.log",
+      "expected": "result=0 layout=level08 targets=2 tropical=true",
+      "exit": 0,
+      "screenshot": "C:\\Users\\32485\\.codex\\visualizations\\2026\\10\\08\\01a11bca-872d-7a11-8789-664a75328e4c\\weaving-rain-release-check\\level08-startup.png",
+      "id": "level08"
+    },
+    {
+      "passed": true,
+      "log": "C:\\Users\\32485\\.codex\\visualizations\\2026\\10\\08\\01a11bca-872d-7a11-8789-664a75328e4c\\weaving-rain-release-check\\level09-startup.log",
+      "expected": "result=0 layout=level09 targets=3 tropical=true",
+      "exit": 0,
+      "screenshot": "C:\\Users\\32485\\.codex\\visualizations\\2026\\10\\08\\01a11bca-872d-7a11-8789-664a75328e4c\\weaving-rain-release-check\\level09-startup.png",
+      "id": "level09"
+    }
+  ],
+  "checks": {
+    "normal_home_release": "passed in independent directory, no --path, fresh-guide isolation",
+    "tutorial_and_nine_levels_release": "all 10 passed, direct map startup/render only; 08 and 09 tropical=true",
+    "zip_extraction_release": "passed, exit 0, normal home screenshot, no log errors",
+    "mounted_pack_ui": "59 checks, 0 failures at 1280x720, final log no errors; editor runs external harness against final ZIP EXE embedded resources; not release-native automation",
+    "audio": "16 packed WAV resources and 148.244-second Ogg loaded from embedded PCK",
+    "licenses": "MIT text, compiled-editor component/license dictionaries from same 4.7.2 engine, and full COPYRIGHT from that installed distribution; CREDITS covers actual external audio",
+    "archive_integrity": "CRC and every BUILD_INFO-listed file hash passed; one root EXE, no project source/debug wrapper/player save",
+    "manual_view": "Viewed standalone normal home and level08/09 screenshots; no claim of all nine completed routes"
+  },
+  "logs": {
+    "cache_base": ".godot/taptap-demo-20261018",
+    "export_final": ".godot/taptap-demo-20261018/export-final.log",
+    "independent_checks": "C:\\Users\\32485\\.codex\\visualizations\\2026\\10\\08\\01a11bca-872d-7a11-8789-664a75328e4c\\weaving-rain-release-check"
+  },
+  "attempts_and_limits": [
+    "Initial export exit 0 contained temp directory write errors and invalid SVG Windows icon warning; rejected. Native ICO added; final export allowed installed editor temp writes, exit 0 without warnings/errors.",
+    "Sandbox Temp EXE copy denied; independent check moved to separate writable visualization workspace.",
+    "External-script attempts in Release stalled before script ran, stopped exact own check processes. Actual Release normal entry tested separately; resource and UI harnesses use editor --main-pack, not claimed as release-native full route.",
+    "First mounted resource helper tried to save beside editor executable; corrected output folder and re-ran successfully.",
+    "First mounted UI run passed 59 assertions but sandbox blocked shader cache. Final run allowed ordinary cache writes and passed 59 without log errors.",
+    "Initial icon test assumed seven exported sizes; Godot embeds its standard six sizes. All six 16/32/48/64/128/256 exactly match source pixels; source also contains 24px.",
+    "No full nine-level completion, persistence across two real Release sessions, cross-hardware validation, long performance rerun, signing, platform self-test, upload or review. Known P1/V1/V6 remain open.",
+    "Public declaration personal details and developer-log publication remain separate pending items."
+  ]
+}

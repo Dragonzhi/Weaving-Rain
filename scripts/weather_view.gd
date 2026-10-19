@@ -45,6 +45,8 @@ var plant_materials: Array[ShaderMaterial] = []
 var plant_growth := PackedFloat32Array()
 var plant_wilt := PackedFloat32Array()
 var plot_wetness := PackedFloat32Array()
+var plot_surface_axes := PackedVector2Array()
+var plot_surface_rectangles := PackedByteArray()
 var reservoir_surfaces: Array[MeshInstance3D] = []
 var air_image: Image
 var air_texture: ImageTexture
@@ -101,6 +103,12 @@ const LIFT_ARROW := Color("e7c77a")
 
 func setup(model: RefCounted) -> void:
 	sim = model
+	# Geometry is immutable for a view; map edits/retries create a new view.
+	plot_surface_axes.clear()
+	plot_surface_rectangles.clear()
+	for region in sim.plot_regions:
+		plot_surface_axes.append(region.axes(sim.plot_half))
+		plot_surface_rectangles.append(1 if region.shape == "rectangle" else 0)
 	var loaded := preload("res://scripts/config_loader.gd").scene_style(style_path)
 	scene_style = loaded.resource
 	style_errors = loaded.errors
@@ -210,8 +218,14 @@ func plot_display_height(target: int) -> float:
 
 func display_surface_height(p: Vector2, ground_height: float = NAN) -> float:
 	var height: float = sim.terrain.height(p) if is_nan(ground_height) else ground_height
-	for target in sim.plot_centers.size():
-		if sim.plot_regions[target].contains(p-sim.plot_centers[target],sim.plot_half):
+	var centers := sim.plot_centers
+	var axes := plot_surface_axes
+	var rectangles := plot_surface_rectangles
+	for target in centers.size():
+		var offset := p - centers[target]
+		var extent := axes[target]
+		if absf(offset.x) > extent.x or absf(offset.y) > extent.y: continue
+		if rectangles[target] != 0 or (offset / extent).length_squared() <= 1.0:
 			height = maxf(height,plot_display_height(target))
 	return height
 
@@ -552,8 +566,27 @@ func _create_weather() -> void:
 	arrow_node.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	arrow_node.custom_aabb = AABB(Vector3(-17, -1, -15), Vector3(34, 8, 30))
 	add_child(arrow_node)
-	var drop := BoxMesh.new()
-	drop.size = Vector3(0.018, 0.22, 0.018)
+	# This unshaded shader reads positions only. Share the box's eight corners
+	# instead of executing its 32-step occlusion on 24 face-normal duplicates.
+	# Keep the original triangle order and positions, so the silhouette is identical.
+	var drop_box := BoxMesh.new()
+	drop_box.size = Vector3(0.018, 0.22, 0.018)
+	var original := drop_box.surface_get_arrays(0)
+	var corners := PackedVector3Array()
+	var corner_indices := PackedInt32Array()
+	var corner_lookup: Dictionary = {}
+	for index in original[Mesh.ARRAY_INDEX]:
+		var point: Vector3 = original[Mesh.ARRAY_VERTEX][index]
+		if not corner_lookup.has(point):
+			corner_lookup[point] = corners.size()
+			corners.append(point)
+		corner_indices.append(corner_lookup[point])
+	var drop_arrays := []
+	drop_arrays.resize(Mesh.ARRAY_MAX)
+	drop_arrays[Mesh.ARRAY_VERTEX] = corners
+	drop_arrays[Mesh.ARRAY_INDEX] = corner_indices
+	var drop := ArrayMesh.new()
+	drop.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES,drop_arrays)
 	rainfall = MultiMesh.new()
 	rainfall.transform_format = MultiMesh.TRANSFORM_3D
 	rainfall.use_custom_data = true
@@ -654,9 +687,10 @@ func _ribbon(center: Vector2, velocity: Vector2, height: float, low: bool, color
 			y = maxf(height, sim.terrain.height(p) + 0.10)
 		points[k] = Vector3(p.x, y, p.y)
 		if k == segments: break
-		var v: Vector2 = velocity if k == 0 else sim.velocity_at(p, low)
-		if v.length() > 0.025:
-			direction = v.normalized()
+		# The first direction was already normalized before this loop.
+		if k > 0:
+			var v: Vector2 = sim.velocity_at(p, low)
+			if v.length() > 0.025: direction = v.normalized()
 		p -= direction * length / segments
 	for k in segments:
 		var tangent := (points[k + 1] - points[k]).normalized()
@@ -825,6 +859,8 @@ func update_map() -> void:
 	var humidity: PackedFloat32Array = sim.humidity
 	var cold: PackedFloat32Array = sim.display_cold
 	var hold: float = sim.settings.hold_seconds
+	var warm_enabled := sim.tropical != null
+	var heat := sim.tropical.heat if warm_enabled else PackedFloat32Array()
 	var water_pixels := map_data
 	var air_pixels := air_data
 	for i in Sim.COUNT:
@@ -837,7 +873,7 @@ func update_map() -> void:
 		water_pixels[offset + 3] = humidity[i]
 		air_pixels[offset] = humidity[i]
 		air_pixels[offset + 1] = cold[i]
-		air_pixels[offset + 2] = sim.tropical.heat[i] if sim.tropical != null else 0.0
+		air_pixels[offset + 2] = heat[i] if warm_enabled else 0.0
 		air_pixels[offset + 3] = 1.0
 	image.set_data(Sim.WIDTH, Sim.DEPTH, false, Image.FORMAT_RGBAF, map_data.to_byte_array())
 	air_image.set_data(Sim.WIDTH, Sim.DEPTH, false, Image.FORMAT_RGBAF, air_data.to_byte_array())

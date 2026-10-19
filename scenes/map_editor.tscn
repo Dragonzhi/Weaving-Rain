@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://cc8llac4py5nh"]
 
 [ext_resource type="Script" uid="uid://dvhim60xg38ah" path="res://addons/weather_map_editor/map_author.gd" id="1_author"]
-[ext_resource type="Resource" uid="uid://gpgseeqab1f0" path="res://configs/maps/level09.tres" id="2_ikn3w"]
+[ext_resource type="Resource" uid="uid://d24y23a5qbmde" path="res://configs/tutorial.tres" id="2_ikn3w"]
 
 [node name="MapAuthor" type="Node3D" unique_id=751166728]
 script = ExtResource("1_author")

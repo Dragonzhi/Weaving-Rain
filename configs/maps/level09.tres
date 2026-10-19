@@ -88,7 +88,6 @@ script = ExtResource("7_pcrwf")
 id = "level09"
 title = "群山风雨"
 hint = "跨越群山分配云雨：A普通田与C幼苗需安全收尾，B池可持续承雨；留意幼苗雨量"
-available_wind_tools = 7
 shape = "split"
 island_center = Vector2(-0.084610224, 0.728333)
 island_axes = Vector2(7.88, 5.440202)

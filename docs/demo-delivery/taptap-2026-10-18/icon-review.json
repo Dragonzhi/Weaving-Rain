@@ -1,0 +1,39 @@
+{
+  "date": "2026-10-18",
+  "file": "upload/icon-square-1024.png",
+  "size": [
+    1024,
+    1024
+  ],
+  "format": "PNG RGB, no alpha channel",
+  "bytes": 82028,
+  "sha256": "a44e6ef2bbe9e6eb5161e9ada74ca45ef76e0267df6b95708005799af59e3d64",
+  "corners_rgb": [
+    [
+      79,
+      177,
+      181
+    ],
+    [
+      61,
+      160,
+      169
+    ],
+    [
+      56,
+      155,
+      166
+    ],
+    [
+      41,
+      141,
+      156
+    ]
+  ],
+  "source": "sources/icon-square.svg",
+  "checks": "Full PNG decode, dimensions, opaque teal corners and SVG square background passed",
+  "method": "Removed rounded background from existing vector icon and rasterized with Godot Image SVG loader. No image generation or game asset replacement.",
+  "status": "Local format checks passed; TapTap upload/approval pending",
+  "export": "Start-Process -Wait: exit 0; .godot/taptap-icon-20261018-retry.log confirms output. Initial direct invocation returned before output and was not counted as success.",
+  "reproduce": "Godot --headless --path PROJECT --script res://docs/demo-delivery/taptap-2026-10-18/render-icon.gd"
+}

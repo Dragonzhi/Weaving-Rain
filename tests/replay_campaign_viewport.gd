@@ -26,6 +26,7 @@ func run() -> void:
 	var following: String = main.campaign.next_id(first)
 	var passed: bool = main.play_mode == "lesson"
 	for stage in 2:
+		if main.hud.briefing_active(): await click(main.hud.briefing_start)
 		var start := route_time
 		var controller := Route.new([0],"mountain")
 		var next_at := 0.5
@@ -50,7 +51,7 @@ func run() -> void:
 		passed = passed and main.sim.outcome == "success" and absf(main.sim.water_error()) < 0.02
 		root.get_texture().get_image().save_png("res://.godot/campaign-review/normal-"+main.sim.layout_id+"-result.png")
 		if stage == 0:
-			passed = passed and phases == [0,1,2,3] and not main.sim.star_level
+			passed = passed and main.guide.phase == 5 and phases[0] == 0 and not main.sim.star_level
 			await click(main.hud.free_button)
 			passed = passed and main.sim.layout_id == first and main.campaign_play and main.sim.plot_water == 0
 		else:
@@ -58,6 +59,7 @@ func run() -> void:
 			await click(main.hud.next_button)
 			passed = passed and (main.selecting_levels if following.is_empty() else (main.sim.layout_id == following and main.sim.plot_water == 0))
 			root.get_texture().get_image().save_png("res://.godot/campaign-review/normal-final-selection.png")
+	if main.hud.briefing_active(): await click(main.hud.briefing_start)
 	passed = passed and failures == 0 and input_pick_error < 0.001
 	var result := {"front_entry":used_front_entry,"passed":passed,"stages":reports,"mouse_events":events,"blocked":blocked,"input_failures":failures,"pick_error":input_pick_error,"selection":main.hud.selection_ids,"following":following}
 	result["audio"] = audio_record.finish("res://.godot/campaign-review/bgm-mix.wav")

@@ -3,6 +3,7 @@ extends RefCounted
 const Settings = preload("res://scripts/weather_settings.gd")
 const Layouts = preload("res://scripts/weather_layouts.gd")
 const Terrain = preload("res://scripts/terrain_model.gd")
+const Tropical = preload("res://scripts/tropical_weather.gd")
 const WIDTH := 64
 const DEPTH := 56
 const COUNT := WIDTH * DEPTH
@@ -67,7 +68,7 @@ var display_cold := PackedFloat32Array()
 var cold_flow := PackedVector2Array()
 var low_wind := PackedVector2Array()
 var cloud_wind := PackedVector2Array()
-var tropical: RefCounted
+var tropical: Tropical
 var cold_lifted := PackedFloat32Array()
 var total_cold_lift := 0.0
 var cold_used := 0.0
@@ -232,7 +233,7 @@ func reset(test_cloud: bool = false) -> void:
 		initial_water += humidity[i] + cloud[i]
 	cloud_wind = wind
 	if relay_mode and layout.get("warm_sea") != null and not test_cloud:
-		tropical = preload("res://scripts/tropical_weather.gd").new(layout.warm_sea, self)
+		tropical = Tropical.new(layout.warm_sea, self)
 		cloud_wind = wind.duplicate()
 	plot_waters.resize(plot_centers.size())
 	plot_waters.fill(0.0)
@@ -564,8 +565,11 @@ func _step_fixed(dt: float) -> void:
 	if tropical != null:
 		tropical.prepare(dt, self)
 		cloud_wind.resize(COUNT)
+		var background := tropical.sea.background_wind
+		var natural_wind := tropical.high_velocity
+		var maximum: float = settings.max_wind
 		for i in COUNT:
-			cloud_wind[i] = (wind[i] + tropical.sea.background_wind + tropical.high_velocity[i]).limit_length(settings.max_wind)
+			cloud_wind[i] = (wind[i] + background + natural_wind[i]).limit_length(maximum)
 	else:
 		cloud_wind = wind
 	_update_cold_flow()
@@ -853,6 +857,9 @@ func _update_cold_flow() -> void:
 	var flows := cold_flow
 	var air_wind := low_wind
 	var mouse_wind := wind
+	var has_tropical := tropical != null
+	var background := tropical.sea.background_wind if has_tropical else Vector2.ZERO
+	var natural_wind := tropical.low_velocity if has_tropical else PackedVector2Array()
 	for i in COUNT:
 		var velocity := Vector2.ZERO
 		if cold_enabled:
@@ -861,7 +868,7 @@ func _update_cold_flow() -> void:
 			velocity = (-gradient * outflow).limit_length(max_cold)
 		flows[i] = velocity
 		var ambient := mouse_wind[i]
-		if tropical != null: ambient += tropical.sea.background_wind + tropical.low_velocity[i]
+		if has_tropical: ambient += background + natural_wind[i]
 		air_wind[i] = (ambient + velocity).limit_length(max_wind)
 
 func cold_gradient(i: int) -> Vector2:
@@ -1026,14 +1033,23 @@ func refresh_display(cloud_current: bool = false) -> void:
 	var top_indices := neighbor_top
 	var bottom_indices := neighbor_bottom
 	var cloud_display := display_cloud
+	# Activated rain often leaves the entire charge field at positive zero.
+	# A native byte count also catches developer injection and signed zero;
+	# only this exact state can bypass the identical smoothing arithmetic.
+	var charge_empty := charge_values.to_byte_array().count(0) == COUNT * 4
+	if charge_empty: charge_display.fill(0.0)
 	for i in COUNT:
-		rain_rows[i] = rain_values[left_indices[i]] + rain_values[i] * 2.0 + rain_values[right_indices[i]]
-		charge_rows[i] = charge_values[left_indices[i]] + charge_values[i] * 2.0 + charge_values[right_indices[i]]
-		cold_rows[i] = cold_values[left_indices[i]] + cold_values[i] * 2.0 + cold_values[right_indices[i]]
+		var left := left_indices[i]
+		var right := right_indices[i]
+		rain_rows[i] = rain_values[left] + rain_values[i] * 2.0 + rain_values[right]
+		if not charge_empty: charge_rows[i] = charge_values[left] + charge_values[i] * 2.0 + charge_values[right]
+		cold_rows[i] = cold_values[left] + cold_values[i] * 2.0 + cold_values[right]
 	for i in COUNT:
-		rain_display[i] = (rain_rows[top_indices[i]] + rain_rows[i] * 2.0 + rain_rows[bottom_indices[i]]) / 16.0
-		charge_display[i] = (charge_rows[top_indices[i]] + charge_rows[i] * 2.0 + charge_rows[bottom_indices[i]]) / 16.0
-		cold_display[i] = (cold_rows[top_indices[i]] + cold_rows[i] * 2.0 + cold_rows[bottom_indices[i]]) / 16.0
+		var top := top_indices[i]
+		var bottom := bottom_indices[i]
+		rain_display[i] = (rain_rows[top] + rain_rows[i] * 2.0 + rain_rows[bottom]) / 16.0
+		if not charge_empty: charge_display[i] = (charge_rows[top] + charge_rows[i] * 2.0 + charge_rows[bottom]) / 16.0
+		cold_display[i] = (cold_rows[top] + cold_rows[i] * 2.0 + cold_rows[bottom]) / 16.0
 	cold_display_source = cold.to_byte_array()
 	peak_density = 0.0
 	var wet_values := humidity

@@ -50,6 +50,7 @@ func run() -> void:
 	for index in 9:
 		var id := "level%02d" % (index+1)
 		main.select_campaign_level(id)
+		main.show_briefing() # Explicitly consume the test-only --skip-briefing path while process is stopped.
 		await draw()
 		var mask := 1 if index<4 else 3 if index<6 else 7
 		var before: float = main.sim.water_total()
@@ -57,11 +58,12 @@ func run() -> void:
 		check(main.hud.source_button.visible==((mask&2)!=0) and main.hud.vortex_button.visible==((mask&4)!=0),"Toolbar follows this map's flags: "+id)
 		check(root.get_visible_rect().encloses(main.hud.wind_toolbar_rect) and main.hud.wind_toolbar_rect.size.x==(226.0 if mask==1 else 335.0 if mask==3 else 424.0),"Toolbar shrinks to actual available controls: "+id)
 		check(main.wind_input.tool=="brush" and main.sim.water_total()==before and main.sim.wind_sources.is_empty(),"Switching maps starts with brush and normal weather: "+id)
-		if index==4: check("风带" in str(main.hud.tool_introduction),"First band opening gives a brief nonmodal explanation")
-		if index==6: check("漩涡" in str(main.hud.tool_introduction),"First vortex opening gives a brief nonmodal explanation")
+		if index==4: check("风带" in str(main.hud.tool_introduction),"First band opening gives a tool explanation")
+		if index==6: check("漩涡" in str(main.hud.tool_introduction),"First vortex opening gives a tool explanation")
 		root.get_texture().get_image().save_png(directory+id+"-"+str(root.size.x)+".png")
 		rows.append({"id":id,"mask":mask,"toolbar_width":main.hud.wind_toolbar_rect.size.x,"introduction":Array(main.hud.tool_introduction)})
 	main.select_campaign_level("level01")
+	main.show_briefing() # Explicitly consume the test-only --skip-briefing path while process is stopped.
 	await draw()
 	var brush: Node = main.wind_input
 	check(not brush.select_tool("source") and not brush.select_tool("vortex") and not brush.select_tool("unknown") and brush.tool=="brush","Unavailable and unknown selections cannot enter a hidden tool")
@@ -72,6 +74,7 @@ func run() -> void:
 	var point: Vector2 = main.hud.wind_toolbar_rect.position+Vector2(-12,10)
 	check(not main.hud.blocks_wind(point),"Removed toolbar space is available for weather input")
 	main.select_campaign_level("level05")
+	main.show_briefing() # Explicitly consume the test-only --skip-briefing path while process is stopped.
 	await draw()
 	check(main.hud.tool_introduction.is_empty(),"Revisiting the same tool in this session does not repeat its first-opening message")
 	await click(main.hud.source_button)
@@ -81,6 +84,7 @@ func run() -> void:
 	await draw()
 	check(main.wind_input.tool=="source" and main.sim.wind_sources.is_empty(),"Retry retains a permitted tool and clears sources")
 	main.select_campaign_level("level07")
+	main.show_briefing() # Explicitly consume the test-only --skip-briefing path while process is stopped.
 	await draw()
 	await click(main.hud.vortex_button)
 	await stroke(Vector2(-4,1),Vector2(-2,1),true)
@@ -94,6 +98,7 @@ func run() -> void:
 	pressed.position = screen
 	root.push_input(pressed,true)
 	main.select_campaign_level("level02")
+	main.show_briefing() # Explicitly consume the test-only --skip-briefing path while process is stopped.
 	await draw()
 	pressed.pressed = false
 	root.push_input(pressed,true)
@@ -118,8 +123,9 @@ func run() -> void:
 	main.select_layout("meadow")
 	await draw()
 	check(main.hud.source_button.visible and main.hud.vortex_button.visible,"Legacy development map remains fully open")
-	main.hud.introduced_wind_tools = 1
+	main.known_tools = 1
 	main.select_campaign_level("level09")
+	main.show_briefing() # Explicitly consume the test-only --skip-briefing path while process is stopped.
 	await draw()
 	check("风带与漩涡" in str(main.hud.tool_introduction),"Direct selection of a late map explains both newly available tools")
 	var until: float = main.hud.tool_introduction_until
@@ -128,7 +134,7 @@ func run() -> void:
 	check(main.hud.tool_introduction_until==until and main.weather_view.elapsed==0,"Pause freezes the introduction's simulation-relative clock")
 	main.weather_view.elapsed = until+0.1
 	await draw()
-	check(main.weather_view.elapsed>main.hud.tool_introduction_until,"Introduction expires without a modal acknowledgement")
+	check(main.weather_view.elapsed>main.hud.tool_introduction_until,"Development opt-out does not leave a timed introduction banner")
 	var report := {"checks":checks,"failures":failures,"size":str(root.size),"maps":rows,"scope":"tool configuration, native toolbar and real drag input; not nine successful routes"}
 	FileAccess.open(directory+"review-"+str(root.size.x)+".json",FileAccess.WRITE).store_string(JSON.stringify(report,"\t"))
 	print("TOOL AVAILABILITY ",JSON.stringify({"checks":checks,"failures":failures,"size":str(root.size)}))

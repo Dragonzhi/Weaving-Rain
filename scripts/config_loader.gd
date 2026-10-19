@@ -2,6 +2,7 @@ extends RefCounted
 ## Validation is transactional: callers keep the previous resource on failure.
 static var last_scene_style: WRSceneStyle
 static var last_audio: WRAudioSettings
+static var last_onboarding: WROnboardingSettings
 
 static func campaign(path: String, plot_half: float) -> Dictionary:
 	if not ResourceLoader.exists(path): return {"errors": PackedStringArray(["campaign：配置文件不存在：" + path])}
@@ -37,3 +38,10 @@ static func map(path: String, plot_half: float) -> Dictionary:
 	if not resource is WRMapDefinition: return {"errors": PackedStringArray(["地图类型须为 WRMapDefinition：" + path])}
 	var errors: PackedStringArray = resource.validation_errors(plot_half)
 	return {"errors": errors, "resource": resource}
+
+static func onboarding(path := "res://configs/onboarding.tres") -> Dictionary:
+	var candidate = ResourceLoader.load(path, "", ResourceLoader.CACHE_MODE_IGNORE_DEEP) if ResourceLoader.exists(path) else null
+	var errors: PackedStringArray = candidate.validation_errors() if candidate is WROnboardingSettings else PackedStringArray(["onboarding：资源不存在或类型错误："+path])
+	if errors.is_empty(): last_onboarding = candidate.duplicate(true)
+	elif last_onboarding == null: last_onboarding = WROnboardingSettings.new()
+	return {"resource": last_onboarding.duplicate(true), "errors": errors}

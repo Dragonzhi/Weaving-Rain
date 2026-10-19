@@ -9,6 +9,13 @@ signal restart_requested
 signal sandbox_requested
 signal cold_lab_requested
 signal free_play_requested
+signal briefing_requested
+signal briefing_started
+var briefing_panel: PanelContainer
+var briefing_title: Label
+var briefing_body: Label
+var briefing_start: Button
+var briefing_button: Button
 signal lesson_requested
 signal layout_requested(id: String)
 signal finish_requested
@@ -86,6 +93,7 @@ var ground_size := Vector2.ZERO
 var ground_transform := Transform3D()
 var ground_projection := Projection()
 var ground_outlines: Dictionary = {}
+var source_outlines: Dictionary = {}
 var feedback_states: Array[String] = []
 var feedback_adequate: Array[bool] = []
 var feedback_left := PackedFloat32Array()
@@ -101,7 +109,6 @@ var audio_label: Label
 var plot_label_rects: Array[Rect2] = []
 var compact_model: RefCounted
 var tool_hint_until := 4.0
-var introduced_wind_tools := 1 # Session-only explanations; does not change save data or unlock tools.
 var tool_introduction := PackedStringArray()
 var tool_introduction_until := 0.0
 var last_tool := ""
@@ -210,6 +217,38 @@ func setup(model: RefCounted, weather_view: Node3D, input: Node) -> void:
 	theme.default_font = font
 	theme.default_font_size = 14
 	self.theme = theme
+	briefing_panel = PanelContainer.new()
+	briefing_panel.theme = preload("res://themes/front_menu.tres")
+	briefing_panel.z_index = 20
+	briefing_panel.hide()
+	add_child(briefing_panel)
+	var margin := MarginContainer.new()
+	for edge in ["left","right","top","bottom"]: margin.add_theme_constant_override("margin_"+edge,22)
+	briefing_panel.add_child(margin)
+	var column := VBoxContainer.new()
+	column.add_theme_constant_override("separation",16)
+	margin.add_child(column)
+	briefing_title = Label.new()
+	briefing_title.add_theme_font_size_override("font_size",22)
+	briefing_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	column.add_child(briefing_title)
+	briefing_body = Label.new()
+	briefing_body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	briefing_body.add_theme_font_size_override("font_size",15)
+	column.add_child(briefing_body)
+	var paused_label := Label.new()
+	paused_label.text = "阅读期间，天气与时间已暂停"
+	paused_label.add_theme_font_size_override("font_size",12)
+	column.add_child(paused_label)
+	briefing_start = Button.new()
+	briefing_start.theme_type_variation = "PrimaryButton"
+	briefing_start.focus_mode = Control.FOCUS_NONE
+	briefing_start.pressed.connect(func(): briefing_started.emit())
+	column.add_child(briefing_start)
+	briefing_button = Button.new()
+	briefing_button.text = "本关说明"
+	briefing_button.pressed.connect(func(): briefing_requested.emit())
+	add_child(briefing_button)
 	menu_button = Button.new()
 	menu_button.text = "菜单"
 	menu_button.pressed.connect(func():
@@ -365,8 +404,24 @@ func setup(model: RefCounted, weather_view: Node3D, input: Node) -> void:
 	next_button.theme_type_variation = "PrimaryButton"
 
 func buttons() -> Array:
-	return front_buttons + [result_home, menu_button, retry, sandbox_button, cold_button, free_button, lesson_button, dismiss_hint,
+	return front_buttons + [briefing_button, result_home, menu_button, retry, sandbox_button, cold_button, free_button, lesson_button, dismiss_hint,
 		finish_button, next_button, result_retry, levels_button, development_button, selection_start, selection_back, brush_button, source_button, vortex_button, arrows_button, audio_button] + source_remove
+
+func briefing_active() -> bool:
+	return briefing_panel != null and briefing_panel.visible
+
+func show_briefing(title: String, body: String, action: String) -> void:
+	briefing_title.text = title
+	briefing_body.text = body
+	briefing_start.text = action
+	briefing_panel.show()
+	_layout_briefing()
+
+func _layout_briefing() -> void:
+	if not briefing_active(): return
+	var width := minf(550.0,size.x-32.0)
+	briefing_panel.size = Vector2(width,0)
+	briefing_panel.position = Vector2((size.x-width)*0.5,maxf(12,(size.y-briefing_panel.get_combined_minimum_size().y)*0.5))
 
 func set_audio_options(on: bool, volume: float) -> void:
 	audio_enabled = on
@@ -390,6 +445,7 @@ func _project(point: Vector3) -> Vector2:
 	return view.camera.unproject_position(point)
 
 func blocks_wind(point: Vector2) -> bool:
+	if briefing_active(): return true
 	if front_active: return true
 	if selection_panel.visible: return true
 	if wind_toolbar_rect.has_point(point) or (menu_open and menu_rect.has_point(point)) or result_rect.has_point(point): return true
@@ -428,6 +484,9 @@ func _draw_guide() -> void:
 		_text(at + Vector2(0, 48), guide.detail(sim), 12, MUTED)
 		if sim.outcome != "playing":
 			return
+		if sim.is_reservoir(0):
+			_draw_reservoir_help()
+			return
 		var field: PackedFloat32Array = sim.humidity if guide.phase == 0 or sim.peak_density < 0.15 else sim.display_cloud
 		if guide.phase < 2 or (guide.phase == 2 and sim.peak_density < 0.15):
 			var index := 0
@@ -463,6 +522,37 @@ func _draw_guide() -> void:
 				cold_index = i
 		if sim.display_cold[cold_index] > 0.15:
 			_guide_marker(sim.positions[cold_index], "灰蓝薄层 · 冷空气")
+
+func _draw_reservoir_help() -> void:
+	var low_air: bool = guide.phase <= 1 or sim.peak_density < 0.15
+	var field: PackedFloat32Array = sim.humidity if low_air else sim.display_cloud
+	var index := 0
+	for i in Sim.COUNT:
+		if field[i] > field[index]: index = i
+	if field[index] <= 0.15: return
+	var p: Vector2 = sim.positions[index]
+	var destination: Vector2 = sim.plot_centers[0]
+	if low_air:
+		_guide_marker(p,"湿空气 · 可以推动")
+		var mountain: Vector2 = sim.terrain.mountain
+		destination = mountain+(p-mountain).normalized()*1.8
+		if guide.phase > 0 or guide.help_level() > 0: _guide_marker(destination,"迎着这侧山坡送风")
+	else:
+		if guide.phase == 2: _guide_marker(p,"云变厚后，留意雨线",true)
+		else:
+			_guide_marker(p,"按住云朵，也可以拖动",true)
+			_guide_marker(destination,"雨落进这里，水位才升高")
+	if guide.help_level() < 2: return
+	# A short ghost gesture explains input; it neither represents actual wind nor applies it.
+	var height: float = sim.terrain.height(p)+0.5 if low_air else Sim.CLOUD_TOP+0.1
+	var a := _project(Vector3(p.x,height,p.y))
+	var direction := (destination-p).normalized()
+	var b := _project(Vector3(p.x+direction.x*1.4,height,p.y+direction.y*1.4))
+	var t := fmod(guide.idle_seconds,2.0)/2.0
+	var cursor := a.lerp(b,smoothstep(0.0,1.0,t))
+	draw_dashed_line(a,b,Color(GOLD,0.45),1.5,5.0)
+	draw_circle(cursor,6.0,Color(GOLD,0.8),false,1.5,true)
+	_text(a+Vector2(0,-16),"拖动示意",12,GOLD)
 
 func _ground_square(half: float, center: Vector2 = Sim.PLOT) -> PackedVector2Array:
 	var result := PackedVector2Array()
@@ -663,6 +753,15 @@ func _draw_source_marker(point: Vector2, end: Vector2, direction: Vector2, alpha
 	draw_polyline(PackedVector2Array([tip - d * 9 + side * 5, tip, tip - d * 9 - side * 5]), color, 2.0, true)
 	draw_arc(center, 12.0, -PI * 0.5, -PI * 0.5 + TAU * fraction, 32, color, 2.0, true)
 	draw_circle(center, 3.0, color)
+	var ring := _source_outline(point,end,direction,not preview)
+	var edge := color
+	edge.a *= 0.45 if preview else 0.20
+	draw_polyline(ring, edge, 1.2, true)
+
+func _source_outline(point: Vector2, end: Vector2, direction: Vector2, cache: bool) -> PackedVector2Array:
+	_ensure_geometry_cache()
+	var key := [point,end,direction,sim.settings.brush_radius]
+	if cache and source_outlines.has(key): return source_outlines[key]
 	var ring := PackedVector2Array()
 	# Same capsule radius as the simulation's distance-to-segment soft kernel.
 	for cap in 2:
@@ -671,9 +770,11 @@ func _draw_source_marker(point: Vector2, end: Vector2, direction: Vector2, alpha
 			var p: Vector2 = (end if cap == 0 else point) + Vector2(cos(angle), sin(angle)) * sim.settings.brush_radius
 			ring.append(_project(Vector3(p.x, sim.terrain.height(p) + 0.15, p.y)))
 	ring.append(ring[0])
-	var edge := color
-	edge.a *= 0.45 if preview else 0.20
-	draw_polyline(ring, edge, 1.2, true)
+	if cache:
+		# Removed/replaced sources cannot grow this cache indefinitely.
+		if source_outlines.size() >= 4: source_outlines.clear()
+		source_outlines[key] = ring
+	return ring
 
 func _draw_wind_meter(tip: Vector2, tier: int = -1, caption: String = "滚轮") -> void:
 	var at := tip + Vector2(18, -45)
@@ -694,7 +795,7 @@ func _draw_wind_meter(tip: Vector2, tier: int = -1, caption: String = "滚轮") 
 		_text(at + Vector2(29, 23 + row * 24), labels[row], 12, INK if selected else MUTED)
 	_text(at + Vector2(8, 82), caption, 9, MUTED)
 
-func _ground_region(target: int, padding: float = 0.0) -> PackedVector2Array:
+func _ensure_geometry_cache() -> void:
 	# Land and target geometry are immutable for one simulation. Retain exact
 	# projected contours; only values/colors change each frame. A new map, view,
 	# window aspect or camera pose must invalidate these screen-space points.
@@ -702,12 +803,16 @@ func _ground_region(target: int, padding: float = 0.0) -> PackedVector2Array:
 	var projection: Projection = view.camera.get_camera_projection()
 	if ground_model != sim or ground_view_id != view.get_instance_id() or ground_size != size or ground_transform != transform or ground_projection != projection:
 		ground_outlines.clear()
+		source_outlines.clear()
 		visuals.clear_cache()
 		ground_model = sim
 		ground_view_id = view.get_instance_id()
 		ground_size = size
 		ground_transform = transform
 		ground_projection = projection
+
+func _ground_region(target: int, padding: float = 0.0) -> PackedVector2Array:
+	_ensure_geometry_cache()
 	var key := Vector2(target, padding)
 	if ground_outlines.has(key): return ground_outlines[key]
 	var result := PackedVector2Array()
@@ -723,29 +828,18 @@ func _draw() -> void:
 		return
 	var draw_start := Time.get_ticks_usec()
 	if feedback_model != sim: reset_feedback()
+	_layout_briefing()
 	var w := size.x
 	var h := size.y
 	if compact_model != sim:
 		compact_model = sim
 		last_tool = ""
 		last_status = ""
-		tool_introduction.clear()
-		tool_introduction_until = 0.0
-		if campaign_play and play_mode == "free" and not sim.sandbox:
-			var available: int = sim.layout.get("available_wind_tools",7)
-			var fresh := available & ~introduced_wind_tools
-			introduced_wind_tools |= available
-			if (fresh & 6) == 6:
-				tool_introduction = PackedStringArray(["新工具 · 风带与漩涡","风带留风输送；漩涡收拢水汽，撤源后再运送"])
-			elif (fresh & 2) != 0:
-				tool_introduction = PackedStringArray(["新工具 · 风带","拖出风带，滚轮调力度；松手后持续吹 %.0f 秒" % sim.settings.source_lifetime])
-			elif (fresh & 4) != 0:
-				tool_introduction = PackedStringArray(["新工具 · 漩涡","拖出半径，左顺右逆；聚集后撤源，再输送"])
-			if not tool_introduction.is_empty(): tool_introduction_until = view.elapsed+8.0
+
 	result_rect = Rect2()
 	# Hiding/re-showing a native Button each draw cancels a held mouse press.
 	result_home.visible = sim.star_level and not sim.sandbox and sim.outcome != "playing"
-	var menu_base := 147 if development else 112
+	var menu_base := 182 if development else 147
 	menu_rect = Rect2(Vector2(w - 190, 56), Vector2(170, menu_base+105 if use_front_menu else menu_base+173))
 	menu_button.position = Vector2(w - 82, 18)
 	menu_button.size = Vector2(62, 30)
@@ -777,8 +871,11 @@ func _draw() -> void:
 	levels_button.position = menu_rect.position + Vector2(8, 77)
 	levels_button.size = Vector2(154, 30)
 	development_button.visible = menu_open and development
-	development_button.position = menu_rect.position + Vector2(8,112)
+	development_button.position = menu_rect.position + Vector2(8,147)
 	development_button.size = Vector2(154,30)
+	briefing_button.visible = menu_open
+	briefing_button.position = menu_rect.position+Vector2(8,112)
+	briefing_button.size = Vector2(154,30)
 	free_button.visible = play_mode == "lesson" and (menu_open or sim.outcome == "success")
 	free_button.text = ("返回当前关卡" if return_to_game else "开始挑战") if sim.outcome == "success" else ("返回当前关卡" if return_to_game else "跳过入门")
 	free_button.position = menu_rect.position + Vector2(8, 42)
@@ -870,6 +967,7 @@ func _draw() -> void:
 		if sim.three_star_remaining() >= 0.0: status = "已获满风纹 · 即将自动结算，失去安全会取消倒数"
 	if paused and not transitioning:
 		status = "正在选关 · 天气已暂停" if selection_panel.visible else ("已暂停 · 选择继续或按 Esc 返回" if menu_open else "已暂停 · 空格继续")
+	if briefing_active(): status = "阅读期间 · 天气与时间已暂停"
 	if sim.star_level and sim.outcome != "playing":
 		status = "本局已结算 · 可重试或选关" if sim.result_stars > 0 else "本局已结算 · 查看原因后重试或选关"
 	if not tuning_message.is_empty(): status = tuning_message.left(48) + ("…" if tuning_message.length() > 48 else "")
@@ -878,7 +976,7 @@ func _draw() -> void:
 		status_until = view.elapsed + 2.5
 	status_rect = Rect2()
 	var urgent := paused or sim.can_end_shortage() or sim.three_star_remaining() >= 0.0 or not tuning_message.is_empty()
-	if (view.elapsed < status_until or urgent) and sim.outcome == "playing":
+	if (view.elapsed < status_until or urgent) and sim.outcome == "playing" and not (guide != null and guide.lesson):
 		var status_width := font.get_string_size(status, HORIZONTAL_ALIGNMENT_LEFT, -1, 13).x
 		var status_y := maxf(54, guide_rect.end.y+7) if guide_rect.has_area() else 54.0
 		if rating_rect.has_point(_pointer()): status_y = maxf(status_y,78)
@@ -934,10 +1032,13 @@ func _draw_legacy_result(w: float, h: float) -> void:
 	var detail := "目标已得到适量雨水，危险天气已经解除。" if sim.outcome == "success" else "储水仍会继续落下；下次提早移云，或切断补给。"
 	if play_mode == "lesson" and sim.outcome == "success" and sim.is_reservoir(0):
 		result = "水库蓄满了。"
-		detail = "你已经学会借山造雨；水库可以继续承雨，不怕溢出。"
-	_rounded(Rect2(w * 0.5 - 265, h * 0.5 - 65, 530, 130), PANEL)
+		detail = "水汽—山—云—雨—水库；蓄满即完成，溢流不损坏。"
+	_rounded(Rect2(w * 0.5 - 280, h * 0.5 - 75, 560, 170 if play_mode == "lesson" else 130), PANEL)
 	_text(Vector2(w * 0.5 - 230, h * 0.5 - 20), result, 26)
 	_text(Vector2(w * 0.5 - 230, h * 0.5 + 14), detail, 16)
+	if play_mode == "lesson" and sim.outcome == "success" and sim.is_reservoir(0):
+		_text(Vector2(w*0.5-230,h*0.5+42),"云也能直接按住拖动；下一关要把雨送得更远。",13,MUTED)
+		free_button.position.y = h*0.5+57
 	if play_mode != "lesson" or sim.outcome != "success":
 		_text(Vector2(w * 0.5 - 230, h * 0.5 + 43), "按 R 重新开始同一个局面", 14, MUTED)
 

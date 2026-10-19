@@ -56,6 +56,16 @@ func run() -> void:
 		for target in main.sim.plot_centers.size():
 			var center: Vector2 = main.sim.plot_centers[target]
 			shapes[main.sim.plot_regions[target].shape] = true
+			var extent: Vector2 = main.sim.plot_regions[target].axes(main.sim.plot_half)
+			var cached_height_matches := true
+			for offset in [Vector2.ZERO,Vector2(1,0),Vector2(-1,0),Vector2(0,1),Vector2(0,-1),Vector2(1,1),Vector2(0.7,0.7),Vector2(1.001,0),Vector2(0,1.001)]:
+				var point: Vector2 = center + offset * extent
+				var expected_height: float = main.sim.terrain.height(point)
+				for other in main.sim.plot_centers.size():
+					if main.sim.plot_regions[other].contains(point-main.sim.plot_centers[other],main.sim.plot_half):
+						expected_height = maxf(expected_height,view.plot_display_height(other))
+				cached_height_matches = cached_height_matches and view.display_surface_height(point) == expected_height
+			check(cached_height_matches,"Cached target bounds preserve exact heights at centers, edges and outside: "+str(target))
 			if main.sim.is_reservoir(target):
 				var surface: MeshInstance3D = view.reservoir_surfaces[target]
 				for progress in [0.0,0.5,1.0]:

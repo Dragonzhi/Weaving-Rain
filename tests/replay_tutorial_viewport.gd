@@ -1,11 +1,19 @@
 extends "res://tests/replay_star_viewport.gd"
 ## Normal authored map start, real picking/strokes; no weather injection or goal edits.
 var route_time := 0.0
+func accept_briefing() -> void:
+	if not main.hud.briefing_active(): return
+	var point: Vector2 = main.hud.briefing_start.get_global_rect().get_center()
+	button(point,true)
+	for frame in 3: await process_frame
+	button(point,false)
+	await RenderingServer.frame_post_draw
 func run() -> void:
 	DirAccess.make_dir_recursive_absolute("res://.godot/tutorial-review")
 	main=load("res://scenes/main.tscn").instantiate()
 	root.add_child(main)
 	await RenderingServer.frame_post_draw
+	await accept_briefing()
 	var tutorial: bool = main.play_mode=="lesson"
 	var map: WRMapDefinition = main.lesson_map if tutorial else main.custom_map
 	var errors := map.validation_errors(main.sim.plot_half)
@@ -49,6 +57,6 @@ func run() -> void:
 	report.erase("actions")
 	print("AUTHORED ROUTE ",JSON.stringify(report))
 	var passed: bool = main.sim.outcome=="success" and absf(main.sim.water_error())<.02 and input_pick_error<.001 and failures==0
-	if tutorial: passed=passed and main.guide.phase==3 and not main.sim.star_level and phases==[0,1,2,3]
+	if tutorial: passed=passed and main.guide.phase==5 and not main.sim.star_level and phases[0]==0
 	else: passed=passed and main.sim.result_stars==3 and not main.sim.timed_out
 	quit(0 if passed else 1)

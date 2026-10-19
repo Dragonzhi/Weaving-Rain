@@ -1,0 +1,428 @@
+{
+  "date": "2026-10-16",
+  "status": "Produced and technically checked; user visual/auditory review pending",
+  "native_import": "Godot 4.7.2 --headless --editor --import --quit exited 0; log .godot/demo-media-import.log",
+  "browser_check": "In-app browser read video readyState=4, duration=25.021322, 1920x1080, error=null; playback reached end without media error. Human mix review pending.",
+  "credit": "ZLOONG · 智龙",
+  "base_commit": "7a28040",
+  "dirty_worktree": true,
+  "capture": {
+    "mountain": {
+      "actions": [],
+      "audio": {
+        "brush_variants": {
+          "brush": 10,
+          "brush_2": 10,
+          "brush_3": 10,
+          "brush_4": 10,
+          "brush_5": 10
+        },
+        "event_counts": {
+          "adequate": 1,
+          "brush": 50,
+          "click": 1,
+          "safe": 1
+        },
+        "focus_restorations": 1,
+        "max_short_voices": 2,
+        "peak_detail": 0.648597359657288,
+        "peak_rain": 0.275107502937317,
+        "peak_wind": 0.300143599510193,
+        "save_error": 0,
+        "wav": "res://.godot/demo-media/mountain/weather.wav"
+      },
+      "band_created": false,
+      "blocked": 0,
+      "camera_changed": false,
+      "events": 420,
+      "failures": 0,
+      "initial_cloud_peak": 0.0,
+      "input_pick_error": 0.0,
+      "layout": "level03",
+      "outcome": "playing",
+      "photos": [
+        {
+          "name": "photo-00",
+          "rain_rate": 0.0,
+          "simulation_seconds": 5.04999999999999,
+          "sources": 0,
+          "wall_seconds": 5.642879,
+          "water": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "photo-01",
+          "rain_rate": 3.04341983604431,
+          "simulation_seconds": 9.01666666666669,
+          "sources": 0,
+          "wall_seconds": 16.201063,
+          "water": [
+            16.4766214714231,
+            0.0
+          ]
+        },
+        {
+          "name": "photo-02",
+          "rain_rate": 3.72537170001611,
+          "simulation_seconds": 13.0166666666669,
+          "sources": 0,
+          "wall_seconds": 27.067869,
+          "water": [
+            91.7390342435333,
+            0.156652969072541
+          ]
+        },
+        {
+          "name": "photo-03",
+          "rain_rate": 1.45352351005199,
+          "simulation_seconds": 18.0333333333336,
+          "sources": 0,
+          "wall_seconds": 39.001332,
+          "water": [
+            104.44280583296,
+            49.8034261036979
+          ]
+        },
+        {
+          "name": "photo-04",
+          "rain_rate": 1.97458328321204,
+          "simulation_seconds": 23.0333333333333,
+          "sources": 0,
+          "wall_seconds": 53.104704,
+          "water": [
+            104.44280583296,
+            105.49480014199
+          ]
+        }
+      ],
+      "sandbox": false,
+      "shot": "mountain",
+      "sim_seconds": 26.0166666666665,
+      "vortex_created": false,
+      "wall_seconds": 61.656367,
+      "water_error": -0.00022201307905334,
+      "weather_injected": false,
+      "clip_wall_window": [
+        9.0,
+        16.0
+      ],
+      "frame_count": 1153,
+      "capture_sha256": "62da9207839362c7f3ad03eeda8dcf733565c7121f3b92361bfe28e0d0ae6415"
+    },
+    "tools": {
+      "actions": [
+        {
+          "created": true,
+          "kind": "vortex",
+          "time": 1.03333333333333
+        },
+        {
+          "created": true,
+          "kind": "band",
+          "time": 6.63333333333332
+        }
+      ],
+      "audio": {
+        "brush_variants": {
+          "brush": 5,
+          "brush_2": 5,
+          "brush_3": 5,
+          "brush_4": 5,
+          "brush_5": 6
+        },
+        "event_counts": {
+          "brush": 26,
+          "click": 4,
+          "full": 1,
+          "source": 2
+        },
+        "focus_restorations": 0,
+        "max_short_voices": 2,
+        "peak_detail": 0.649999558925629,
+        "peak_rain": 0.277686834335327,
+        "peak_wind": 0.305574536323547,
+        "save_error": 0,
+        "wav": "res://.godot/demo-media/tools/weather.wav"
+      },
+      "band_created": true,
+      "blocked": 0,
+      "camera_changed": false,
+      "events": 260,
+      "failures": 0,
+      "initial_cloud_peak": 0.0,
+      "input_pick_error": 0.0,
+      "layout": "level07",
+      "outcome": "playing",
+      "photos": [
+        {
+          "name": "photo-00",
+          "rain_rate": 0.0,
+          "simulation_seconds": 5.03333333333332,
+          "sources": 1,
+          "wall_seconds": 7.958948,
+          "water": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "photo-01",
+          "rain_rate": 0.0,
+          "simulation_seconds": 9.1666666666667,
+          "sources": 2,
+          "wall_seconds": 15.031911,
+          "water": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "photo-02",
+          "rain_rate": 22.147980792137,
+          "simulation_seconds": 13.0166666666669,
+          "sources": 2,
+          "wall_seconds": 25.165815,
+          "water": [
+            0.0,
+            54.2863754486375,
+            0.0
+          ]
+        },
+        {
+          "name": "photo-03",
+          "rain_rate": 13.8356757730291,
+          "simulation_seconds": 18.0166666666669,
+          "sources": 2,
+          "wall_seconds": 40.226327,
+          "water": [
+            0.0421447867087147,
+            250.0,
+            0.0
+          ]
+        }
+      ],
+      "sandbox": false,
+      "shot": "tools",
+      "sim_seconds": 22.0,
+      "vortex_created": true,
+      "wall_seconds": 52.124067,
+      "water_error": -0.000429163385547326,
+      "weather_injected": false,
+      "clip_wall_window": [
+        18.0,
+        25.0
+      ],
+      "frame_count": 1004,
+      "capture_sha256": "b7c8d60606adb7533533b42142182273eefe35e86855847dde7f8fa9df4a2f67"
+    },
+    "storm": {
+      "actions": [],
+      "audio": {
+        "brush_variants": {
+          "brush": 9,
+          "brush_2": 8,
+          "brush_3": 8,
+          "brush_4": 9,
+          "brush_5": 9
+        },
+        "event_counts": {
+          "brush": 43,
+          "click": 2,
+          "full": 1
+        },
+        "focus_restorations": 0,
+        "max_short_voices": 2,
+        "peak_detail": 0.649999618530273,
+        "peak_rain": 0.260425478219986,
+        "peak_wind": 0.32076770067215,
+        "save_error": 0,
+        "wav": "res://.godot/demo-media/storm/weather.wav"
+      },
+      "band_created": false,
+      "blocked": 0,
+      "camera_changed": false,
+      "events": 388,
+      "failures": 0,
+      "initial_cloud_peak": 0.814344644546509,
+      "input_pick_error": 0.0,
+      "layout": "level08",
+      "outcome": "playing",
+      "photos": [
+        {
+          "name": "photo-00",
+          "rain_rate": 0.259381104045082,
+          "simulation_seconds": 5.03333333333332,
+          "sources": 0,
+          "wall_seconds": 8.583938,
+          "water": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "photo-01",
+          "rain_rate": 29.1495758876213,
+          "simulation_seconds": 9.01666666666669,
+          "sources": 0,
+          "wall_seconds": 21.345695,
+          "water": [
+            0.0,
+            152.55808011785
+          ]
+        },
+        {
+          "name": "photo-02",
+          "rain_rate": 25.9958500177264,
+          "simulation_seconds": 13.0166666666669,
+          "sources": 0,
+          "wall_seconds": 34.091427,
+          "water": [
+            0.0,
+            250.0
+          ]
+        },
+        {
+          "name": "photo-03",
+          "rain_rate": 13.2097794451027,
+          "simulation_seconds": 18.0166666666669,
+          "sources": 0,
+          "wall_seconds": 50.708397,
+          "water": [
+            28.5682543950601,
+            250.0
+          ]
+        }
+      ],
+      "sandbox": false,
+      "shot": "storm",
+      "sim_seconds": 22.05,
+      "vortex_created": false,
+      "wall_seconds": 61.19553,
+      "water_error": -0.000175377879827465,
+      "weather_injected": false,
+      "clip_wall_window": [
+        23.0,
+        30.0
+      ],
+      "frame_count": 1163,
+      "capture_sha256": "e55083996e19a0061dbb4bbe930a6f2b4814ddb74b95dda22192a73cd99e01fa"
+    }
+  },
+  "posters": {
+    "mountain": {
+      "size": [
+        1920,
+        1080
+      ],
+      "gameplay_rows_330_959_unchanged": true,
+      "source_sha256": "ce7ac2064bd4bd5836e5cef93e0f4814d88b46591af89055a38ab5c2a73b6b53",
+      "card_sha256": "c613c99016e31a24150ea4170cf2c332dab1137eaf6a4358aa2cfbddf16643a7"
+    },
+    "tools": {
+      "size": [
+        1920,
+        1080
+      ],
+      "gameplay_rows_330_959_unchanged": true,
+      "source_sha256": "f9929da6317e29864e088eadbdbe530939d07b28e4de5ab44337fb87a179174d",
+      "card_sha256": "375e8868c0d8561d3399351dc159e2ac5b25605753f60c398a52e783c2d952e8"
+    },
+    "storm": {
+      "size": [
+        1920,
+        1080
+      ],
+      "gameplay_rows_330_959_unchanged": true,
+      "source_sha256": "f69ec029d365e4d6d4a9ad2aac5ff99fe768c560302776817ce89399dc48b3da",
+      "card_sha256": "bf388f1e8c9794375561ab8739f8a034e23216b474a83633f313651d5e296432"
+    }
+  },
+  "video": {
+    "file": "docs/demo-delivery/visuals/weaving-rain-demo.mp4",
+    "sha256": "64d094e5a17fa179a34631dbd64bd0e0696e553d041410368f52f1c33976d0fa",
+    "duration": "25.021322",
+    "video_stream": {
+      "index": 0,
+      "codec_name": "h264",
+      "codec_long_name": "H.264 / AVC / MPEG-4 AVC / MPEG-4 part 10",
+      "profile": "High",
+      "codec_type": "video",
+      "codec_tag_string": "avc1",
+      "codec_tag": "0x31637661",
+      "mime_codec_string": "avc1.640028",
+      "width": 1920,
+      "height": 1080,
+      "coded_width": 1920,
+      "coded_height": 1080,
+      "has_b_frames": 2,
+      "pix_fmt": "yuv420p",
+      "level": 40,
+      "color_range": "tv",
+      "color_transfer": "iec61966-2-1",
+      "color_primaries": "bt709",
+      "chroma_location": "left",
+      "field_order": "progressive",
+      "is_avc": "true",
+      "nal_length_size": "4",
+      "id": "0x1",
+      "r_frame_rate": "24/1",
+      "avg_frame_rate": "24/1",
+      "time_base": "1/12288",
+      "start_pts": 262,
+      "start_time": "0.021322",
+      "duration_ts": 307200,
+      "duration": "25.000000",
+      "bit_rate": "1187785",
+      "bits_per_raw_sample": "8",
+      "nb_frames": "600",
+      "extradata_size": 50,
+      "disposition": {
+        "default": 1,
+        "dub": 0,
+        "original": 0,
+        "comment": 0,
+        "lyrics": 0,
+        "karaoke": 0,
+        "forced": 0,
+        "hearing_impaired": 0,
+        "visual_impaired": 0,
+        "clean_effects": 0,
+        "attached_pic": 0,
+        "timed_thumbnails": 0,
+        "non_diegetic": 0,
+        "captions": 0,
+        "descriptions": 0,
+        "metadata": 0,
+        "dependent": 0,
+        "still_image": 0,
+        "multilayer": 0
+      },
+      "tags": {
+        "language": "und",
+        "handler_name": "VideoHandler",
+        "encoder": "Lavc63.1.102 libx264"
+      }
+    },
+    "audio_peak": 0.22394347190856934,
+    "audio_rms": 0.036792121827602386,
+    "decode": "pass",
+    "edit": "2s accepted cover + 3x7s gameplay + 2s cover. Actual wall timestamp playback; no optical flow or time acceleration.",
+    "mix": "Continuous existing Meadow Thoughts at gain .8 + matching native SFX .9; short audio fades, ceiling .95. Game audio assets/config unchanged."
+  },
+  "limitations": [
+    "Readback/JPEG recording slows simulation; not a performance benchmark.",
+    "Selected segments end while playing; not complete-level or nine-level acceptance.",
+    "level08 uses its normal authored tropical opening clouds; no weather injection.",
+    "One reshoot launch used incomplete map paths and fell back to standard; discarded. Final map ID and advancement assertions added."
+  ],
+  "not_performed": [
+    "Game export",
+    "Git commit or push",
+    "TapTap upload",
+    "Full rules or performance rerun"
+  ]
+}

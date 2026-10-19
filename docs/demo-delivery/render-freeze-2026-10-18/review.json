@@ -1,0 +1,167 @@
+{
+  "date": "2026-10-18",
+  "status": "Affected Iris Xe player reports no freeze with Start-Vulkan.cmd; supplied log confirms Vulkan. Workaround validated for reported play, underlying D3D12 cause and long-term stability unresolved.",
+  "reported_hardware": {
+    "cpu": "Intel Core i5-13500H 2.60 GHz",
+    "ram": "16 GB (15.7 usable)",
+    "gpu": "Intel Iris Xe Graphics, Windows reported dedicated field 128 MB",
+    "storage_report": "814 GB used of 954 GB",
+    "windows_version": "unknown",
+    "driver_version": "unknown",
+    "minimize_resize_recovery": "unknown"
+  },
+  "reported_symptom": "Frequent frozen image with continuing sound and click feedback; at startup or by level02; restart can recur. Much less frequent on developer PC.",
+  "code_inspection": [
+    "Current Windows driver forced d3d12 in project.godot",
+    "Main simulation catch-up has measured CPU budget; cloud and occlusion shader loops are statically bounded at 32",
+    "No source change justified by an affected-PC trace yet; do not identify this with historical V6 signal8 without evidence"
+  ],
+  "local_startups": [
+    {
+      "exit": 0,
+      "log": "E:\\Godot\\Project\\Weaving Rain\\.godot\\render-freeze-20261018\\intel-d3d12-home.log",
+      "driver_requested": "d3d12",
+      "label": "intel-d3d12-home",
+      "capture": [
+        "CAPTURE E:\\Godot\\Project\\Weaving Rain\\.godot\\render-freeze-20261018\\intel-d3d12-home.png result=0 layout=tutorial targets=1 tropical=false simulation_ms=0.00022572393912 frame_ms=7.61494891266014"
+      ],
+      "renderer": [
+        "D3D12 12_0 - Forward+ - Using Device #1: Intel - Intel(R) UHD Graphics"
+      ],
+      "timeout": false,
+      "screenshot": true,
+      "gpu_index_requested": 1,
+      "errors": []
+    },
+    {
+      "exit": 0,
+      "log": "E:\\Godot\\Project\\Weaving Rain\\.godot\\render-freeze-20261018\\intel-vulkan-home.log",
+      "driver_requested": "vulkan",
+      "label": "intel-vulkan-home",
+      "capture": [
+        "CAPTURE E:\\Godot\\Project\\Weaving Rain\\.godot\\render-freeze-20261018\\intel-vulkan-home.png result=0 layout=tutorial targets=1 tropical=false simulation_ms=0.00009926497288 frame_ms=6.90994780332322"
+      ],
+      "renderer": [
+        "Vulkan 1.4.311 - Forward+ - Using Device #1: Intel - Intel(R) RaptorLake-S Mobile Graphics Controller"
+      ],
+      "timeout": false,
+      "screenshot": true,
+      "gpu_index_requested": 1,
+      "errors": [
+        "ERROR: GENERAL - Message Id Number: 0 | Message Id Name: Loader Message",
+        "\tloader_get_json: Failed to open JSON file C:\\ProgramData\\obs-studio-hook\\obs-vulkan64.json",
+        "ERROR: GENERAL - Message Id Number: 0 | Message Id Name: Loader Message",
+        "\tloader_get_json: Failed to open JSON file C:\\ProgramData\\obs-studio-hook\\obs-vulkan32.json",
+        "WARNING: GENERAL - Message Id Number: 0 | Message Id Name: Loader Message",
+        "ERROR: GENERAL - Message Id Number: 0 | Message Id Name: Loader Message",
+        "\tFailed to open dynamic library \"C:\\ProgramData\\mediasdkhook\\.\\game_detour_64.dll\" with error 126"
+      ]
+    },
+    {
+      "exit": 0,
+      "log": "E:\\Godot\\Project\\Weaving Rain\\.godot\\render-freeze-20261018\\intel-vulkan-level02.log",
+      "driver_requested": "vulkan",
+      "label": "intel-vulkan-level02",
+      "capture": [
+        "CAPTURE E:\\Godot\\Project\\Weaving Rain\\.godot\\render-freeze-20261018\\intel-vulkan-level02.png result=0 layout=level02 targets=2 tropical=false simulation_ms=1.24880891852945 frame_ms=9.64185157944877"
+      ],
+      "renderer": [
+        "Vulkan 1.4.311 - Forward+ - Using Device #1: Intel - Intel(R) RaptorLake-S Mobile Graphics Controller"
+      ],
+      "timeout": false,
+      "screenshot": true,
+      "gpu_index_requested": 1,
+      "errors": [
+        "ERROR: GENERAL - Message Id Number: 0 | Message Id Name: Loader Message",
+        "\tloader_get_json: Failed to open JSON file C:\\ProgramData\\obs-studio-hook\\obs-vulkan64.json",
+        "ERROR: GENERAL - Message Id Number: 0 | Message Id Name: Loader Message",
+        "\tloader_get_json: Failed to open JSON file C:\\ProgramData\\obs-studio-hook\\obs-vulkan32.json",
+        "WARNING: GENERAL - Message Id Number: 0 | Message Id Name: Loader Message",
+        "ERROR: GENERAL - Message Id Number: 0 | Message Id Name: Loader Message",
+        "\tFailed to open dynamic library \"C:\\ProgramData\\mediasdkhook\\.\\game_detour_64.dll\" with error 126"
+      ]
+    },
+    {
+      "exit": 0,
+      "log": "E:\\Godot\\Project\\Weaving Rain\\.godot\\render-freeze-20261018\\nvidia-vulkan-level02.log",
+      "driver_requested": "vulkan",
+      "label": "nvidia-vulkan-level02",
+      "capture": [
+        "CAPTURE E:\\Godot\\Project\\Weaving Rain\\.godot\\render-freeze-20261018\\nvidia-vulkan-level02.png result=0 layout=level02 targets=2 tropical=false simulation_ms=0.8220129756132 frame_ms=6.06222222141884"
+      ],
+      "renderer": [
+        "Vulkan 1.4.351 - Forward+ - Using Device #0: NVIDIA - NVIDIA GeForce RTX 4060 Laptop GPU"
+      ],
+      "timeout": false,
+      "screenshot": true,
+      "gpu_index_requested": 0,
+      "errors": [
+        "ERROR: GENERAL - Message Id Number: 0 | Message Id Name: Loader Message",
+        "\tloader_get_json: Failed to open JSON file C:\\ProgramData\\obs-studio-hook\\obs-vulkan64.json",
+        "ERROR: GENERAL - Message Id Number: 0 | Message Id Name: Loader Message",
+        "\tloader_get_json: Failed to open JSON file C:\\ProgramData\\obs-studio-hook\\obs-vulkan32.json",
+        "WARNING: GENERAL - Message Id Number: 0 | Message Id Name: Loader Message",
+        "ERROR: GENERAL - Message Id Number: 0 | Message Id Name: Loader Message",
+        "\tFailed to open dynamic library \"C:\\ProgramData\\mediasdkhook\\.\\game_detour_64.dll\" with error 126"
+      ]
+    }
+  ],
+  "launcher_test": {
+    "file": "Start-Vulkan-LowResolution.cmd",
+    "actual_cmd_invocation_exit": 0,
+    "screenshot": ".godot/render-freeze-20261018/launcher-low.png",
+    "log_file_observed": "%LOCALAPPDATA%/WeavingRain/Diagnostics/vulkan-19151-18199.log",
+    "scope": "Actual CMD invokes unchanged Release, writes unique log, forwards --fresh-guide and capture; no real save writes during verification"
+  },
+  "warnings": [
+    "First Vulkan automated check rejected because verbose log contains missing OBS layer manifests and mediasdkhook DLL, even though exit0/image succeeded. This environment issue is retained, not counted as clean validation.",
+    "Only short local captures performed, not affected-machine confirmation, prolonged play or full rules/performance rerun."
+  ],
+  "archive": {
+    "file": "WeavingRain-render-diagnostics-20261018.zip",
+    "bytes": 3633,
+    "sha256": "4c5aa9749cdffb37cec572b57c6ba62a110a63b944e9b9dcf8857e9a82ac2e16",
+    "crc": "pass",
+    "contents": [
+      "README.md",
+      "Start-D3D12.cmd",
+      "Start-Vulkan.cmd",
+      "Start-Vulkan-LowResolution.cmd"
+    ]
+  },
+  "unchanged": [
+    "No game source/config/EXE edits",
+    "No new game export",
+    "No driver/registry modifications, implicit-layer disabling, installation or telemetry"
+  ],
+  "next": "Recommend Windows Vulkan default in next build, then related rendering/flow checks; current config and EXE unchanged. Keep diagnostic CMD workaround for existing build.",
+  "verified_release_exe": {
+    "sha256": "c2efc12091a1efa12291e3a70d1071efc502690ffd170f6b0970aee503998fd7",
+    "matches_original_BUILD_INFO": true
+  },
+  "original_archive_check": "Historical ZIP path no longer exists at final check; not regenerated or claimed checksum-verified in this turn.",
+  "affected_vulkan_feedback": {
+    "date": "2026-10-18",
+    "reported_result": "No frozen image after launching Start-Vulkan.cmd",
+    "source_log": "E:\\Downloads\\vulkan-27915-8335.log",
+    "sha256": "1eb0ee0e1f62986a76a6cbce718c0df4ce8ba34106132509bdb2b1f1ccd1d8a2",
+    "bytes": 75195,
+    "lines": 641,
+    "renderer": "Vulkan 1.4.323 - Forward+ - Using Device #0: Intel - Intel(R) Iris(R) Xe Graphics",
+    "error_count": 0,
+    "script_error_count": 0,
+    "device_lost_count": 0,
+    "warnings": [
+      "windows_read_data_files_in_registry: Registry lookup failed to get layer manifest files."
+    ],
+    "resource_load_observed": [
+      "level01",
+      "level02"
+    ],
+    "limits": [
+      "Play duration and complete routes unknown",
+      "No affected D3D12 trace; specific driver/engine root cause unconfirmed",
+      "Not evidence of V1/V6 resolution"
+    ]
+  }
+}

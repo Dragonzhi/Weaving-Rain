@@ -12,6 +12,7 @@ if (-not (Test-Path -LiteralPath $cacheDirectory)) {
     New-Item -ItemType Directory -Path $cacheDirectory | Out-Null
 }
 $checks = @(
+    @{ Name = 'onboarding-pacing'; Script = 'res://tests/test_onboarding_pacing.gd'; Headless = $false; Args = @('--fresh-guide'); Resolution = '1920x1080' }
     @{ Name = 'ui-polish'; Script = 'res://tests/test_ui_polish.gd'; Headless = $false; Args = @('--fresh-guide'); Resolution = '1920x1080'; Front = $true },
     @{ Name = 'bgm'; Script = 'res://tests/test_bgm.gd'; Headless = $false; Args = @('--fresh-guide'); Resolution = '1920x1080'; Front = $true },
     @{ Name = 'wind-sweep'; Script = 'res://tests/test_wind_sweep.gd'; Headless = $false; Resolution = '1920x1080'; Front = $true },
@@ -109,6 +110,9 @@ foreach ($check in $checks) {
     if ($check.ContainsKey('Resolution')) { $arguments += @('--resolution', $check.Resolution) }
     if ($check.Headless) { $arguments = @('--headless') + $arguments }
     $userArguments = @()
+    # Other fixtures isolate existing behavior. The pacing test and normal campaign
+    # route exercise native paused explanations explicitly.
+    if ($check.Name -notin @('onboarding-pacing','campaign-viewport','tutorial-viewport','level01-viewport')) { $userArguments += '--skip-briefing' }
     if (-not $check.ContainsKey('Front')) { $userArguments += '--skip-menu' }
     if ($check.ContainsKey('Args')) { $userArguments += $check.Args }
     if ($userArguments.Count -gt 0) { $arguments += @('--') + $userArguments }

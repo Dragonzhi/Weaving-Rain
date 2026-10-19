@@ -10,6 +10,7 @@
 [sub_resource type="Resource" id="Resource_xvy0d"]
 script = ExtResource("3")
 position = Vector2(-6.4, 1.4)
+spread = Vector2(5, 5)
 
 [sub_resource type="Resource" id="Resource_pkwav"]
 script = ExtResource("2")

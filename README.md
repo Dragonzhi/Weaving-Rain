@@ -2,6 +2,8 @@
 
 开发进度与未完成事项：[任务看板](docs/task-board.md)。
 
+Demo资料准备：[交付入口](docs/demo-delivery/README.md) · [页面文案](docs/demo-delivery/store-page.md) · [玩家说明](docs/demo-delivery/PLAYER_GUIDE.md) · [制作与素材鸣谢](docs/demo-delivery/CREDITS.md)。当前署名为ZLOONG · 智龙，资料是待审阅草稿，尚未生成当前版本的新独立包。
+
 背景音乐采用Écrivain的《Meadow Thoughts》（CC0），随页面和关卡连续播放；设置中可单独调低或关闭音乐。素材来源与处理见[声音来源](docs/audio-sources.md)。
 
 入口界面采用 B「风过群岛」：居中岛屿、横向菜单与九宫格选关。风掠切页、薄云换关，设置／暂停轻淡入；设置可减少转场动态，揭幕完成后才推进天气与计时。返回主界面可暂停并保留本局；页面与缩略图调整见[主界面指南](docs/front-menu-guide.md)。
@@ -10,7 +12,9 @@
 
 正式关序在`configs/campaign.tres`的`Levels`数组中调整，当前收录用户制作的`level01`至`level09`。九关从单池、双池逐步加入农田、多山与风暴，名称、提示和逐关建议见[九关内容核对](docs/level-content-review.md)。新图保存后拖进数组、排序并保存，游戏里打开“菜单 → 选关”即可重读；教学单独引用，旧测试图从开发地图入口独立试玩。
 
-工具按关开放：教学和1–4关只有拨风，5–6关加入风带，7–9关加入漩涡。地图资源中的`Available Wind Tools`勾选项可直接调整，保存后R／切图生效；旧测试图默认全开。首次开放新工具会简短说明，详见[工具配置指南](docs/tool-availability.md)。
+工具按关开放：教学和1–4关只有拨风，5–6关加入风带，7–9关加入漩涡。地图资源中的`Available Wind Tools`勾选项可直接调整，保存后R／切图生效；旧测试图默认全开。首次开放新工具会暂停显示说明，确认后才开始；菜单可重看。详见[工具配置指南](docs/tool-availability.md)。
+
+入门增加湿空气、迎坡、成云降雨、搬云和蓄水五个学习节点；前四关时限为6／7／7／6分钟。[引导配置与试玩说明](docs/onboarding-and-early-pacing.md)记录调整方式，难度仍待新玩家反馈。
 
 当前界面方向：[视觉规范](docs/visual-language/DESIGN.md)、[认可的参考图](docs/visual-language/reference-images.md)与[UI实施计划](docs/ui-implementation-plan.md)。雨滴、池水位、悬浮状态和风纹奖章已接入，验证记录见[UI实施记录](docs/ui-review.json)。
 
@@ -116,9 +120,9 @@ A/B/C 的空心雨滴位于各自地块旁，每滴默认20单位，普通田五
 
 不同需水小样已获用户对应试玩认可。新蓄水与热带系统完成规则、真实编辑器和视口检查；完整回归在旧流转夹具处中断，修整其两图假定后续跑，覆盖全部30条流程及五份旧路线比较。主题图两种真实鼠标顺序均三星，纯湿空气组织与损失后继续也通过；详见[本轮验证](docs/reservoir-tropical-review.json)。技术回放不代表难度、手感或新玩家可读性已获认可。
 
-实际降雨范围现已显示在地面，并与箭头共用 **天气提示** 开关；详情与本轮GPU检查见[雨区反馈记录](docs/rain-area-review.json)。淡蓝只表示真实落雨，操作雨云会加强对应区域。实机视觉与性能仍需后续试玩；短压力采样不替代空闲时的正式长测。
+实际降雨范围现已显示在地面，并与箭头共用 **天气提示** 开关；详情与本轮GPU检查见[雨区反馈记录](docs/rain-area-review.json)。淡蓝只表示真实落雨，操作雨云会加强对应区域。实机视觉与性能仍需后续试玩；正式长测结果见[性能记录](docs/performance-stability-review.md)。
 
-历史热带阶段六项10秒短测最慢P95为15.33ms、P99为16.68ms；随后雨线修复对照未达帧时间及模拟推进要求，不能把前轮数字当成当前性能验收。原两图及新主题图的60秒正式长测按约定留到空闲。原生signal 8及真实事件回放波动根因未解决，[看板](docs/task-board.md)继续追踪。雨滴、池水位、风纹UI及场景立体感小样已接入，场景观感仍待试玩；成熟台风眼墙、龙卷风与声音留后续。
+当前已完成1920×1080正式压力复测，原三图18项有13项达标，第九关附加雨场两项未达帧门槛；20项模拟推进与末积累通过，详见[性能记录](docs/performance-stability-review.md)。性能与历史原生异常继续作为已知问题保留；用户当前以Demo可玩为重点。雨滴、池水位、风纹UI、场景立体感、风雨音效与BGM均已接入，成熟台风眼墙和龙卷风留待后续。
 
 [策划与讨论记录](docs/cloud-weather-game-design-v0.1.md) · [开发协作说明](AGENTS.md)
 

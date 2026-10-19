@@ -51,4 +51,5 @@ plots = PackedVector2Array(-0.61128557, -0.57855225, 6.245322, 2.123495)
 plot_regions = Array[ExtResource("6_hyjt3")]([SubResource("Resource_a5dsm"), SubResource("Resource_hyjt3")])
 plot_needs = Array[ExtResource("3_vftyx")]([ExtResource("4_w575p"), ExtResource("5_a5dsm")])
 star_level = true
+time_limit_seconds = 360.0
 humidity_sources = Array[ExtResource("1_7xt1b")]([SubResource("Resource_7xt1b"), SubResource("Resource_j6vsv")])
