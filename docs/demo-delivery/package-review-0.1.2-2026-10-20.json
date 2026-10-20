@@ -1,0 +1,420 @@
+{
+  "date": "2026-10-20",
+  "version": "0.1.2",
+  "source_commit": "7285d783a69ab78d6cc6f89edc7aed077b2b7279",
+  "tag": "v0.1.2",
+  "source_state": "Clean tagged source exported; only release documentation changed after export and is committed separately. Tag intentionally stays on source commit.",
+  "archive": {
+    "archive": "E:\\Godot\\Project\\Weaving Rain\\builds\\WeavingRain-Demo-0.1.2-Windows.zip",
+    "bytes": 46136770,
+    "sha256": "94b5a87581533d5c884ff887d34654898552e09badada76575cdcb31afdb5c64",
+    "files": {
+      "Docs/BUILD_INFO.json": "1f45aae6c8c99993a55ae9dbcb8849dbcd13d4b41bc1d937221d9580b02886a4",
+      "Docs/CREDITS.md": "5814544b65d86f74a9f258a6ce5825a2c21f1f7e53f7265a4c978fca78433cbd",
+      "Docs/LICENSES/GODOT-COMPONENTS.json": "086c25a1fcb58d51759c0d0aecabac614b9a163b42e22470fe493ab90f7198dd",
+      "Docs/LICENSES/GODOT-COPYRIGHT.txt": "cb1980c88089573bcacd7221d777c689bb8bbd778799f24c27fca0fe5f774d6d",
+      "Docs/LICENSES/GODOT-LICENSE-TEXTS.json": "d48c6a837ae047c4bb50e7b35c27561ce7d215acf0df987e038d56e9d93681d0",
+      "Docs/LICENSES/GODOT-MIT.txt": "b0435e3b3e4e55238f05f4b306f30524a1b2e20147810d436eaa554fa6855c80",
+      "Docs/PLAYER_GUIDE.md": "de72d1161e8644596ee1895c05ce2bdaee3dc22c6713194c7f14137e3719947d",
+      "README.txt": "a3c15459bcf0290f363059f555bf768834538c2a4c07d3f4b115fe7b700004be",
+      "Start-D3D12.cmd": "94e51d1204bc0ea5ecdeccd9646a46847cc64b1d306c0ca3551fd65f9fe9944b",
+      "WeavingRain.exe": "1595ab276e14ea2c8105cb74b94a12f8565d3af5e5eaf0ef5337244b851b94bd"
+    },
+    "crc": "pass",
+    "extraction_hashes": "all 10 files match",
+    "unpacked_for_independent_test": "C:\\Users\\32485\\.codex\\visualizations\\2026\\10\\08\\01a11bca-872d-7a11-8789-664a75328e4c\\weaving-rain-release-0.1.2\\from-zip",
+    "source_commit": "7285d783a69ab78d6cc6f89edc7aed077b2b7279",
+    "tag": "v0.1.2"
+  },
+  "export": {
+    "exit": 0,
+    "log": ".godot/package-0.1.2/export.log",
+    "stderr_empty": true,
+    "engine": "Godot 4.7.2 stable Steam ed1daf0bf, Windows x86_64 matching Release template, embedded PCK"
+  },
+  "pe": {
+    "file_version": "0.1.2.0",
+    "product_name": "风织雨 / Weaving Rain",
+    "exe_bytes": 118797256,
+    "icon_check": {
+      "passed": true,
+      "icons": [
+        {
+          "width": 16,
+          "height": 16,
+          "payload_bytes": 722,
+          "matches_source": true
+        },
+        {
+          "width": 32,
+          "height": 32,
+          "payload_bytes": 1892,
+          "matches_source": true
+        },
+        {
+          "width": 48,
+          "height": 48,
+          "payload_bytes": 3253,
+          "matches_source": true
+        },
+        {
+          "width": 64,
+          "height": 64,
+          "payload_bytes": 4729,
+          "matches_source": true
+        },
+        {
+          "width": 128,
+          "height": 128,
+          "payload_bytes": 11254,
+          "matches_source": true
+        },
+        {
+          "width": 256,
+          "height": 256,
+          "payload_bytes": 25919,
+          "matches_source": true
+        }
+      ],
+      "source_ico_sizes": 7,
+      "scope": "All six actual exported payloads match ICO bytes; source 24px is not emitted by exporter. Initial resource-ID/count assumptions corrected, not export assets."
+    }
+  },
+  "packed_resource_check": {
+    "debug_build": true,
+    "editor": true,
+    "engine": {
+      "build": "steam",
+      "hash": "ed1daf0bf001b61586d9930840f2f1394092c079",
+      "hex": 263938,
+      "major": 4,
+      "minor": 7,
+      "patch": 2,
+      "status": "stable",
+      "string": "4.7.2-stable (steam)",
+      "timestamp": 0
+    },
+    "executable": "D:/SteamLibrary/steamapps/common/Godot Engine/godot.windows.opt.tools.64.exe",
+    "maps": [
+      {
+        "id": "tutorial",
+        "targets": 1,
+        "title": "入门 · 借雨蓄水",
+        "tools": 1,
+        "valid": true
+      },
+      {
+        "id": "level01",
+        "targets": 1,
+        "title": "山外一池",
+        "tools": 1,
+        "valid": true
+      },
+      {
+        "id": "level02",
+        "targets": 2,
+        "title": "两池分雨",
+        "tools": 1,
+        "valid": true
+      },
+      {
+        "id": "level03",
+        "targets": 2,
+        "title": "田池之间",
+        "tools": 1,
+        "valid": true
+      },
+      {
+        "id": "level04",
+        "targets": 2,
+        "title": "两山两路",
+        "tools": 1,
+        "valid": true
+      },
+      {
+        "id": "level05",
+        "targets": 2,
+        "title": "留风送雨",
+        "tools": 3,
+        "valid": true
+      },
+      {
+        "id": "level06",
+        "targets": 2,
+        "title": "借雨接力",
+        "tools": 3,
+        "valid": true
+      },
+      {
+        "id": "level07",
+        "targets": 3,
+        "title": "三池汇雨",
+        "tools": 7,
+        "valid": true
+      },
+      {
+        "id": "level08",
+        "targets": 2,
+        "title": "海上借雨",
+        "tools": 7,
+        "valid": true
+      },
+      {
+        "id": "level09",
+        "targets": 3,
+        "title": "群山风雨",
+        "tools": 7,
+        "valid": true
+      }
+    ],
+    "music_seconds": 148.243988037109,
+    "passed": true,
+    "scope": "Packed release resources loaded from standalone EXE, not gameplay completion.",
+    "sounds": [
+      {
+        "file": "res://assets/audio/wind.wav",
+        "loaded": true
+      },
+      {
+        "file": "res://assets/audio/rain.wav",
+        "loaded": true
+      },
+      {
+        "file": "res://assets/audio/rain_detail.wav",
+        "loaded": true
+      },
+      {
+        "file": "res://assets/audio/brush.wav",
+        "loaded": true
+      },
+      {
+        "file": "res://assets/audio/brush_2.wav",
+        "loaded": true
+      },
+      {
+        "file": "res://assets/audio/brush_3.wav",
+        "loaded": true
+      },
+      {
+        "file": "res://assets/audio/brush_4.wav",
+        "loaded": true
+      },
+      {
+        "file": "res://assets/audio/brush_5.wav",
+        "loaded": true
+      },
+      {
+        "file": "res://assets/audio/click.wav",
+        "loaded": true
+      },
+      {
+        "file": "res://assets/audio/source.wav",
+        "loaded": true
+      },
+      {
+        "file": "res://assets/audio/adequate.wav",
+        "loaded": true
+      },
+      {
+        "file": "res://assets/audio/safe.wav",
+        "loaded": true
+      },
+      {
+        "file": "res://assets/audio/full.wav",
+        "loaded": true
+      },
+      {
+        "file": "res://assets/audio/damage.wav",
+        "loaded": true
+      },
+      {
+        "file": "res://assets/audio/success.wav",
+        "loaded": true
+      },
+      {
+        "file": "res://assets/audio/failure.wav",
+        "loaded": true
+      }
+    ]
+  },
+  "packed_usability": {
+    "checks": 58,
+    "failures": 0,
+    "exit": 0,
+    "stderr_empty": true,
+    "log": ".godot/package-0.1.2/usability.log",
+    "scope": "Actual embedded EXE resources mounted in Godot editor executable, external working directory; not native Release full playthrough.",
+    "snapshot": ".godot/package-0.1.2/packed-usability/tutorial-1920.png"
+  },
+  "actual_release_startups": [
+    {
+      "name": "home",
+      "exit": 0,
+      "rendered": true,
+      "strict_no_errors": true,
+      "log": ".godot/package-0.1.2/home.log",
+      "stderr": ".godot/package-0.1.2/home.err",
+      "capture": ".godot/package-0.1.2/home.png",
+      "log_sha256": "15953f16499b1e510c783e716aced5fe76e2674f4847c8841139b654fcc46a3c",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "tutorial",
+      "exit": 0,
+      "rendered": true,
+      "strict_no_errors": true,
+      "log": ".godot/package-0.1.2/tutorial.log",
+      "stderr": ".godot/package-0.1.2/tutorial.err",
+      "capture": ".godot/package-0.1.2/tutorial.png",
+      "log_sha256": "13b9ab9da305432458ac951789052b0ca500f0f21a131413c09c76f644cbf2c3",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "level01",
+      "exit": 0,
+      "rendered": true,
+      "strict_no_errors": true,
+      "log": ".godot/package-0.1.2/level01.log",
+      "stderr": ".godot/package-0.1.2/level01.err",
+      "capture": ".godot/package-0.1.2/level01.png",
+      "log_sha256": "2167f198f5f2c2994c80e4bd572cb208793074da5cc14ad97e5bbf85eccc4b5c",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "level02",
+      "exit": 0,
+      "rendered": true,
+      "strict_no_errors": true,
+      "log": ".godot/package-0.1.2/level02.log",
+      "stderr": ".godot/package-0.1.2/level02.err",
+      "capture": ".godot/package-0.1.2/level02.png",
+      "log_sha256": "b326411af703978237d8e251e6fdffa5a1c1d5bd49c9efcdadce2c139f115691",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "level03",
+      "exit": 0,
+      "rendered": true,
+      "strict_no_errors": true,
+      "log": ".godot/package-0.1.2/level03.log",
+      "stderr": ".godot/package-0.1.2/level03.err",
+      "capture": ".godot/package-0.1.2/level03.png",
+      "log_sha256": "bfaa7cbea4835f7399be873d8ddb011f7d2716041de24c7fb203e72521292754",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "level04",
+      "exit": 0,
+      "rendered": true,
+      "strict_no_errors": false,
+      "log": ".godot/package-0.1.2/level04.log",
+      "stderr": ".godot/package-0.1.2/level04.err",
+      "capture": ".godot/package-0.1.2/level04.png",
+      "log_sha256": "a0dada4bb5b6215a45a0ff50152fe2c728f1f2eeffdaa973b1ef931137789033",
+      "stderr_sha256": "8b08d277fa9811118b1aa47d4de937d2ad80c67d2cee9079cee1b3ea8a648aec"
+    },
+    {
+      "name": "level05",
+      "exit": 0,
+      "rendered": true,
+      "strict_no_errors": true,
+      "log": ".godot/package-0.1.2/level05.log",
+      "stderr": ".godot/package-0.1.2/level05.err",
+      "capture": ".godot/package-0.1.2/level05.png",
+      "log_sha256": "1c9a41d11f3c16b2aeb3b2a0d88f802a4a136f8ee536c06152662ecd2dc4caa8",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "level06",
+      "exit": 0,
+      "rendered": true,
+      "strict_no_errors": true,
+      "log": ".godot/package-0.1.2/level06.log",
+      "stderr": ".godot/package-0.1.2/level06.err",
+      "capture": ".godot/package-0.1.2/level06.png",
+      "log_sha256": "23d92fd42ec6e25b466fb07a7914b8ac8aa80ac8f6f444d5434706c3134135ed",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "level07",
+      "exit": 0,
+      "rendered": true,
+      "strict_no_errors": true,
+      "log": ".godot/package-0.1.2/level07.log",
+      "stderr": ".godot/package-0.1.2/level07.err",
+      "capture": ".godot/package-0.1.2/level07.png",
+      "log_sha256": "ca7052a11e542ff14cdf104b400d6174774bd429e136f4c88cb9a0c148f4ab96",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "level08",
+      "exit": 0,
+      "rendered": true,
+      "strict_no_errors": true,
+      "log": ".godot/package-0.1.2/level08.log",
+      "stderr": ".godot/package-0.1.2/level08.err",
+      "capture": ".godot/package-0.1.2/level08.png",
+      "log_sha256": "89bd569d9e4982a69ee80a7acb30f5e764cac8a28d05ff5154d62a8e1ea88095",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "level09",
+      "exit": 0,
+      "rendered": true,
+      "strict_no_errors": true,
+      "log": ".godot/package-0.1.2/level09.log",
+      "stderr": ".godot/package-0.1.2/level09.err",
+      "capture": ".godot/package-0.1.2/level09.png",
+      "log_sha256": "f2bec23528def5fe83bbc67958718895c852f2dc78436bdd57e464dbdec830c2",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "zip_actual_startups": [
+    {
+      "name": "zip-home",
+      "exit": 0,
+      "screenshot": ".godot/package-0.1.2/zip-home.png",
+      "driver": "Vulkan",
+      "stderr_empty": true
+    },
+    {
+      "name": "zip-d3d12",
+      "exit": 0,
+      "screenshot": ".godot/package-0.1.2/zip-d3d12.png",
+      "driver": "D3D12",
+      "stderr_empty": true
+    }
+  ],
+  "known_issues": [
+    {
+      "name": "level04 automatic capture shutdown",
+      "details": "Both native level04 captures rendered normally and exited 0, but strict clean-exit checks failed with 10 leaked audio objects and 1 resource still in use. Verbose output identifies Meadow Thoughts OggPacketSequence/playback and WAV playback references. Not fixed or described as clean startup validation. No freeze observed in these short captures; no broad stability claim.",
+      "logs": [
+        ".godot/package-0.1.2/level04-first.err",
+        ".godot/package-0.1.2/level04.log",
+        ".godot/package-0.1.2/level04.err"
+      ]
+    },
+    {
+      "name": "local verbose Vulkan hooks",
+      "details": "Verbose native probe also reports local missing OBS manifests and mediasdkhook DLL, as previously seen. Did not modify global drivers/registry/hooks."
+    }
+  ],
+  "inconclusive_probe": {
+    "exit": null,
+    "exited": false,
+    "early_exit": false,
+    "window_close_requested": false,
+    "result": "Inconclusive: hidden process has no discoverable .NET main window; CloseMainWindow returned false. Only exact command-line-matched owned probe was terminated. This is not a native game crash or a normal-close result."
+  },
+  "diagnostic_corrections": [
+    "PE helper initially assumed resource group numeric ID 1; actual exported group name is empty. Then assumed ICO and PE counts equal; source has 7 sizes including 24px, exported PE has 6 supported sizes. Corrected lookup/dimension matching verifies all six raw payloads; assets/export were not changed.",
+    "Hidden-window CloseMainWindow probe could not discover a .NET main window, returned false and timed out; only exact command-line-matched owned probe was terminated. This is not a game crash or successful normal-close validation."
+  ],
+  "limits": [
+    "No full weather regression, formal performance sampling, nine-level playthrough or new external Iris Xe validation this round",
+    "Historical P1/V1/V6 remain open; new automatic shutdown warning remains recorded",
+    "Source previous targeted 262 assertions and normal route are historical source checks, not new native Release full completion",
+    "No remote push, tag publication or platform upload; legacy 0.1.1 ZIP hash unchanged"
+  ]
+}
