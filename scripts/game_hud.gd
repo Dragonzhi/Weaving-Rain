@@ -122,6 +122,18 @@ var arrows_button: Button
 var source_remove: Array[Button] = []
 var source_remove_ids := PackedInt32Array([-1, -1, -1, -1])
 var source_pressed_ids := PackedInt32Array([-1, -1, -1, -1])
+var toolbar_toggle: Button
+var toolbar_collapsed := false
+var toolbar_alpha := 1.0
+var toolbar_near_drag := false
+var toolbar_icons := [Visuals.tool_icon("collapse"),Visuals.tool_icon("expand")]
+var humidity_guide_rect := Rect2()
+var humidity_guide_target := Rect2()
+var humidity_guide_cells := PackedInt32Array()
+var humidity_guide_refresh := -1.0
+var humidity_guide_transform := Transform3D()
+var humidity_guide_projection := Projection()
+var humidity_guide_size := Vector2.ZERO
 const VAPOR_COLOR := Color("b7f0dc")
 const CLOUD_WATER_COLOR := Color("a6bfcc")
 const INK := Color("354e57")
@@ -131,6 +143,20 @@ const GOLD := Visuals.GOLD
 
 func _process(delta: float) -> void:
 	if not paused: ui_time += minf(delta, 0.1)
+	if wind_input != null:
+		if not wind_input.dragging or paused:
+			toolbar_near_drag = false
+			toolbar_alpha = 1.0
+		else:
+			# Visual proximity is independent of ownership of the whole gesture.
+			var margin := 46.0 if toolbar_near_drag else 30.0
+			var area := toolbar_toggle.get_rect() if toolbar_collapsed else wind_toolbar_rect.merge(toolbar_toggle.get_rect())
+			toolbar_near_drag = area.grow(margin).has_point(_pointer())
+			toolbar_alpha = move_toward(toolbar_alpha, 0.18 if toolbar_near_drag else 1.0, minf(delta, 0.1) * 0.82 / 0.14)
+		sync_toolbar_input()
+	if humidity_guide_rect.has_area() and humidity_guide_target.has_area() and not paused:
+		var weight := 1.0 - exp(-minf(delta, 0.1) * 12.0)
+		humidity_guide_rect = Rect2(humidity_guide_rect.position.lerp(humidity_guide_target.position, weight), humidity_guide_rect.size.lerp(humidity_guide_target.size, weight))
 
 func _input(event: InputEvent) -> void:
 	# Read viewport-local input without consuming it. This also keeps replayed
@@ -156,6 +182,10 @@ func reset_feedback() -> void:
 	shown_water.resize(sim.plot_centers.size())
 	for target in sim.plot_centers.size(): shown_water[target] = sim.water_for(target)
 	ui_time = 0.0
+	humidity_guide_rect = Rect2()
+	humidity_guide_target = Rect2()
+	humidity_guide_cells.clear()
+	humidity_guide_refresh = -1.0
 	rating_seen = -1
 	result_since = -1.0
 	plot_tooltip_rect = Rect2()
@@ -364,6 +394,12 @@ func setup(model: RefCounted, weather_view: Node3D, input: Node) -> void:
 				if found: sound_requested.emit("click"))
 		source_remove.append(remove)
 		add_child(remove)
+	toolbar_toggle = Button.new()
+	toolbar_toggle.expand_icon = true
+	toolbar_toggle.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	toolbar_toggle.add_theme_constant_override("icon_max_width",12)
+	toolbar_toggle.pressed.connect(func(): toolbar_collapsed = not toolbar_collapsed; queue_redraw())
+	add_child(toolbar_toggle)
 	for button in buttons():
 		if button != audio_button and not button in source_remove:
 			if button is OptionButton: button.item_selected.connect(func(_index): sound_requested.emit("click"))
@@ -393,6 +429,7 @@ func setup(model: RefCounted, weather_view: Node3D, input: Node) -> void:
 		button.add_theme_color_override("font_disabled_color", Color("82918b"))
 		button.add_theme_color_override("font_color", INK)
 		button.focus_mode = Control.FOCUS_NONE
+	toolbar_toggle.add_theme_font_size_override("font_size", 11)
 	var result_theme := preload("res://themes/front_menu.tres")
 	for button in [next_button,result_retry,result_home,levels_button,free_button]:
 		button.theme = result_theme
@@ -405,7 +442,18 @@ func setup(model: RefCounted, weather_view: Node3D, input: Node) -> void:
 
 func buttons() -> Array:
 	return front_buttons + [briefing_button, result_home, menu_button, retry, sandbox_button, cold_button, free_button, lesson_button, dismiss_hint,
-		finish_button, next_button, result_retry, levels_button, development_button, selection_start, selection_back, brush_button, source_button, vortex_button, arrows_button, audio_button] + source_remove
+		finish_button, next_button, result_retry, levels_button, development_button, selection_start, selection_back, brush_button, source_button, vortex_button, arrows_button, toolbar_toggle, audio_button] + source_remove
+
+func toolbar_buttons() -> Array:
+	return [brush_button, source_button, vortex_button, arrows_button, toolbar_toggle] + source_remove
+
+func sync_toolbar_input() -> void:
+	if not wind_input.dragging:
+		toolbar_near_drag = false
+		toolbar_alpha = 1.0
+	for control in toolbar_buttons():
+		control.mouse_filter = Control.MOUSE_FILTER_IGNORE if wind_input.dragging else Control.MOUSE_FILTER_STOP
+		control.self_modulate = Color(1,1,1,toolbar_alpha)
 
 func briefing_active() -> bool:
 	return briefing_panel != null and briefing_panel.visible
@@ -444,31 +492,123 @@ func _rounded(rect: Rect2, color: Color, radius: int = 12) -> void:
 func _project(point: Vector3) -> Vector2:
 	return view.camera.unproject_position(point)
 
-func blocks_wind(point: Vector2) -> bool:
+func blocks_wind(point: Vector2, owned_gesture := false) -> bool:
 	if briefing_active(): return true
 	if front_active: return true
 	if selection_panel.visible: return true
-	if wind_toolbar_rect.has_point(point) or (menu_open and menu_rect.has_point(point)) or result_rect.has_point(point): return true
+	if (menu_open and menu_rect.has_point(point)) or result_rect.has_point(point): return true
 	# Drawn labels, water bars, timer, reserve and teaching text are information.
 	# Only real controls and the open menu/result consume weather gestures.
 	for button in buttons():
+		if owned_gesture and button in toolbar_buttons(): continue
 		if button.is_visible_in_tree() and button.get_global_rect().has_point(point): return true
 	return debug_visible and Rect2(28, 140, 310, 166).has_point(point)
+
+func _guide_scale() -> float:
+	return clampf(minf(size.x / 1280.0, size.y / 800.0), 0.85, 1.35)
+
+func _guide_pulse() -> float:
+	if get_parent().get_parent().transition.reduced_motion: return 1.0
+	return 1.0 + 0.06 * sin(ui_time * TAU / 1.6)
 
 func _guide_marker(p: Vector2, label: String, cloud_height: bool = false) -> void:
 	var height: float = Sim.CLOUD_TOP + 0.1 if cloud_height else sim.terrain.height(p) + 0.35
 	var at := _project(Vector3(p.x, height, p.y))
-	# Static gold brackets distinguish tutorial annotations from real moving wind.
+	# Gold breathing brackets identify teaching focus, not actual wind.
 	var color := Color(0.96, 0.84, 0.61, 0.8)
 	for sign_x in [-1, 1]:
 		for sign_y in [-1, 1]:
-			var corner := at + Vector2(sign_x, sign_y) * 23.0
+			var corner := at + Vector2(sign_x, sign_y) * 23.0 * _guide_pulse()
 			draw_line(corner, corner - Vector2(sign_x * 9, 0), color, 2.0, true)
 			draw_line(corner, corner - Vector2(0, sign_y * 9), color, 2.0, true)
-	var width := font.get_string_size(label, HORIZONTAL_ALIGNMENT_LEFT, -1, 14).x
+	var label_size := roundi(17 * _guide_scale())
+	var width := font.get_string_size(label, HORIZONTAL_ALIGNMENT_LEFT, -1, label_size).x
 	var label_at := at + Vector2(-width * 0.5, 48)
-	_rounded(Rect2(label_at + Vector2(-8, -19), Vector2(width + 16, 26)), PANEL, 6)
-	_text(label_at, label, 14, GOLD)
+	_rounded(Rect2(label_at + Vector2(-8, -label_size-4), Vector2(width + 16, label_size+12)), PANEL, 6)
+	_text(label_at, label, label_size, GOLD)
+
+func _humidity_marker(seed: int, label: String) -> void:
+	var camera_changed: bool = humidity_guide_transform != view.camera.global_transform or humidity_guide_projection != view.camera.get_camera_projection() or humidity_guide_size != size
+	if ui_time >= humidity_guide_refresh or camera_changed:
+		humidity_guide_refresh = ui_time + 0.12
+		humidity_guide_transform = view.camera.global_transform
+		humidity_guide_projection = view.camera.get_camera_projection()
+		humidity_guide_size = size
+		var threshold := maxf(0.15, sim.humidity[seed] * 0.08)
+		# Keep the same connected parcel after a split instead of jumping to a new peak.
+		var old_seed := -1
+		var old_peak := threshold
+		for cell in humidity_guide_cells:
+			if sim.humidity[cell] > old_peak:
+				old_peak = sim.humidity[cell]
+				old_seed = cell
+		if old_seed >= 0: seed = old_seed
+		# Focus on the visible core; faint tails are still interactive outside the frame.
+		threshold = maxf(0.15, sim.humidity[seed] * 0.55)
+		var seen := PackedByteArray()
+		seen.resize(Sim.COUNT)
+		humidity_guide_cells = PackedInt32Array([seed])
+		seen[seed] = 1
+		var cursor := 0
+		var bounds := Rect2()
+		var first := true
+		var center := Vector2.ZERO
+		var mass := 0.0
+		while cursor < humidity_guide_cells.size():
+			var cell := humidity_guide_cells[cursor]
+			cursor += 1
+			var p: Vector2 = sim.positions[cell]
+			center += _project(Vector3(p.x, sim.terrain.height(p)+0.2, p.y)) * sim.humidity[cell]
+			mass += sim.humidity[cell]
+			for corner in [Vector2(-0.25,-0.25), Vector2(0.25,-0.25), Vector2(0.25,0.25), Vector2(-0.25,0.25)]:
+				var q: Vector2 = p + corner
+				var screen := _project(Vector3(q.x, sim.terrain.height(q) + 0.2, q.y))
+				if first:
+					bounds = Rect2(screen, Vector2.ZERO)
+					first = false
+				else: bounds = bounds.expand(screen)
+			for neighbor in [sim.neighbor_left[cell], sim.neighbor_right[cell], sim.neighbor_top[cell], sim.neighbor_bottom[cell]]:
+				if seen[neighbor] == 0 and sim.humidity[neighbor] >= threshold:
+					seen[neighbor] = 1
+					humidity_guide_cells.append(neighbor)
+		var focus_size := bounds.grow(10.0).size.clamp(Vector2(140,90)*_guide_scale(),Vector2(260,160)*_guide_scale())
+		center /= maxf(mass,0.001)
+		center = center.clamp(focus_size*0.53+Vector2(12,12),size-focus_size*0.53-Vector2(12,12))
+		humidity_guide_target = Rect2(center-focus_size*0.5,focus_size)
+		if camera_changed or not humidity_guide_rect.has_area(): humidity_guide_rect = humidity_guide_target
+	if not humidity_guide_target.has_area(): return
+	var rect := humidity_guide_rect
+	var pulse_size := rect.size * _guide_pulse()
+	rect = Rect2(rect.get_center()-pulse_size*0.5,pulse_size)
+	var length := minf(22.0, minf(rect.size.x, rect.size.y) * 0.2)
+	for sx in [0, 1]:
+		for sy in [0, 1]:
+			var corner := rect.position + rect.size * Vector2(sx,sy)
+			draw_line(corner, corner + Vector2(length * (1-2*sx),0), GOLD, 2.0, true)
+			draw_line(corner, corner + Vector2(0,length * (1-2*sy)), GOLD, 2.0, true)
+	var label_size := roundi(17 * _guide_scale())
+	var width := font.get_string_size(label,HORIZONTAL_ALIGNMENT_LEFT,-1,label_size).x
+	# Prefer above the focus so the initial wet-air label does not cover the nearby pool.
+	var label_y := rect.position.y-16
+	if label_y-label_size-4 < guide_rect.end.y+12: label_y = rect.end.y+label_size+12
+	var label_at := Vector2(clampf(rect.get_center().x-width*0.5,16,size.x-width-16),label_y)
+	if label_at.y > size.y-123: label_at.y = maxf(guide_rect.end.y+26,rect.position.y-16)
+	_rounded(Rect2(label_at+Vector2(-8,-label_size-4),Vector2(width+16,label_size+12)),PANEL,6)
+	_text(label_at,label,label_size,GOLD)
+
+func _guide_panel(title: String, action: String, detail: String) -> void:
+	var width := minf(size.x-32,760*_guide_scale())
+	var text_width := width-32
+	var texts := [title,action,detail]
+	var sizes := [roundi(18*_guide_scale()),roundi(22*_guide_scale()),roundi(16*_guide_scale())]
+	var heights: Array[float] = []
+	for i in 3: heights.append(font.get_multiline_string_size(texts[i],HORIZONTAL_ALIGNMENT_LEFT,text_width,sizes[i]).y)
+	guide_rect = Rect2(Vector2((size.x-width)*0.5,64),Vector2(width,46+heights[0]+heights[1]+heights[2]))
+	_rounded(guide_rect,PANEL)
+	var at := guide_rect.position+Vector2(16,16)
+	for i in 3:
+		draw_multiline_string(font,at+Vector2(0,font.get_ascent(sizes[i])),texts[i],HORIZONTAL_ALIGNMENT_LEFT,text_width,sizes[i],-1,[GOLD,INK,MUTED][i])
+		at.y += heights[i]+7
 
 func _draw_guide() -> void:
 	guide_rect = Rect2()
@@ -476,12 +616,7 @@ func _draw_guide() -> void:
 	if guide == null or sim.sandbox:
 		return
 	if guide.lesson:
-		guide_rect = Rect2(Vector2((size.x - 560) * 0.5, 64), Vector2(560, 82))
-		_rounded(guide_rect, PANEL)
-		var at := guide_rect.position + Vector2(14, 19)
-		_text(at, guide.title(sim), 14, GOLD)
-		_text(at + Vector2(0, 24), guide.instruction(sim), 14)
-		_text(at + Vector2(0, 48), guide.detail(sim), 12, MUTED)
+		_guide_panel(guide.title(sim),guide.instruction(sim),guide.detail(sim))
 		if sim.outcome != "playing":
 			return
 		if sim.is_reservoir(0):
@@ -496,7 +631,8 @@ func _draw_guide() -> void:
 			if field[index] > 0.15:
 				var p: Vector2 = sim.positions[index]
 				var low_air: bool = guide.phase == 0 or sim.peak_density < 0.15
-				_guide_marker(p, "浅色细丝 · 湿空气" if low_air else "轻拨云边，向内收拢", not low_air)
+				if low_air: _humidity_marker(index,"浅色细丝 · 湿空气")
+				else: _guide_marker(p,"轻拨云边，向内收拢",true)
 				if low_air:
 					var mountain: Vector2 = sim.terrain.mountain
 					var slope_point: Vector2 = mountain + (p - mountain).normalized() * 1.8
@@ -508,13 +644,8 @@ func _draw_guide() -> void:
 			for i in 4:
 				draw_dashed_line(square[i], square[(i + 1) % 4], GOLD, 2.5, 9.0)
 	elif guide.cold_hint_left > 0.0 and sim.outcome == "playing":
-		guide_rect = Rect2(Vector2((size.x - 560) * 0.5, 64), Vector2(560, 82))
-		_rounded(guide_rect, PANEL)
-		var at := guide_rect.position + Vector2(14, 19)
-		_text(at, "可选技巧 · 借冷风接力", 14, GOLD)
-		_text(at + Vector2(0, 24), "灰蓝色薄层是雨产生的冷空气，可以拨动。", 14)
-		_text(at + Vector2(0, 48), "把湿空气迎向它的前沿可造云；也可以继续借山坡。", 12, MUTED)
-		dismiss_hint.position = guide_rect.position + Vector2(464, 8)
+		_guide_panel("可选技巧 · 借冷风接力","灰蓝色薄层是雨产生的冷空气，可以拨动。","把湿空气迎向它的前沿可造云；也可以继续借山坡。")
+		dismiss_hint.position = Vector2(guide_rect.end.x-96,guide_rect.position.y+8)
 		dismiss_hint.size = Vector2(84, 27)
 		var cold_index := 0
 		for i in Sim.COUNT:
@@ -533,7 +664,7 @@ func _draw_reservoir_help() -> void:
 	var p: Vector2 = sim.positions[index]
 	var destination: Vector2 = sim.plot_centers[0]
 	if low_air:
-		_guide_marker(p,"湿空气 · 可以推动")
+		_humidity_marker(index,"湿空气 · 可以推动")
 		var mountain: Vector2 = sim.terrain.mountain
 		destination = mountain+(p-mountain).normalized()*1.8
 		if guide.phase > 0 or guide.help_level() > 0: _guide_marker(destination,"迎着这侧山坡送风")
@@ -607,29 +738,39 @@ func _draw_world_feedback() -> void:
 			draw_line(a, b, INK, 2.0, true)
 			draw_circle(b, 2.4, INK)
 
-func _draw_wind_tools() -> void:
-	strength_meter_rect = Rect2()
+func _draw_wind_toolbar() -> void:
 	var active := sim.outcome == "playing"
-	brush_button.visible = active and wind_input.tool_available("brush")
-	source_button.visible = active and wind_input.tool_available("source")
-	vortex_button.visible = active and wind_input.tool_available("vortex")
-	arrows_button.visible = active
+	var expanded := active and not toolbar_collapsed
+	brush_button.visible = expanded and wind_input.tool_available("brush")
+	source_button.visible = expanded and wind_input.tool_available("source")
+	vortex_button.visible = expanded and wind_input.tool_available("vortex")
+	arrows_button.visible = expanded
+	toolbar_toggle.visible = active
+	toolbar_toggle.text = ""
+	toolbar_toggle.icon = toolbar_icons[int(toolbar_collapsed)]
+	toolbar_toggle.tooltip_text = "展开风工具" if toolbar_collapsed else "收起工具栏，拨动下方的天气"
+	toolbar_toggle.size = Vector2(36,22)
+	toolbar_toggle.disabled = paused
+	var alpha := toolbar_alpha
+	sync_toolbar_input()
 	# Keep a live button visible across redraws; hiding cancels a held click.
-	for index in source_remove.size(): source_remove[index].visible = active and index < sim.wind_sources.size()
+	for index in source_remove.size(): source_remove[index].visible = expanded and index < sim.wind_sources.size()
 	source_remove_ids.fill(-1)
 	wind_toolbar_rect = Rect2()
+	toolbar_toggle.position = Vector2((size.x-36)*0.5,size.y-30)
 	if not active: return
 	if last_tool != wind_input.tool:
 		last_tool = wind_input.tool
 		tool_hint_until = view.elapsed + 4.0
+	if toolbar_collapsed: return
 	var rows := ceili(sim.wind_sources.size() / 2.0)
 	var buttons: Array = [[brush_button,78.0],[source_button,105.0],[vortex_button,85.0],[arrows_button,130.0]]
 	var width := 10.0
 	for entry in buttons:
 		if entry[0].visible: width += entry[1]+4.0
 	if rows > 0: width = maxf(width,384.0)
-	wind_toolbar_rect = Rect2(Vector2((size.x - width) * 0.5, size.y - 58 - rows * 27), Vector2(width, 42 + rows * 27))
-	_rounded(wind_toolbar_rect, PANEL, 9)
+	wind_toolbar_rect = Rect2(Vector2((size.x - width) * 0.5, size.y - 76 - rows * 27), Vector2(width, 42 + rows * 27))
+	_rounded(wind_toolbar_rect, Color(PANEL,PANEL.a*alpha), 9)
 	var at := wind_toolbar_rect.position
 	var x := 7.0
 	for entry in buttons:
@@ -650,14 +791,14 @@ func _draw_wind_tools() -> void:
 		var p := at + Vector2(12 + (index % 2) * 190, 42 + floori(index / 2.0) * 27)
 		var text := "风带 %d · %.1fs" % [source.id, source.remaining]
 		if source.get("kind", "band") == "vortex": text = "漩涡 %d · %s · %.1fs" % [source.id, ["弱", "中", "强"][source.tier], source.remaining]
-		_text(p + Vector2(0, 16), text, 12)
+		_text(p + Vector2(0, 16), text, 12, Color(INK,alpha))
 		var remove := source_remove[index]
 		remove.disabled = paused
 		remove.position = p + Vector2(146, 0)
 		remove.size = Vector2(24, 22)
 	var message_active: bool = Time.get_ticks_msec() < wind_input.message_until
 	var introduction_active: bool = not tool_introduction.is_empty() and view.elapsed < tool_introduction_until
-	if view.elapsed < tool_hint_until or message_active or introduction_active:
+	if not wind_input.dragging and (view.elapsed < tool_hint_until or message_active or introduction_active):
 		var text := "拖出方向，停住按住续吹；再拖动可调整" if wind_input.tool == "brush" else "拖出风带 · 滚轮调力度 · 松手吹 %.0f 秒" % sim.settings.source_lifetime
 		if wind_input.tool == "vortex": text = "拖出范围 · 左顺右逆 · 滚轮三档 · 松手聚集"
 		if message_active: text = wind_input.message
@@ -672,6 +813,10 @@ func _draw_wind_tools() -> void:
 			var colors := [view.WET_ARROW, view.COLD_ARROW, view.CLOUD_ARROW, view.LIFT_ARROW]
 			for index in 4:
 				_text(hint.position + Vector2(10 + index * 94, 42), "➜ " + legend[index], 12, colors[index].lerp(INK, 0.42))
+
+func _draw_wind_tools() -> void:
+	strength_meter_rect = Rect2()
+	_draw_wind_toolbar()
 	for source in sim.wind_sources:
 		var point: Vector2 = source.position
 		if source.get("kind", "band") == "vortex":

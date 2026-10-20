@@ -1,0 +1,494 @@
+{
+  "date": "2026-10-20",
+  "version": "0.1.1",
+  "source_commit": "65e69ede1b9926d2add7ec2972bdf583136a13bf",
+  "source_state": "Working tree: Windows default Vulkan and new export settings, delivery-only cleanup; no gameplay rule edit, commit, push or upload",
+  "archive": {
+    "archive": "E:\\Godot\\Project\\Weaving Rain\\builds\\WeavingRain-Demo-0.1.1-Windows.zip",
+    "bytes": 46130264,
+    "sha256": "40c617f2919a0d0d4b21dbc59416f6a3f6832ee0b2a76560d3619fc12ba308d3",
+    "entrypoint": "WeavingRain.exe",
+    "crc": "pass",
+    "files": {
+      "README.txt": "95a87affc6cfd487653419d360d5b123025d4a502e8c29e8e4ffca2e9731571f",
+      "Start-D3D12.cmd": "94e51d1204bc0ea5ecdeccd9646a46847cc64b1d306c0ca3551fd65f9fe9944b",
+      "WeavingRain.exe": "584c97046c8e384bec4096548a33163233355cee45d5dd380059c78230cc295d",
+      "Docs/BUILD_INFO.json": "0e8640e672c5d8d3272e3150b90bb1a09da7e9dd8753de881f6a4217a4c13e12",
+      "Docs/CREDITS.md": "5814544b65d86f74a9f258a6ce5825a2c21f1f7e53f7265a4c978fca78433cbd",
+      "Docs/PLAYER_GUIDE.md": "f1de2c5d4473efd6986fa695550c1476c7341262769c2840f73231b6ebb54f6c",
+      "Docs/LICENSES/GODOT-COMPONENTS.json": "086c25a1fcb58d51759c0d0aecabac614b9a163b42e22470fe493ab90f7198dd",
+      "Docs/LICENSES/GODOT-COPYRIGHT.txt": "cb1980c88089573bcacd7221d777c689bb8bbd778799f24c27fca0fe5f774d6d",
+      "Docs/LICENSES/GODOT-LICENSE-TEXTS.json": "d48c6a837ae047c4bb50e7b35c27561ce7d215acf0df987e038d56e9d93681d0",
+      "Docs/LICENSES/GODOT-MIT.txt": "b0435e3b3e4e55238f05f4b306f30524a1b2e20147810d436eaa554fa6855c80"
+    },
+    "unpacked_for_independent_test": "C:\\Users\\32485\\.codex\\visualizations\\2026\\10\\08\\01a11bca-872d-7a11-8789-664a75328e4c\\weaving-rain-release-20261020\\from-zip"
+  },
+  "renderer": "Forward+ / Vulkan; native Windows Release confirms Vulkan1.4.351 RTX4060; D3D12 optional launcher verified",
+  "export": {
+    "exit": 0,
+    "log": ".godot/package-20261020/export.log",
+    "warnings_errors": 0,
+    "template": "Godot4.7.2 ed1daf0bf Windows x86_64 Release, PCK embedded"
+  },
+  "actual_release_startups": [
+    {
+      "exit": 0,
+      "name": "home",
+      "passed": true,
+      "log": "E:\\Godot\\Project\\Weaving Rain\\.godot\\package-20261020\\home.log",
+      "capture": "E:\\Godot\\Project\\Weaving Rain\\.godot\\package-20261020\\home.png"
+    },
+    {
+      "exit": 0,
+      "name": "tutorial",
+      "passed": true,
+      "log": "E:\\Godot\\Project\\Weaving Rain\\.godot\\package-20261020\\tutorial.log",
+      "capture": "E:\\Godot\\Project\\Weaving Rain\\.godot\\package-20261020\\tutorial.png"
+    },
+    {
+      "exit": 0,
+      "name": "level01",
+      "passed": true,
+      "log": "E:\\Godot\\Project\\Weaving Rain\\.godot\\package-20261020\\level01.log",
+      "capture": "E:\\Godot\\Project\\Weaving Rain\\.godot\\package-20261020\\level01.png"
+    },
+    {
+      "exit": 0,
+      "name": "level02",
+      "passed": true,
+      "log": "E:\\Godot\\Project\\Weaving Rain\\.godot\\package-20261020\\level02.log",
+      "capture": "E:\\Godot\\Project\\Weaving Rain\\.godot\\package-20261020\\level02.png"
+    },
+    {
+      "exit": 0,
+      "name": "level03",
+      "passed": true,
+      "log": "E:\\Godot\\Project\\Weaving Rain\\.godot\\package-20261020\\level03.log",
+      "capture": "E:\\Godot\\Project\\Weaving Rain\\.godot\\package-20261020\\level03.png"
+    },
+    {
+      "exit": 0,
+      "name": "level04",
+      "passed": true,
+      "log": "E:\\Godot\\Project\\Weaving Rain\\.godot\\package-20261020\\level04.log",
+      "capture": "E:\\Godot\\Project\\Weaving Rain\\.godot\\package-20261020\\level04.png"
+    },
+    {
+      "exit": 0,
+      "name": "level05",
+      "passed": true,
+      "log": "E:\\Godot\\Project\\Weaving Rain\\.godot\\package-20261020\\level05.log",
+      "capture": "E:\\Godot\\Project\\Weaving Rain\\.godot\\package-20261020\\level05.png"
+    },
+    {
+      "exit": 0,
+      "name": "level06",
+      "passed": true,
+      "log": "E:\\Godot\\Project\\Weaving Rain\\.godot\\package-20261020\\level06.log",
+      "capture": "E:\\Godot\\Project\\Weaving Rain\\.godot\\package-20261020\\level06.png"
+    },
+    {
+      "exit": 0,
+      "name": "level07",
+      "passed": true,
+      "log": "E:\\Godot\\Project\\Weaving Rain\\.godot\\package-20261020\\level07.log",
+      "capture": "E:\\Godot\\Project\\Weaving Rain\\.godot\\package-20261020\\level07.png"
+    },
+    {
+      "exit": 0,
+      "name": "level08",
+      "passed": true,
+      "log": "E:\\Godot\\Project\\Weaving Rain\\.godot\\package-20261020\\level08.log",
+      "capture": "E:\\Godot\\Project\\Weaving Rain\\.godot\\package-20261020\\level08.png"
+    },
+    {
+      "exit": 0,
+      "name": "level09",
+      "passed": true,
+      "log": "E:\\Godot\\Project\\Weaving Rain\\.godot\\package-20261020\\level09.log",
+      "capture": "E:\\Godot\\Project\\Weaving Rain\\.godot\\package-20261020\\level09.png"
+    }
+  ],
+  "mounted_resource_check": {
+    "debug_build": true,
+    "editor": true,
+    "engine": {
+      "build": "steam",
+      "hash": "ed1daf0bf001b61586d9930840f2f1394092c079",
+      "hex": 263938,
+      "major": 4,
+      "minor": 7,
+      "patch": 2,
+      "status": "stable",
+      "string": "4.7.2-stable (steam)",
+      "timestamp": 0
+    },
+    "executable": "D:/SteamLibrary/steamapps/common/Godot Engine/godot.windows.opt.tools.64.exe",
+    "maps": [
+      {
+        "id": "tutorial",
+        "targets": 1,
+        "title": "入门 · 借雨蓄水",
+        "tools": 1,
+        "valid": true
+      },
+      {
+        "id": "level01",
+        "targets": 1,
+        "title": "山外一池",
+        "tools": 1,
+        "valid": true
+      },
+      {
+        "id": "level02",
+        "targets": 2,
+        "title": "两池分雨",
+        "tools": 1,
+        "valid": true
+      },
+      {
+        "id": "level03",
+        "targets": 2,
+        "title": "田池之间",
+        "tools": 1,
+        "valid": true
+      },
+      {
+        "id": "level04",
+        "targets": 2,
+        "title": "两山两路",
+        "tools": 1,
+        "valid": true
+      },
+      {
+        "id": "level05",
+        "targets": 2,
+        "title": "留风送雨",
+        "tools": 3,
+        "valid": true
+      },
+      {
+        "id": "level06",
+        "targets": 2,
+        "title": "借雨接力",
+        "tools": 3,
+        "valid": true
+      },
+      {
+        "id": "level07",
+        "targets": 3,
+        "title": "三池汇雨",
+        "tools": 7,
+        "valid": true
+      },
+      {
+        "id": "level08",
+        "targets": 2,
+        "title": "海上借雨",
+        "tools": 7,
+        "valid": true
+      },
+      {
+        "id": "level09",
+        "targets": 3,
+        "title": "群山风雨",
+        "tools": 7,
+        "valid": true
+      }
+    ],
+    "music_seconds": 148.243988037109,
+    "passed": true,
+    "scope": "Packed release resources loaded from standalone EXE, not gameplay completion.",
+    "sounds": [
+      {
+        "file": "res://assets/audio/wind.wav",
+        "loaded": true
+      },
+      {
+        "file": "res://assets/audio/rain.wav",
+        "loaded": true
+      },
+      {
+        "file": "res://assets/audio/rain_detail.wav",
+        "loaded": true
+      },
+      {
+        "file": "res://assets/audio/brush.wav",
+        "loaded": true
+      },
+      {
+        "file": "res://assets/audio/brush_2.wav",
+        "loaded": true
+      },
+      {
+        "file": "res://assets/audio/brush_3.wav",
+        "loaded": true
+      },
+      {
+        "file": "res://assets/audio/brush_4.wav",
+        "loaded": true
+      },
+      {
+        "file": "res://assets/audio/brush_5.wav",
+        "loaded": true
+      },
+      {
+        "file": "res://assets/audio/click.wav",
+        "loaded": true
+      },
+      {
+        "file": "res://assets/audio/source.wav",
+        "loaded": true
+      },
+      {
+        "file": "res://assets/audio/adequate.wav",
+        "loaded": true
+      },
+      {
+        "file": "res://assets/audio/safe.wav",
+        "loaded": true
+      },
+      {
+        "file": "res://assets/audio/full.wav",
+        "loaded": true
+      },
+      {
+        "file": "res://assets/audio/damage.wav",
+        "loaded": true
+      },
+      {
+        "file": "res://assets/audio/success.wav",
+        "loaded": true
+      },
+      {
+        "file": "res://assets/audio/failure.wav",
+        "loaded": true
+      }
+    ]
+  },
+  "mounted_pacing_check": {
+    "checks": 80,
+    "failures": 0,
+    "resolution": "(1920, 1080)",
+    "scope": "UI/state fixtures, not new-player or complete route validation"
+  },
+  "mounted_normal_route": {
+    "audio": {},
+    "blocked": 0,
+    "following": "level02",
+    "front_entry": true,
+    "input_failures": 0,
+    "mouse_events": 2797,
+    "passed": true,
+    "pick_error": 0.0,
+    "selection": [],
+    "stages": [
+      {
+        "campaign_play": true,
+        "cold_lift": 10.596922640043,
+        "destroyed": [
+          false
+        ],
+        "elapsed": 0.0,
+        "front_strokes": 0,
+        "layout": "tutorial",
+        "limit": 180.0,
+        "order": [
+          0
+        ],
+        "outcome": "success",
+        "per_target": [
+          {
+            "distance": 14.3999996185303,
+            "front": 0,
+            "strokes": 13,
+            "transport": 6
+          },
+          {
+            "distance": 0.0,
+            "front": 0,
+            "strokes": 0,
+            "transport": 0
+          },
+          {
+            "distance": 0.0,
+            "front": 0,
+            "strokes": 0,
+            "transport": 0
+          }
+        ],
+        "phases": [
+          0,
+          2,
+          4,
+          5
+        ],
+        "route": "mountain",
+        "route_seconds": 6.66666666666665,
+        "stars": 0,
+        "strokes": 13,
+        "transport_distance": 14.3999996185303,
+        "transport_strokes": 6,
+        "water": [
+          100.0
+        ],
+        "water_error": -0.000137787293283509
+      },
+      {
+        "campaign_play": true,
+        "cold_lift": 4.80278173194356,
+        "destroyed": [
+          false
+        ],
+        "elapsed": 35.5833333333326,
+        "front_strokes": 0,
+        "layout": "level01",
+        "limit": 360.0,
+        "order": [
+          0
+        ],
+        "outcome": "success",
+        "per_target": [
+          {
+            "distance": 31.1999998092651,
+            "front": 0,
+            "strokes": 65,
+            "transport": 14
+          },
+          {
+            "distance": 0.0,
+            "front": 0,
+            "strokes": 0,
+            "transport": 0
+          },
+          {
+            "distance": 0.0,
+            "front": 0,
+            "strokes": 0,
+            "transport": 0
+          }
+        ],
+        "phases": [
+          0
+        ],
+        "route": "mountain",
+        "route_seconds": 35.5833333333322,
+        "stars": 3,
+        "strokes": 65,
+        "transport_distance": 31.1999998092651,
+        "transport_strokes": 14,
+        "water": [
+          250.0
+        ],
+        "water_error": -0.00130040170307666
+      }
+    ]
+  },
+  "exe_icons": [
+    {
+      "size": [
+        16,
+        16
+      ],
+      "source_pixels_match": true
+    },
+    {
+      "size": [
+        32,
+        32
+      ],
+      "source_pixels_match": true
+    },
+    {
+      "size": [
+        48,
+        48
+      ],
+      "source_pixels_match": true
+    },
+    {
+      "size": [
+        64,
+        64
+      ],
+      "source_pixels_match": true
+    },
+    {
+      "size": [
+        128,
+        128
+      ],
+      "source_pixels_match": true
+    },
+    {
+      "size": [
+        256,
+        256
+      ],
+      "source_pixels_match": true
+    }
+  ],
+  "windows_metadata": {
+    "file_version": "0.1.1.0",
+    "product_version": "0.1.1.0",
+    "product_name": "风织雨 / Weaving Rain",
+    "company": "ZLOONG · 智龙"
+  },
+  "final_extracted_zip_startup": {
+    "render_capture": true,
+    "driver": "Vulkan",
+    "script_engine_errors": 0,
+    "log": ".godot/package-20261020/zip-home.log"
+  },
+  "actual_fallback_cmd": {
+    "render_capture": true,
+    "driver": "D3D12",
+    "script_engine_errors": 0,
+    "log": ".godot/package-20261020/fallback.log"
+  },
+  "cleanup": {
+    "duplicates": [
+      {
+        "duplicate": "docs/demo-delivery/taptap-2026-10-18/WeavingRain-TapTap-assets/cover-landscape-1840x860.png",
+        "kept": "docs/demo-delivery/taptap-2026-10-18/upload/cover-landscape-1840x860.png",
+        "bytes": 1283563
+      },
+      {
+        "duplicate": "docs/demo-delivery/taptap-2026-10-18/WeavingRain-TapTap-assets/cover-portrait-1200x1800.png",
+        "kept": "docs/demo-delivery/taptap-2026-10-18/upload/cover-portrait-1200x1800.png",
+        "bytes": 1805825
+      },
+      {
+        "duplicate": "docs/demo-delivery/taptap-2026-10-18/WeavingRain-TapTap-assets/logo-transparent.png",
+        "kept": "docs/demo-delivery/taptap-2026-10-18/upload/logo-transparent.png",
+        "bytes": 99988
+      },
+      {
+        "duplicate": "docs/demo-delivery/taptap-2026-10-18/WeavingRain-TapTap-assets/promo-1920x1080.png",
+        "kept": "docs/demo-delivery/taptap-2026-10-18/upload/promo-1920x1080.png",
+        "bytes": 1584372
+      },
+      {
+        "duplicate": "docs/demo-delivery/taptap-2026-10-18/WeavingRain-TapTap-assets/wallpaper-3840x1240.png",
+        "kept": "docs/demo-delivery/taptap-2026-10-18/upload/wallpaper-3840x1240.png",
+        "bytes": 2531453
+      }
+    ],
+    "empty_root_dirs": [
+      "export_templates",
+      "feature_profiles",
+      "script_templates",
+      "text_editor_themes"
+    ]
+  },
+  "rejected_attempts": [
+    "First mounted-resource check from project working directory returned passed=false; same checks from independent external working directory passed. Initial result is not clean packed-only evidence. Use external cwd for future checks.",
+    "First native screenshot parameter was truncated at a space; capture was invalid for intended output. Confirmed timestamp/PNG signature of miswritten artifact and removed it, fixed CLI quoting, reran all11 actual captures successfully."
+  ],
+  "validation_boundary": [
+    "Mounted resource/pacing/normal route harness uses editor loading actual Release EXE resources, not Release-native automated full completion",
+    "No nine complete playthroughs, long performance, affected Iris Xe retest of this new version, or all-hardware guarantee",
+    "P1/V1/V6 remain open; new-player understanding, platform upload/self-test/review remain pending"
+  ],
+  "next": "Use the ZIP for external beginner/Iris Xe playtests and platform self-test; review/commit the intentional configuration and cleanup changes when requested."
+}

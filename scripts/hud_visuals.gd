@@ -156,6 +156,8 @@ static func tool_icon(kind: String) -> Texture2D:
 	if kind == "source": path = "M2 6C8 2 12 10 18 6 M2 12C8 8 12 16 18 12 M2 18C8 14 12 22 18 18 M17 10L22 12L17 14"
 	elif kind == "vortex": path = "M22 12A10 10 0 1 1 12 2 M12 6A6 6 0 1 0 18 12 M12 10A2 2 0 1 1 10 12"
 	elif kind == "hints": path = "M4 13A5 5 0 0 1 9 8A5 5 0 0 1 19 11A3 3 0 0 1 20 17H5 M7 20V22 M13 20V22 M19 20V22"
+	elif kind == "collapse": path = "M3 8L12 17L21 8"
+	elif kind == "expand": path = "M3 16L12 7L21 16"
 	var image := Image.new()
 	image.load_svg_from_string('<svg xmlns="http://www.w3.org/2000/svg" width="72" height="72" viewBox="0 0 24 24"><path d="'+path+'" fill="none" stroke="#354e57" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>')
 	return ImageTexture.create_from_image(image)

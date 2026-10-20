@@ -408,6 +408,7 @@ func _settings() -> void:
 	column.add_child(motion)
 	column.add_child(_label("调整立即生效；下次启动保留声音偏好。" if not host.weather_audio.preferences_path.is_empty() else "调整立即生效；本次开发试玩不写入声音偏好。",16))
 	column.add_child(_label("音乐：Meadow Thoughts · Écrivain（CC0）",16))
+	column.add_child(_label("F11：切换全屏／窗口，切回时恢复原窗口。",16))
 	_spacer(content)
 
 func _process(delta: float) -> void:

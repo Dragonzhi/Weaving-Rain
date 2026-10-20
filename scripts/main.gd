@@ -61,6 +61,8 @@ var frame_view_ms := 0.0
 var frame_pick_ms := 0.0
 var frame_steps := 0
 var frame_input_ms := 0.0
+var window_restore_rect := Rect2i()
+var window_restore_mode := Window.MODE_WINDOWED
 
 func _ready() -> void:
 	var args := OS.get_cmdline_user_args()
@@ -588,6 +590,10 @@ func _process(delta: float) -> void:
 	hud.queue_redraw()
 
 func _input(event: InputEvent) -> void:
+	if event is InputEventKey and event.keycode == KEY_F11:
+		if event.pressed and not event.echo: toggle_fullscreen()
+		get_viewport().set_input_as_handled()
+		return
 	if hud.briefing_active() and event is InputEventKey and event.keycode == KEY_SPACE:
 		get_viewport().set_input_as_handled()
 		return
@@ -597,6 +603,19 @@ func _input(event: InputEvent) -> void:
 	# Space remains the gameplay pause shortcut, never an accidental menu accept.
 	if event is InputEventKey and event.keycode == KEY_SPACE and (front_active() or hud.menu_open):
 		get_viewport().set_input_as_handled()
+
+func toggle_fullscreen() -> void:
+	wind_input.cancel()
+	var window := get_window()
+	if window.mode in [Window.MODE_FULLSCREEN, Window.MODE_EXCLUSIVE_FULLSCREEN]:
+		window.mode = window_restore_mode
+		if window_restore_mode == Window.MODE_WINDOWED and window_restore_rect.has_area():
+			window.size = window_restore_rect.size
+			window.position = window_restore_rect.position
+	else:
+		window_restore_mode = window.mode
+		window_restore_rect = Rect2i(window.position, window.size)
+		window.mode = Window.MODE_FULLSCREEN
 
 func _unhandled_key_input(event: InputEvent) -> void:
 	if transition_active(): return

@@ -12,6 +12,7 @@ if (-not (Test-Path -LiteralPath $cacheDirectory)) {
     New-Item -ItemType Directory -Path $cacheDirectory | Out-Null
 }
 $checks = @(
+	@{ Name = 'usability-followup'; Script = 'res://tests/test_usability_followup.gd'; Headless = $false; Args = @('--fresh-guide'); Resolution = '1920x1080' },
     @{ Name = 'onboarding-pacing'; Script = 'res://tests/test_onboarding_pacing.gd'; Headless = $false; Args = @('--fresh-guide'); Resolution = '1920x1080' }
     @{ Name = 'ui-polish'; Script = 'res://tests/test_ui_polish.gd'; Headless = $false; Args = @('--fresh-guide'); Resolution = '1920x1080'; Front = $true },
     @{ Name = 'bgm'; Script = 'res://tests/test_bgm.gd'; Headless = $false; Args = @('--fresh-guide'); Resolution = '1920x1080'; Front = $true },

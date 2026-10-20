@@ -3,3 +3,6 @@
 /android/
 __pycache__/
 *.pyc
+
+# Local delivery builds; sources and release notes remain in Git.
+/builds/

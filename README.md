@@ -2,7 +2,7 @@
 
 开发进度与未完成事项：[任务看板](docs/task-board.md)。
 
-Demo资料准备：[交付入口](docs/demo-delivery/README.md) · [页面文案](docs/demo-delivery/store-page.md) · [玩家说明](docs/demo-delivery/PLAYER_GUIDE.md) · [制作与素材鸣谢](docs/demo-delivery/CREDITS.md)。当前署名为ZLOONG · 智龙，资料是待审阅草稿，尚未生成当前版本的新独立包。
+Demo资料准备：[交付入口](docs/demo-delivery/README.md) · [页面文案](docs/demo-delivery/store-page.md) · [玩家说明](docs/demo-delivery/PLAYER_GUIDE.md) · [制作与素材鸣谢](docs/demo-delivery/CREDITS.md)。当前署名为ZLOONG · 智龙。[Demo0.1.1包体](builds/WeavingRain-Demo-0.1.1-Windows.zip)已生成，默认Vulkan，取用与验证范围见[本轮说明](docs/demo-delivery/package-2026-10-20.md)。平台发布和资料签署／发布仍待实际完成。
 
 背景音乐采用Écrivain的《Meadow Thoughts》（CC0），随页面和关卡连续播放；设置中可单独调低或关闭音乐。素材来源与处理见[声音来源](docs/audio-sources.md)。
 

@@ -64,7 +64,7 @@ func run() -> void:
 	var projected: Vector2 = main.weather_view.camera.unproject_position(Vector3(corner.x, main.weather_view.scene_style.farm_top_height + 0.006, corner.y))
 	check(zoomed_outline != original_outline and zoomed_outline[0].distance_to(projected) < 0.001, "Ground feedback contours follow changed camera projection")
 	main.weather_view.camera.size = original_zoom
-	check(main.hud.blocks_wind(main.hud.wind_toolbar_rect.get_center()), "Whole toolbar blocks wind")
+	check(main.hud.blocks_wind(main.hud.brush_button.get_global_rect().get_center()), "Actual toolbar buttons block a fresh weather press")
 	var start := screen(Vector2(-5, 0))
 	button(start, true)
 	await create_timer(0.2).timeout
@@ -177,9 +177,10 @@ func run() -> void:
 	check(not main.weather_view.hints_enabled and main.weather_view.visible_arrows == 0 and main.sim.wind_sources.size() == 1, "Arrow toggle only changes display")
 	await tap(main.hud.arrows_button)
 	button(screen(Vector2(4, 0)), true)
-	move(main.hud.wind_toolbar_rect.get_center())
-	button(main.hud.wind_toolbar_rect.get_center(), false)
-	check(main.sim.wind_sources.size() == 1 and not main.wind_input.dragging, "Entering UI cancels pending source")
+	var menu_point: Vector2 = main.hud.menu_button.get_global_rect().get_center()
+	move(menu_point)
+	button(menu_point, false)
+	check(main.sim.wind_sources.size() == 1 and not main.wind_input.dragging, "Entering a menu button still cancels pending source")
 	button(screen(Vector2(4, 0)), true)
 	move(Vector2(-20, 30))
 	button(Vector2(-20, 30), false)

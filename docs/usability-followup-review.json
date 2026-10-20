@@ -1,0 +1,355 @@
+{
+  "date": "2026-10-20",
+  "status": "Implemented and targeted checks passed; user usability review pending",
+  "base_commit": "65e69ed",
+  "dirty_worktree": true,
+  "runtime": "Godot 4.7.2 Steam ed1daf0bf; Vulkan Forward+; NVIDIA RTX 4060 Laptop",
+  "changes": [
+    "Native F11 borderless fullscreen with window rectangle/mode restore; cancel current gesture, preserve weather",
+    "Scene-origin gestures own input across native toolbar, consume release, synchronously restore controls; modal/menu/focus/viewport boundaries retained",
+    "Pass-through toolbar padding, native fold/expand handle; sources remain active while folded",
+    "Native PrimaryButton normal/hover/pressed styles with stable margins",
+    "Tutorial humidity connected-component projected bounds refreshed every .12s; smooth follow, keep parcel after split, camera/viewport invalidation"
+  ],
+  "checks": [
+    {
+      "name": "final1280",
+      "checks": 46,
+      "failures": 0,
+      "log": ".godot/usability-20261020/final1280.log",
+      "log_sha256": "c9b23f69589caf377fbafb61cd0580b4767a57ac5778291f105edb91811166bc",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "final1920",
+      "checks": 46,
+      "failures": 0,
+      "log": ".godot/usability-20261020/final1920.log",
+      "log_sha256": "c9b23f69589caf377fbafb61cd0580b4767a57ac5778291f105edb91811166bc",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "r2-wind-tools",
+      "checks": 36,
+      "failures": 0,
+      "log": ".godot/usability-20261020/r2-wind-tools.log",
+      "log_sha256": "38b89e203ddc53ca0f7dfc8c9921c42c6dac94e7459bfe520a7ae87e83a26666",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "r2-vortex",
+      "checks": 64,
+      "failures": 0,
+      "log": ".godot/usability-20261020/r2-vortex.log",
+      "log_sha256": "9692a8c0c343d4aa1044d158f9bc6efc7dd6157ac07069d75ac14a02a4a78f39",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "r2-front-menu",
+      "checks": 59,
+      "failures": 0,
+      "log": ".godot/usability-20261020/r2-front-menu.log",
+      "log_sha256": "ca179cd33ae2c84f3bfc279e89559717f97a4b8408832da5a20846db409fc418",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "r2-onboarding",
+      "checks": 80,
+      "failures": 0,
+      "log": ".godot/usability-20261020/r2-onboarding.log",
+      "log_sha256": "6fa77fb4205c274372239c421c5019fae8fea2b72fe20a39d74322aad7fa824b",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "r2-tool-availability",
+      "checks": 65,
+      "failures": 0,
+      "log": ".godot/usability-20261020/r2-tool-availability.log",
+      "log_sha256": "63ae6c09941678d5b29f146f9ebaa22fde0d436facb412849c72b65de8ca910b",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "final-polish",
+      "checks": 30,
+      "failures": 0,
+      "log": ".godot/usability-20261020/final-polish.log",
+      "log_sha256": "e6cfba3544c2c48ea2bde2f79a5616eaa94db2d25759e1a5b4601d59a117ed45",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "targeted_assertions": 426,
+  "normal_pointer_route": {
+    "audio": {},
+    "blocked": 0,
+    "following": "level02",
+    "front_entry": true,
+    "input_failures": 0,
+    "mouse_events": 2981,
+    "passed": true,
+    "pick_error": 0.0,
+    "selection": [],
+    "stages": [
+      {
+        "campaign_play": true,
+        "cold_lift": 10.7739816720586,
+        "destroyed": [
+          false
+        ],
+        "elapsed": 0.0,
+        "front_strokes": 0,
+        "layout": "tutorial",
+        "limit": 180.0,
+        "order": [
+          0
+        ],
+        "outcome": "success",
+        "per_target": [
+          {
+            "distance": 14.3999996185303,
+            "front": 0,
+            "strokes": 13,
+            "transport": 6
+          },
+          {
+            "distance": 0.0,
+            "front": 0,
+            "strokes": 0,
+            "transport": 0
+          },
+          {
+            "distance": 0.0,
+            "front": 0,
+            "strokes": 0,
+            "transport": 0
+          }
+        ],
+        "phases": [
+          0,
+          2,
+          4,
+          5
+        ],
+        "route": "mountain",
+        "route_seconds": 6.73333333333331,
+        "stars": 0,
+        "strokes": 13,
+        "transport_distance": 14.3999996185303,
+        "transport_strokes": 6,
+        "water": [
+          100.0
+        ],
+        "water_error": -0.000120598194826016
+      },
+      {
+        "campaign_play": true,
+        "cold_lift": 4.70476475386089,
+        "destroyed": [
+          false
+        ],
+        "elapsed": 35.4999999999993,
+        "front_strokes": 0,
+        "layout": "level01",
+        "limit": 360.0,
+        "order": [
+          0
+        ],
+        "outcome": "success",
+        "per_target": [
+          {
+            "distance": 31.1999998092651,
+            "front": 0,
+            "strokes": 64,
+            "transport": 14
+          },
+          {
+            "distance": 0.0,
+            "front": 0,
+            "strokes": 0,
+            "transport": 0
+          },
+          {
+            "distance": 0.0,
+            "front": 0,
+            "strokes": 0,
+            "transport": 0
+          }
+        ],
+        "phases": [
+          0
+        ],
+        "route": "mountain",
+        "route_seconds": 35.4999999999989,
+        "stars": 3,
+        "strokes": 64,
+        "transport_distance": 31.1999998092651,
+        "transport_strokes": 14,
+        "water": [
+          250.0
+        ],
+        "water_error": -0.00133739587391801
+      }
+    ]
+  },
+  "source_sha256": {
+    "scripts/main.gd": "01da81ff3cda2dfdfb41edba0fd1bf269e6d95245f15143abfa0626f381b5cde",
+    "scripts/wind_input.gd": "57c1897494538d5563e954cbf11b2302c5e11b9ad0eb199ef029fb3871f7e60d",
+    "scripts/game_hud.gd": "64bdf26475c2104da3e66e5862d9bbc0ed95baf69370b9822ef4c7347ebb8758",
+    "scripts/front_menu.gd": "c4c8736861d02b6e4a1c0ecf1b6f1b296afa44ef2d0b83c3d99ed8aa337bef9f",
+    "themes/front_menu.tres": "1871e6b4a9be85966717dc8a4ccda5e0bdf6ba08a2cd24e6a8f7ec7250c48794",
+    "tests/test_usability_followup.gd": "090997469687d8da647a721b4156a9e4ced15476c7e9fa83e0d0143ea8768bfa",
+    "tests/test_usability_followup.gd.uid": "7f1ecf867950b76fa8d0dedcc4777c5409ebf2369fb2b08e53db5d92bb5d37e2",
+    "tests/test_wind_tools_scene.gd": "58c6ffe73f5abbe09461ee71ff1195fe42bc814d2887996b7e3fd070e3087460",
+    "tests/run_checks.ps1": "edb7949e1d77389811f24948525444888b48c27aacdf0407b4cfc6fca72ac3d7"
+  },
+  "screenshots": [
+    ".godot/usability-20261020/tutorial-1280.png",
+    ".godot/usability-20261020/folded-1280.png",
+    ".godot/usability-20261020/primary-hover-1280.png",
+    ".godot/usability-20261020/tutorial-1920.png",
+    ".godot/usability-20261020/folded-1920.png",
+    ".godot/usability-20261020/primary-hover-1920.png"
+  ],
+  "commands": [
+    "Godot --headless --editor --import --quit (final stderr empty)",
+    "Godot --script res://tests/test_usability_followup.gd --resolution 1280x800 / 1920x1080 -- --fresh-guide --skip-menu --skip-briefing",
+    "Godot original wind-tools/vortex/front-menu/onboarding/tool-availability/UI-polish scripts, see individual log headers and docs/usability-followup.md",
+    "Godot --script res://tests/replay_campaign_viewport.gd --resolution 1920x1080 -- --fresh-guide",
+    "git diff --check -- scripts themes tests docs/demo-delivery/PLAYER_GUIDE.md"
+  ],
+  "failed_attempts": [
+    "Initial import returned exit 0 but stderr had camera_changed type inference error; explicit bool repaired and final import/runtime rechecked",
+    "Initial test closed only the front node and left HUD hidden; fixed to close_front_page and added guard; stopped only matching owned test process",
+    "Original wind-tools test exposed next-draw-only toolbar restoration; fixed synchronous start/cancel restore; final old36 and new46 checks passed",
+    "Initial review frames were captured during page fade/before view uniforms initialized; wait for page Tween and initialize view before freezing fixture",
+    "Fold handle first overlapped operation hint; moved beside toolbar; final two resolutions, UI and normal route rerun"
+  ],
+  "scope": "Related checks run in batches. Last change only moved fold handle; final two-resolution46, UI30 and normal route cover it. Not a single full-suite run, nine-level acceptance or performance benchmark.",
+  "not_performed": [
+    "Game export/package rebuild",
+    "Full rule/replay suite",
+    "Formal performance pressure test",
+    "External Iris Xe verification of these changes",
+    "Git commit/push",
+    "Platform upload"
+  ],
+  "retained_open": [
+    "P1",
+    "V1",
+    "V6",
+    "New-player recognition and handling feedback",
+    "Demo delivery external tests/declarations/devlog publication"
+  ],
+  "proximity_and_teaching_followup": {
+    "date": "2026-10-20",
+    "status": "Implemented; targeted checks and normal route passed; user visual review pending",
+    "changes": [
+      "Visual fade only within 30px of toolbar during owned dragging; 46px exit margin, 0.14s transition, input ownership unchanged",
+      "Centered native icon-only chevron in both states; toolbar raised 18px to reserve bottom handle space",
+      "Humidity core threshold 55% of indicated peak; bounded focus and smooth tracking; 1.6s +/-6% pulse, freeze on pause and static with reduced motion",
+      "Native multiline tutorial title/action/detail at reference 18/22/16px and 17px marker labels; modest viewport scaling"
+    ],
+    "checks": [
+      {
+        "name": "check1280",
+        "checks": 58,
+        "failures": 0,
+        "log": ".godot/usability-refinement-20261020/check1280.log",
+        "log_sha256": "26380d524442fea6a697c35aa9aa4fa73744ac539339dc923baeddbe4f2aa8ad",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "check1920",
+        "checks": 58,
+        "failures": 0,
+        "log": ".godot/usability-refinement-20261020/check1920.log",
+        "log_sha256": "26380d524442fea6a697c35aa9aa4fa73744ac539339dc923baeddbe4f2aa8ad",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "onboarding",
+        "checks": 80,
+        "failures": 0,
+        "log": ".godot/usability-refinement-20261020/onboarding.log",
+        "log_sha256": "6fa77fb4205c274372239c421c5019fae8fea2b72fe20a39d74322aad7fa824b",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "wind-tools-meadow",
+        "checks": 36,
+        "failures": 0,
+        "log": ".godot/usability-refinement-20261020/wind-tools-meadow.log",
+        "log_sha256": "38b89e203ddc53ca0f7dfc8c9921c42c6dac94e7459bfe520a7ae87e83a26666",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "ui-polish",
+        "checks": 30,
+        "failures": 0,
+        "log": ".godot/usability-refinement-20261020/ui-polish.log",
+        "log_sha256": "e6cfba3544c2c48ea2bde2f79a5616eaa94db2d25759e1a5b4601d59a117ed45",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ],
+    "assertions_total": 262,
+    "commands": {
+      "import": "Godot --headless --path PROJECT --editor --import --quit",
+      "usability": "Godot --path PROJECT --resolution SIZE --script res://tests/test_usability_followup.gd -- --fresh-guide --skip-menu --skip-briefing",
+      "onboarding": "Godot --path PROJECT --resolution 1280x800 --script res://tests/test_onboarding_pacing.gd -- --fresh-guide --skip-menu",
+      "wind_tools": "Godot --path PROJECT --resolution 1920x1080 --script res://tests/test_wind_tools_scene.gd -- --fresh-guide --skip-menu --skip-briefing --layout=meadow",
+      "ui": "Godot --path PROJECT --resolution 1920x1080 --script res://tests/test_ui_polish.gd -- --fresh-guide --skip-briefing",
+      "normal_route": "Godot --path PROJECT --resolution 1920x1080 --script res://tests/replay_campaign_viewport.gd -- --fresh-guide"
+    },
+    "import": {
+      "exit_code": 0,
+      "stderr_empty": true,
+      "log": ".godot/usability-refinement-20261020/import.log"
+    },
+    "normal_route": {
+      "exit_code": 0,
+      "log": ".godot/usability-refinement-20261020/normal-route.log",
+      "report": ".godot/usability-refinement-20261020/normal-route.json",
+      "passed": true,
+      "mouse_events": 2845,
+      "blocked": 0,
+      "input_failures": 0,
+      "following": "level02",
+      "stages": [
+        {
+          "layout": "tutorial",
+          "seconds": 6.73333333333331,
+          "water": [
+            100.0
+          ],
+          "stars": 0,
+          "water_error": -9.78016316821595e-05
+        },
+        {
+          "layout": "level01",
+          "seconds": 35.7666666666656,
+          "water": [
+            250.0
+          ],
+          "stars": 3,
+          "water_error": -0.00147362498614712
+        }
+      ]
+    },
+    "visual_review": [
+      "tutorial-1280.png",
+      "tutorial-1920.png",
+      "near-toolbar-1280.png"
+    ],
+    "failures_retained": [
+      {
+        "log": ".godot/usability-refinement-20261020/wind-tools.err",
+        "reason": "First invocation omitted the pre-existing --layout=meadow argument, so tutorial reservoir/locked tools did not match farm/tool fixtures. Assertions failed and later indexing suspended script. Only the command-line-matched owned test process was stopped; original meadow invocation passed without production changes."
+      }
+    ],
+    "limits": [
+      "No full rule suite, formal performance, nine-level completion or external Iris Xe retest",
+      "New player comprehension and final visual acceptance pending",
+      "Existing Demo 0.1.1 ZIP predates usability changes; no export/commit/push/upload"
+    ],
+    "final_label_followup": "Final visual review moved humidity label above focus when room permits, avoiding the adjacent pool; final two sizes rerun at 58 checks each, exit 0 and empty stderr. Other related regressions and normal route preceded this display-only label adjustment. git diff --check passed (line-ending normalization warnings only)."
+  }
+}

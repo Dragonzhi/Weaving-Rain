@@ -57,6 +57,7 @@ func cancel() -> void:
 	last_force = 0.0
 	path_points.resize(0)
 	path_times.resize(0)
+	if is_instance_valid(hud): hud.sync_toolbar_input()
 
 func append_point(point: Vector2, seconds: float) -> void:
 	if tool == "vortex": return
@@ -136,7 +137,7 @@ func update_held(now_seconds: float = -1.0) -> void:
 
 func release_at(screen: Vector2) -> void:
 	if not dragging: return
-	var valid: bool = tool_available(tool) and get_viewport().get_visible_rect().has_point(screen) and (hud == null or not hud.blocks_wind(screen))
+	var valid: bool = tool_available(tool) and get_viewport().get_visible_rect().has_point(screen) and (hud == null or not hud.blocks_wind(screen, true))
 	if tool == "source" and valid and enabled:
 		var hit: Variant = _on_plane(screen, reference_height)
 		if hit != null and Sim.contains(Vector2(hit.x, hit.z)) and gesture_start.distance_to(Vector2(hit.x, hit.z)) >= 0.25:
@@ -236,7 +237,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		tool = "brush"
 		return
 	if event is InputEventMouseButton and event.pressed and event.button_index in [MOUSE_BUTTON_WHEEL_UP, MOUSE_BUTTON_WHEEL_DOWN]:
-		if enabled and dragging and tool in ["source", "vortex"] and sim.outcome == "playing" and (hud == null or not hud.blocks_wind(event.position)):
+		if enabled and dragging and tool in ["source", "vortex"] and sim.outcome == "playing" and (hud == null or not hud.blocks_wind(event.position, true)):
 			source_tier = clampi(source_tier + (1 if event.button_index == MOUSE_BUTTON_WHEEL_UP else -1), 0, 2)
 			get_viewport().set_input_as_handled()
 	elif event is InputEventMouseButton and event.button_index in [MOUSE_BUTTON_LEFT, MOUSE_BUTTON_RIGHT]:
@@ -268,6 +269,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		last_motion_seconds = gesture_time
 		append_point(last_point, last_time / 1000000.0)
 		dragging = true
+		if is_instance_valid(hud): hud.sync_toolbar_input()
 		get_viewport().set_input_as_handled()
 	elif event is InputEventMouseMotion and dragging:
 		if not get_viewport().get_visible_rect().has_point(event.position):
@@ -299,9 +301,18 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 
 func _input(event: InputEvent) -> void:
-	if event is InputEventMouseMotion and dragging and hud != null and hud.blocks_wind(event.position):
-		flush()
-		cancel()
-	# Release is observed even if the cursor finishes over a UI button.
-	if event is InputEventMouseButton and event.button_index == gesture_button and not event.pressed:
-		release_at(event.position)
+	if not dragging: return
+	# A gesture started in the scene owns input through the toolbar until release.
+	# Menus/results still stop it; native controls never receive its mouse-up.
+	if event is InputEventMouseMotion:
+		if hud != null and hud.blocks_wind(event.position, true):
+			flush()
+			cancel()
+			return
+		_unhandled_input(event)
+	elif event is InputEventMouseButton:
+		if event.button_index == gesture_button and not event.pressed:
+			release_at(event.position)
+		elif event.button_index in [MOUSE_BUTTON_WHEEL_UP, MOUSE_BUTTON_WHEEL_DOWN]:
+			_unhandled_input(event)
+		get_viewport().set_input_as_handled()

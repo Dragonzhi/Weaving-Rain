@@ -1,0 +1,514 @@
+{
+  "date": "2026-10-20",
+  "status": "User accepted visuals; rain mix and sound edit revised; listening review pending",
+  "concept": "A rain journey; new native shots from level01 / level05 / level09",
+  "captures": {
+    "journey": {
+      "report": {
+        "audio_events": {
+          "brush": 36,
+          "full": 1,
+          "success": 1
+        },
+        "audio_variants": {
+          "brush": 8,
+          "brush_2": 7,
+          "brush_3": 7,
+          "brush_4": 7,
+          "brush_5": 7
+        },
+        "blocked": 0,
+        "camera_changed": true,
+        "cold_lift": 2.09070152962145,
+        "destroyed": [
+          false
+        ],
+        "elapsed": 21.3666666666667,
+        "events": 263,
+        "failures": 0,
+        "front_strokes": 0,
+        "hud_hidden": true,
+        "initial_cloud_peak": 0.0,
+        "initial_water": 310.209811781436,
+        "input_pick_error": 0.0,
+        "layout": "level01",
+        "limit": 360.0,
+        "movie_fps": 60.0,
+        "movie_frame_zero": 0,
+        "movie_seconds": 50.0,
+        "native_movie_maker": true,
+        "order": [
+          0
+        ],
+        "outcome": "success",
+        "per_target": [
+          {
+            "distance": 36.2999992370605,
+            "front": 0,
+            "strokes": 36,
+            "transport": 16
+          },
+          {
+            "distance": 0.0,
+            "front": 0,
+            "strokes": 0,
+            "transport": 0
+          },
+          {
+            "distance": 0.0,
+            "front": 0,
+            "strokes": 0,
+            "transport": 0
+          }
+        ],
+        "route": "mountain",
+        "sandbox": false,
+        "shot": "journey",
+        "source_action": {},
+        "stars": 3,
+        "strokes": 36,
+        "transport_distance": 36.2999992370605,
+        "transport_strokes": 16,
+        "water": [
+          250.0
+        ],
+        "water_error": -0.000483100991971241,
+        "weather_injected": false
+      },
+      "capture_sha256": "e7bb8ff7af7e873d6ac05fb35f4cfaac39abddaaf09c988a114c60d1a78cdfc4",
+      "native_sha256": "a83f5e616015a52ab0e8ab08c4bb91c94456d13fe8a93d5f6a8174365b56c7c5",
+      "duration": "50.050000"
+    },
+    "garden": {
+      "report": {
+        "audio_events": {
+          "adequate": 1,
+          "brush": 50,
+          "click": 1,
+          "source": 1
+        },
+        "audio_variants": {
+          "brush": 10,
+          "brush_2": 10,
+          "brush_3": 10,
+          "brush_4": 10,
+          "brush_5": 10
+        },
+        "blocked": 0,
+        "camera_changed": true,
+        "cold_lift": 32.4632490760135,
+        "destroyed": [
+          false,
+          false
+        ],
+        "elapsed": 25.9999999999998,
+        "events": 336,
+        "failures": 0,
+        "front_strokes": 0,
+        "hud_hidden": true,
+        "initial_cloud_peak": 0.0,
+        "initial_water": 620.416084582024,
+        "input_pick_error": 0.0,
+        "layout": "level05",
+        "limit": 180.0,
+        "movie_fps": 60.0,
+        "movie_frame_zero": 0,
+        "movie_seconds": 26.0,
+        "native_movie_maker": true,
+        "order": [
+          0,
+          1
+        ],
+        "outcome": "playing",
+        "per_target": [
+          {
+            "distance": 23.6999988555908,
+            "front": 0,
+            "strokes": 16,
+            "transport": 10
+          },
+          {
+            "distance": 81.5999987125397,
+            "front": 0,
+            "strokes": 34,
+            "transport": 34
+          },
+          {
+            "distance": 0.0,
+            "front": 0,
+            "strokes": 0,
+            "transport": 0
+          }
+        ],
+        "route": "mountain",
+        "sandbox": false,
+        "shot": "garden",
+        "source_action": {
+          "created": true,
+          "movie_seconds": 0.816666666666667
+        },
+        "source_removal": {
+          "movie_seconds": 5.56666666666667,
+          "remaining": 0
+        },
+        "stars": 0,
+        "strokes": 50,
+        "transport_distance": 105.29999756813,
+        "transport_strokes": 44,
+        "water": [
+          118.667939147244,
+          0.815154737516658
+        ],
+        "water_error": -0.000729271638419959,
+        "weather_injected": false
+      },
+      "capture_sha256": "b0f753427f6400e1a2da8cbd0859703de7a4b517a3c03cb46bf2ca7f3f2237c2",
+      "native_sha256": "a394098fcf9ab955285074062a5269fb243d942f8c63969ca60a53962eab11df",
+      "duration": "26.050000"
+    },
+    "storm": {
+      "report": {
+        "audio_events": {
+          "brush": 25
+        },
+        "audio_variants": {
+          "brush": 5,
+          "brush_2": 5,
+          "brush_3": 5,
+          "brush_4": 5,
+          "brush_5": 5
+        },
+        "blocked": 0,
+        "camera_changed": true,
+        "cold_lift": 143.723860703433,
+        "destroyed": [
+          false,
+          false,
+          false
+        ],
+        "elapsed": 13.0000000000002,
+        "events": 170,
+        "failures": 0,
+        "front_strokes": 0,
+        "hud_hidden": true,
+        "initial_cloud_peak": 0.851294696331024,
+        "initial_water": 916.546228686695,
+        "input_pick_error": 0.0,
+        "layout": "level09",
+        "limit": 180.0,
+        "movie_fps": 60.0,
+        "movie_frame_zero": 0,
+        "movie_seconds": 13.0,
+        "native_movie_maker": true,
+        "order": [
+          1,
+          0,
+          2
+        ],
+        "outcome": "playing",
+        "per_target": [
+          {
+            "distance": 0.0,
+            "front": 0,
+            "strokes": 0,
+            "transport": 0
+          },
+          {
+            "distance": 53.3999979496002,
+            "front": 0,
+            "strokes": 25,
+            "transport": 25
+          },
+          {
+            "distance": 0.0,
+            "front": 0,
+            "strokes": 0,
+            "transport": 0
+          }
+        ],
+        "route": "mountain",
+        "sandbox": false,
+        "shot": "storm",
+        "source_action": {},
+        "stars": 0,
+        "strokes": 25,
+        "transport_distance": 53.3999979496002,
+        "transport_strokes": 25,
+        "water": [
+          0.0,
+          17.6650051141144,
+          0.0
+        ],
+        "water_error": -0.000143343143236052,
+        "weather_injected": false
+      },
+      "capture_sha256": "778efdf83ba553bbdfd7906e4e70c12ec61bfdb9e7b849ce0a4c67bce82e3736",
+      "native_sha256": "9ab113265af2a7cacfcaa3857b32d77b58f26611e4482f28eecb4b98638d98b3",
+      "duration": "13.050000"
+    }
+  },
+  "edit": [
+    {
+      "shot": "journey",
+      "start": 0.6,
+      "seconds": 3.4,
+      "purpose": "湿空气与白色风线，开场直接进入游戏画面",
+      "timeline_start": 0.0,
+      "timeline_end": 3.4
+    },
+    {
+      "shot": "journey",
+      "start": 4.0,
+      "seconds": 5.6,
+      "purpose": "同一局迎坡成云，云逐渐朝水库移动",
+      "timeline_start": 3.4,
+      "timeline_end": 9.0
+    },
+    {
+      "shot": "garden",
+      "start": 0.9,
+      "seconds": 3.4,
+      "purpose": "明确换景，已放风带的白色风线持续送汽",
+      "timeline_start": 9.0,
+      "timeline_end": 12.4
+    },
+    {
+      "shot": "journey",
+      "start": 10.5,
+      "seconds": 8.0,
+      "purpose": "回到水库主线，实际降雨、水面渐升",
+      "timeline_start": 12.4,
+      "timeline_end": 20.4
+    },
+    {
+      "shot": "journey",
+      "start": 18.5,
+      "seconds": 2.6,
+      "purpose": "真实蓄满，仍为结算前的活动画面",
+      "timeline_start": 20.4,
+      "timeline_end": 23.0
+    },
+    {
+      "shot": "garden",
+      "start": 7.0,
+      "seconds": 5.0,
+      "purpose": "田土渐深、秧苗获得滋润，风带已实际撤除、雨云移开",
+      "timeline_start": 23.0,
+      "timeline_end": 28.0
+    },
+    {
+      "shot": "storm",
+      "start": 6.0,
+      "seconds": 7.0,
+      "purpose": "新录多山风暴的尺度展开，末段叠加游戏标题",
+      "timeline_start": 28.0,
+      "timeline_end": 35.0
+    }
+  ],
+  "video": {
+    "file": "docs/demo-delivery/visuals/weaving-rain-trailer.mp4",
+    "sha256": "86acc8d7c1eeef95e30e81424ac3ff70fa258e80235c060d3b6132d18268d59d",
+    "bytes": 10574721,
+    "duration": "35.000000",
+    "stream": {
+      "index": 0,
+      "codec_name": "h264",
+      "codec_long_name": "H.264 / AVC / MPEG-4 AVC / MPEG-4 part 10",
+      "profile": "High",
+      "codec_type": "video",
+      "codec_tag_string": "avc1",
+      "codec_tag": "0x31637661",
+      "mime_codec_string": "avc1.640028",
+      "width": 1920,
+      "height": 1080,
+      "coded_width": 1920,
+      "coded_height": 1080,
+      "has_b_frames": 2,
+      "sample_aspect_ratio": "1:1",
+      "display_aspect_ratio": "16:9",
+      "pix_fmt": "yuv420p",
+      "level": 40,
+      "color_range": "tv",
+      "color_space": "bt709",
+      "chroma_location": "left",
+      "field_order": "progressive",
+      "is_avc": "true",
+      "nal_length_size": "4",
+      "id": "0x1",
+      "r_frame_rate": "30/1",
+      "avg_frame_rate": "30/1",
+      "time_base": "1/15360",
+      "start_pts": 0,
+      "start_time": "0.000000",
+      "duration_ts": 537600,
+      "duration": "35.000000",
+      "bit_rate": "2215059",
+      "bits_per_raw_sample": "8",
+      "nb_frames": "1050",
+      "extradata_size": 51,
+      "disposition": {
+        "default": 1,
+        "dub": 0,
+        "original": 0,
+        "comment": 0,
+        "lyrics": 0,
+        "karaoke": 0,
+        "forced": 0,
+        "hearing_impaired": 0,
+        "visual_impaired": 0,
+        "clean_effects": 0,
+        "attached_pic": 0,
+        "timed_thumbnails": 0,
+        "non_diegetic": 0,
+        "captions": 0,
+        "descriptions": 0,
+        "metadata": 0,
+        "dependent": 0,
+        "still_image": 0,
+        "multilayer": 0
+      },
+      "tags": {
+        "language": "und",
+        "handler_name": "VideoHandler",
+        "encoder": "Lavc63.1.102 libx264"
+      }
+    },
+    "audio_peak": 0.1521870493888855,
+    "audio_rms": 0.023916970938444138,
+    "complete_decode": "pass",
+    "title_only_at_end": true,
+    "old_demo_footage_reused": false,
+    "native_capture_fps": 60,
+    "delivery_fps": 30,
+    "timing": "Native Movie Maker output time; cuts across recorded intervals, no time acceleration or optical flow.",
+    "music": "Existing CC0 Meadow Thoughts, 42s offset; native weather audio from the matching shot.",
+    "black_segments_over_0_2_seconds": 0,
+    "frozen_segments_over_0_4_seconds": 0,
+    "faststart_moov_before_mdat": true,
+    "old_demo_unchanged_sha256": "64d094e5a17fa179a34631dbd64bd0e0696e553d041410368f52f1c33976d0fa",
+    "visual_review": "12 timeline frames and full-size title inspected; title moved to clear sea; native HUD close frames excluded."
+  },
+  "limits": [
+    "Native offline recording is not real-time performance evidence.",
+    "Recording-only camera and hidden HUD; game maps and weather rules unchanged.",
+    "level09 has its authored initial tropical clouds; no injected weather.",
+    "Map changes and omitted waiting use visible cuts, not one continuous run.",
+    "Human audio/visual review and platform acceptance pending."
+  ],
+  "failed_attempts": [
+    "First 30fps pilot was 1280x800 and had simulation backlog; excluded.",
+    "First isolated recording copy omitted themes; stopped exact owned process, copied themes and reran.",
+    "First garden take left the band active and flooded the farm; retained as first-overwater, excluded from final cut.",
+    "Final garden take removes the band through the native close button and moves rain away earlier; no farm damage.",
+    "Initial video retained MJPEG full-range yuvj420p metadata and failed expected pixel-format assertion; explicitly converted range/matrix and rerendered with PCM intermediates.",
+    "First post-export ad-hoc JSON read used Windows default GBK and failed decoding; corrected to explicit UTF-8. This did not affect the video or production verifier."
+  ],
+  "not_performed": [
+    "Game export",
+    "Full gameplay regression",
+    "Formal performance test",
+    "Git commit/push",
+    "Platform upload"
+  ],
+  "source_copy_check": {
+    "files": 328,
+    "all_bytes_match_current_project": true,
+    "only_project_setting_overrides": "1920x1080 viewport/window size, editor plugin off",
+    "source_manifest_sha256": "0dd26e6457b76bf01997beaa66ab6ec1aa814858709b48f4bb0bd12110977206",
+    "recording_script_sha256": "ed16f4d0d7de9182e9cd9782242617a89f4f4bfbbf16ac7b01d6990f16be4696"
+  },
+  "preview": {
+    "url": "http://127.0.0.1:17928/media.html?mix=2",
+    "html_http_status": 200,
+    "video_http_status": 200,
+    "mime": "video/mp4",
+    "content_length": 10574721,
+    "native_open_status": "queued",
+    "browser_playback_observed": false
+  },
+  "commands": [
+    "Godot 4.7.2 --write-movie native.avi --fixed-fps 60 --max-fps 60 --script res://docs/demo-delivery/capture-trailer.gd (isolated copy; journey/level01/50s, garden/level05/26s, storm/level09/13s)",
+    "python docs/demo-delivery/make-trailer.py --contact",
+    "python docs/demo-delivery/make-trailer.py",
+    "python docs/demo-delivery/make-trailer.py --final-only",
+    "python .godot/trailer-20261020/verify-delivery.py",
+    "python -m py_compile docs/demo-delivery/make-trailer.py",
+    "FFmpeg blackdetect=d=0.2:pix_th=0.05,freezedetect=n=-60dB:d=0.4",
+    "Invoke-WebRequest local review page and MP4 HEAD",
+    "python docs/demo-delivery/make-trailer.py --audio-only",
+    "python .godot/trailer-20261020/check-audio-revision.py"
+  ],
+  "audio_revision": {
+    "file": "E:\\Godot\\Project\\Weaving Rain\\.godot\\trailer-20261020\\weather-crossfaded.wav",
+    "seconds": 35.0,
+    "overlap_seconds": 0.8,
+    "cuts": [
+      9.0,
+      12.4,
+      23.0,
+      28.0
+    ],
+    "regions": [
+      {
+        "shot": "journey",
+        "start": 0.6,
+        "seconds": 9.0
+      },
+      {
+        "shot": "garden",
+        "start": 0.9,
+        "seconds": 3.4
+      },
+      {
+        "shot": "journey",
+        "start": 10.5,
+        "seconds": 10.6
+      },
+      {
+        "shot": "garden",
+        "start": 7.0,
+        "seconds": 5.0
+      },
+      {
+        "shot": "storm",
+        "start": 6.0,
+        "seconds": 7.0
+      }
+    ],
+    "dry_gain": 2.0,
+    "rain_gain": 0.7,
+    "rain_change_db": -9.118639112994488,
+    "gain_ramp_seconds": [
+      12,
+      12.8
+    ],
+    "video_packets_unchanged": "SHA256=33ff231e40a15de9d468c284ef35daf29543c822e35163c3366cc8085b45d562",
+    "video_packet_timestamps_unchanged": true,
+    "weather_exact_samples": 1680000,
+    "seam_checks": [
+      {
+        "cut_seconds": 9.0,
+        "minimum_20ms_weather_rms": 0.0026289557572454214,
+        "relative_to_quiet_side": 1.0560528449216626
+      },
+      {
+        "cut_seconds": 12.4,
+        "minimum_20ms_weather_rms": 0.006291052792221308,
+        "relative_to_quiet_side": 0.7203000323096954
+      },
+      {
+        "cut_seconds": 23.0,
+        "minimum_20ms_weather_rms": 0.00791450496762991,
+        "relative_to_quiet_side": 0.9217043167896652
+      },
+      {
+        "cut_seconds": 28.0,
+        "minimum_20ms_weather_rms": 0.00808481965214014,
+        "relative_to_quiet_side": 0.9245128234620046
+      }
+    ],
+    "stable_rain_measured_change_db": -9.118639260914307,
+    "old_file_sha256": "be3af0034c42d0a03465e899643c98fb4c9213e9a1a7b967268403867e52ca15",
+    "new_listening_accepted": false
+  }
+}
