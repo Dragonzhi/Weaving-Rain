@@ -18,7 +18,7 @@
 
 > 风织雨 / Weaving Rain · 拨动空气，组织云雨，为群岛上的田地与水库送雨。Godot 天气操控解谜游戏｜聚光灯 21 天 GameJam 作品。
 
-主页链接使用上方 TapTap PC 页面。主题为 `godot`、`godot4`、`gdscript`、`game-jam`、`weather`、`puzzle-game`、`simulation`、`windows`、`indie-game`。以上简介、主页和九个主题已于2026-10-21通过GitHub CLI实际应用并读取回验。README源码随后通过Git同步，发布结果见TASKS.md本轮交接。
+主页链接使用上方 TapTap PC 页面。主题为 `godot`、`godot4`、`gdscript`、`game-jam`、`weather`、`puzzle-game`、`simulation`、`windows`、`indie-game`。以上简介、主页和九个主题已于2026-10-21通过GitHub CLI实际应用并读取回验。README已随`be2585d`快进同步到main，现有`v0.1.2`标签也已推送，仍指向源码`7285d78`；未创建或上传GitHub Release附件。
 
 ## 配图与徽章
 
@@ -37,3 +37,9 @@ README 复用仓库中三份已审阅的实机素材，不新增 AI 插画或修
 ## 更新版本时核对
 
 更新 Demo 徽章和交付记录链接，核对 TapTap 入口以及分发版本。未上传 GitHub Release 附件时，不把忽略的 `builds/` 路径当成下载按钮。没有统一项目许可证时，不添加 MIT／开源许可徽章，也不将第三方 CC0 音乐写成原创或整个游戏的授权。
+
+## 本轮发布验证
+
+2026-10-21：五份读者文档共72个本地引用检查通过；TapTap试玩页／论坛与四枚徽章均HTTP200。GitHub官方渲染接口保留1个标题、3张表、2个折叠区和7张含alt的图片。推送后线上README与本地逐字节一致，仓库页、三份图像、宣传片页面及版本标签入口均HTTP200，简介／主页／九主题回读一致。
+
+内置浏览器打开预览超时并重置，未获取线上完整截图；以上是GitHub实际渲染HTML和公开资源检查，不声称浏览器视觉验收通过。没有运行游戏测试或生成新包，也未改变许可。验证缓存位于`.godot/github-presentation-20261021/`，不入Git。
