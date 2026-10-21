@@ -1,8 +1,8 @@
 # Weaving Rain
 
 status: 进行中
-next: 停在Demo0.1.2已按7285d78／v0.1.2导出并完成ZIP和默认／备用启动检查；构建记录单独归档。下一步取builds/WeavingRain-Demo-0.1.2-Windows.zip给外部试玩或按平台流程上传；原Iris Xe复验、宣传片新混音和平台验收尚待反馈。第四关自动截图退出的音频资源清理警告未解决，P1／V1／V6继续保留；无远端推送或平台上传。
-updated: 2026-10-20
+next: 停在GitHub简介／试玩主页／九个主题已生效，README与文档导航本地完成并通过链接和GitHub渲染检查；下一步提交并快进推送main及现有v0.1.2标签，回读线上README与素材核对，再记录发布结果。作者已交稿，TapTap公开页981551；试玩人数、日志及审核按实际证据保留，P1／V1／V6不变。
+updated: 2026-10-21
 
 ## 待办
 
@@ -16,6 +16,8 @@ updated: 2026-10-20
 ## 交接摘要
 
 ### 已确认
+
+- 2026-10-21作者确认已交稿并提供公开PC页https://www.taptap.cn/app/981551?os=pc；本轮按授权整理GitHub展示。README收为玩法／实机封面与两图／四枚静态徽章／TapTap试玩／操作／开发入口，移除失效本地ZIP下载和过时版本说明；新增docs/README.md导航与docs/github-presentation.md维护说明，修正玩家指南近栏淡化、居中角标、核心呼吸框。GitHub简介、主页与九个主题已实际更新并回读，README本地内容已完成待Git同步。72个本地引用有效，试玩／论坛／四徽章共六链接HTTP200，GitHub GFM渲染保留单标题、三表、两折叠和七图含alt。仅文档改动，不改游戏、素材、许可或包体；未确认五日志发布、有效试玩数或平台审核，P1／V1／V6保留。
 
 - 2026-10-20按用户授权提交7285d78并创建本地附注标签v0.1.2，随后导出builds/WeavingRain-Demo-0.1.2-Windows.zip（46136770字节，SHA256 94b5a87581533d5c884ff887d34654898552e09badada76575cdcb31afdb5c64）；含两轮可用性修整，PE0.1.2.0，默认Vulkan及D3D12备用。ZIP十文件CRC／逐字节散列、最终解压Vulkan EXE与D3D12 CMD启动通过，旧0.1.1保留且散列未变。实际Release教学／九关及主界面11份均出图退出0，但level04两次快速截图退出有10音频对象／1资源未释放，严格无错检查失败，未称全部干净。挂载实际EXE资源的58项及地图／声音检查通过，不等于原生完整通关。正常关闭探针因隐藏主窗口不可发现无结论，仅终止精确匹配自有进程。入口docs/demo-delivery/package-0.1.2-2026-10-20.md及对应review.json；标签保持源码提交，构建记录另提交；无远端推送／平台上传，P1／V1／V6及外部试玩等待项保留。
 
@@ -62,6 +64,8 @@ updated: 2026-10-20
 - 本轮素材制作没有改游戏代码、音频配置或导出设置；已有性能优化及其他未提交改动保留。此前记录的main基线为7a28040，本次收工未重新查询Git，也未导出、提交、推送或上传。
 
 ### 验证
+
+- GitHub页面整理：已运行git status／remote／fetch和merge-base核对远端main为本地祖先；gh repo edit写入简介、主页和九主题后gh repo view回读一致。自有Python只读链接检查五文档共72个本地引用无缺失；Invoke-WebRequest -Method Head的TapTap／论坛和四枚徽章均200；gh api markdown实际GFM渲染，HTMLParser检查1个H1／3表／2折叠／7图均有alt通过。缓存.godot/github-presentation-20261021/。未运行游戏或重打包，不复用为新玩法／性能验收。
 
 - Demo0.1.2：git commit与git tag -a已成功；Godot --headless --export-release "TapTap Windows Demo"退出0且stderr空。实际Release项目外11份出图／退出0，level04严格无错退出失败（音频清理警告两次），其余10份干净；编辑器以--main-pack挂载实际EXE的资源校验及58项专项退出0。最终ZIP十文件CRC／SHA、解压Vulkan EXE和Start-D3D12.cmd实际D3D12启动通过；六档PE图标原始负载匹配源ICO。完整命令范围、散列及失败日志见package-review-0.1.2-2026-10-20.json与.godot/package-0.1.2/。未补跑全规则／正式性能／九关原生通关。
 
@@ -116,6 +120,8 @@ updated: 2026-10-20
 
 ### 未完成或阻塞
 
+- 本轮README尚待Git同步后的线上回读；GitHub没有公开Release附件，因此试玩按钮直接使用用户提供的TapTap PC页，不指向本地builds/ZIP。未确认安卓上线、活动有效试玩人数、日志真实发布或平台审核；不添加MIT或测试通过徽章。
+
 - 新包level04自动截图快速退出两次音频资源清理警告未定位，详细日志指向OggPacketSequence及WAV／Ogg播放引用；退出0且画面正常，不能宣称没有错误。隐藏进程正常关闭探针未识别主窗口，无结论并精确清理自有进程，避免误当崩溃或通过。v0.1.2源码保持不改；正常长时退出及原Iris Xe新包仍待复验。
 
 - 第二轮已完成技术复验，近栏淡化距离、居中角标和教学呼吸／文字仍待用户实际观感；框是核心操作提示，不是水汽交互边界。现有0.1.1 ZIP未包含本轮及前轮可用性修改；P1／V1／V6仍开放，不把262个相关断言当性能或新手体验验收。
@@ -149,6 +155,8 @@ updated: 2026-10-20
 - 本地预览服务器是否在切换Agent后仍运行未验证；原始素材是忽略缓存，不加入Git，不扩充docs/previews/。保留现有未提交代码、文档与资源.import／.uid。
 
 ### 接着做
+
+完成本轮文档提交及main／v0.1.2快进同步后，读取GitHub线上README与图片／视频元数据，确认内容和本地一致；只把实际发布结果回写，保留其他待项。
 
 优先使用builds/WeavingRain-Demo-0.1.2-Windows.zip（根目录WeavingRain.exe、启动参数留空），在原Iris Xe设备试玩或按平台流程提审；反馈出现退出异常时先看本轮level04音频清理日志，不把短启动当完整通关或关闭P1。若需推送提交／标签，等待用户明确授权。
 
